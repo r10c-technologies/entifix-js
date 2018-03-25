@@ -1,0 +1,53 @@
+<div ng-class="{'whirl double-up whirlback': vm.isLoading.get()}">
+    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip>
+    <div ng-if="vm.isForm.get()">
+        <div ng-if="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label>
+            <md-radio-group
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                ng-change="vm.runOnChangeTrigger()"
+                name="{{vm.name.get()}}">
+                <md-radio-button
+                    ng-repeat="item in vm.items"
+                    ng-value="item.Value"
+                    aria-label="item.Display">
+                    {{item.Display}}
+                </md-radio-button>
+                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                </div> 
+            </md-radio-group>
+        </div>
+        
+        <div ng-if="!vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label><br/>
+            <strong>{{vm.getDisplayValue()}}</strong>
+        </div>
+    </div>
+    <div ng-if="!vm.isForm.get()">
+        <div ng-if="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label>
+            <md-radio-group
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                ng-change="vm.runOnChangeTrigger()"
+                name="{{vm.name.get()}}">
+                <md-radio-button
+                    ng-repeat="item in vm.items"
+                    ng-value="item.Value"
+                    aria-label="item.Display">
+                    {{item.Display}}
+                </md-radio-button>
+                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                </div> 
+            </md-radio-group>
+        </div>
+        
+        <div ng-if="!vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label><br/>
+            <strong>{{vm.getDisplayValue()}}</strong>
+        </div>
+    </div>
+</div>

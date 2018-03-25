@@ -1,0 +1,11 @@
+# Log file
+*.log
+
+# Package Files #
+*.zip
+*.rar
+
+# Dependencies and Dist folders
+/.vscode
+/node_modules
+/dist
