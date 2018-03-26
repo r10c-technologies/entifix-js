@@ -1,0 +1,183 @@
+<br/>
+<div ng-class="{'whirl double-up whirlback': bindCtrl.isChangingView}">
+    <md-card md-whiteframe="4" ng-if="bindCtrl.canSearch.get()" layout-padding layout="column">
+        <div ng-if="bindCtrl.isMovement.get()">
+            <div layout-xs="column" layout-gt-xs="column" layout-gt-sm="row" flex>
+                <div layout-xs="column" layout-gt-xs="row" flex>
+                    <div flex>
+                        <entifix-date-time-picker value-model="bindCtrl.startDate" component-construction="bindCtrl.startDateCC" on-change="bindCtrl.onChangeDateStart(value)"></entifix-date-time-picker>
+                    </div>
+                    <div flex>
+                        <entifix-date-time-picker value-model="bindCtrl.endDate" component-construction="bindCtrl.endDateCC" on-change="bindCtrl.onChangeDateEnd(value)"></entifix-date-time-picker>
+                    </div>
+                </div>
+                <div layout-xs="column" layout-gt-xs="row" flex>
+                    <div flex layout layout-align="center center">
+                        <md-button class="md-primary btn-success" ng-click="bindCtrl.searchItemsDate()" ng-disabled="!bindCtrl.startDate || !bindCtrl.endDate">
+                            <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> {{' ' + bindCtrl.searchText.get()}}
+                        </md-button>
+                    </div>
+                    <div flex layout layout-align="center center">
+                        <entifix-checkbox-switch value-model="bindCtrl.notApplied" component-construction="bindCtrl.notAppliedCC" on-change="bindCtrl.onChangeNotApplied(value)"></entifix-checkbox-switch>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div layout-xs="column" layout-gt-xs="column" layout-gt-sm="row" flex ng-if="bindCtrl.customSearch">
+            <div layout-xs="column" layout-gt-xs="row" flex>
+                <div flex>
+                    <md-input-container class="md-block">
+                        <label>{{bindCtrl.columnsText.get()}}</label>
+                        <md-select
+                            ng-model="bindCtrl.columnToSearch"
+                            aria-label="{{bindCtrl.columnsText.get()}}"
+                            ng-change="bindCtrl.onChangeColumn()">
+                            <md-option ng-repeat="item in bindCtrl.tablePropertiesNavigation" ng-value="item">{{item.display}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+                <div flex>
+                    <md-input-container class="md-block">
+                        <label>{{bindCtrl.operatorsText.get()}}</label>
+                        <md-select
+                            ng-model="bindCtrl.operator"
+                            aria-label="{{bindCtrl.operatorsText.get()}}">
+                            <md-option ng-repeat="item in bindCtrl.operators" ng-value="item">{{item.display}}</md-option>
+                        </md-select>
+                    </md-input-container>
+                </div>
+            </div>
+            <div layout-sm="column" layout-gt-sm="row" flex>
+                <div flex>
+                    <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == 'text'|| bindCtrl.columnToSearch.type == 'navigation'" flex>
+                        <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input>
+                    </div>
+                    <div ng-if="bindCtrl.columnToSearch.type == 'date'" flex>
+                        <entifix-date-time-picker value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-date-time-picker>
+                    </div>
+                    <div ng-if="bindCtrl.columnToSearch.type == 'datetime'" flex>
+                        <entifix-date-time-picker value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchDTCC"></entifix-date-time-picker>
+                    </div>
+                    <div ng-if="bindCtrl.columnToSearch.type == 'enum'" flex>
+                        <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete>
+                    </div>
+                </div>
+                <div flex layout layout-align="center center">
+                    <md-button class="md-primary btn-success" ng-click="bindCtrl.addChip()" ng-disabled="!bindCtrl.columnToSearch || !bindCtrl.operator || !bindCtrl.valueToSearch">
+                        <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> {{' ' + bindCtrl.addFilterText.get()}}
+                    </md-button>
+                </div>
+            </div>
+        </div>
+        <div layout-xs="column" layout-gt-xs="column" layout-gt-sm="row" flex>
+            <div layout-xs="column" layout-gt-xs="row" flex-xs="100" flex-gt-sm="75">
+                <div flex ng-if="!bindCtrl.customSearch">
+                    <md-input-container class="md-block">
+                        <label>{{bindCtrl.searchText.get()}}</label>
+                        <input type="text" ng-model="bindCtrl.textBoxSearchValue" ng-keypress="bindCtrl.keypressTextBoxSearch($event)" ng-change="bindCtrl.onChangeSearch()">
+                    </md-input-container>
+                </div>
+                <div flex ng-if="bindCtrl.customSearch">
+                    <entifix-chip value-model="bindCtrl.textBoxSearchValueChips" component-construction="bindCtrl.chipsCC"></entifix-chip>
+                </div>
+            </div>
+            <div layout-xs="column" layout-gt-xs="row" flex-xs="100" flex-gt-sm="25">
+                <div flex layout layout-align="center center">
+                    <div flex layout layout-align="center center">
+                        <entifix-checkbox-switch value-model="bindCtrl.customSearch" component-construction="bindCtrl.customSearchCC" on-change="bindCtrl.onChangeSwitch(v)"></entifix-checkbox-switch>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </md-card>
+    <div layout="column">
+        <md-card md-whiteframe="4">
+            <md-content layout-padding>
+                <div layout="column">
+                    <div flex layout-align="end center">
+                        <section layout-xs="column" layout="row" layout-align="end center">
+                            <div>
+                                <md-button class="md-primary btn-success" ng-click="bindCtrl.addElement()" ng-disabled="!(bindCtrl.canAdd.get() && !bindCtrl.multipleAddOptions.get())" ng-if="bindCtrl.componentConstruction.add">
+                                    <md-icon class="material-icons">{{bindCtrl.addIcon.get()}}</md-icon> {{' ' + bindCtrl.addText.get()}}
+                                </md-button>
+                                <md-button class="md-warn btn-danger" ng-click="bindCtrl.removeElement()" ng-disabled="!(bindCtrl.canRemove.get() && !bindCtrl.multipleRemoveOptions.get())"  ng-if="bindCtrl.componentConstruction.remove">
+                                    <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon> {{' ' + bindCtrl.removeText.get()}}
+                                </md-button>
+                                <md-button class="md-accent btn-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit">
+                                    <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> {{' ' + bindCtrl.editText.get()}}
+                                </md-button>
+                                <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()">
+                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.ds()">
+                                        <md-tooltip>{{bindCtrl.sheetText.get()}}</md-tooltip>
+                                        <md-icon class="material-icons">{{bindCtrl.sheetIcon.get()}}</md-icon>
+                                    </md-button>
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadSheet(true)">
+                                                <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip>
+                                                <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}}
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadSheet()">
+                                                <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip>
+                                                <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}}
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </div>
+                        </section>
+                    </div>
+                    <div class="md-table-head" layout>
+                        <div flex flex-gt-md="65" layout layout-align="start center" ng-if="bindCtrl.selectColumns.get()">
+                            <md-input-container>
+                                <label>{{bindCtrl.columnsText.get()}}</label>
+                                <md-select
+                                    ng-model="bindCtrl.columnsSelected"
+                                    multiple
+                                    aria-label="{{bindCtrl.columnsText.get()}}"
+                                    ng-change="bindCtrl.reloadAllSelected()">
+                                    <md-option ng-click="bindCtrl.selectAllItems()">{{bindCtrl.selectAllText.get()}}</md-option>
+                                    <md-option ng-repeat="item in bindCtrl.tableProperties">{{item.display}}</md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                        <div flex layout layout-align="end center">
+                            <md-input-container ng-show="bindCtrl.pager.showPageControls.get()">
+                                <md-select
+                                    ng-model="bindCtrl.pager.size"
+                                    ng-change="bindCtrl.onChangePageSize()"
+                                    aria-label="Page Controls">
+                                    <md-option ng-repeat="optionSize in bindCtrl.pager.pageSizes" ng-value="optionSize">{{optionSize}}</md-option>
+                                </md-select>
+                            </md-input-container>
+                        </div>
+                    </div>
+                    <div class="md-table-container">
+                        <div compile="bindCtrl.stringhtmlcomponent"></div>
+                    </div>
+                    <br/>
+                    <div layout-xs="column" layout-md="row" layout-lg="row" layout-xl="row">
+                        <div flex flex-md="35" flex-md="35" flex-lg="30" flex-xl="35">
+                            <h5>{{bindCtrl.pager.getDescriptionText()}}</h5>
+                        </div>
+                        <div flex layout layout-align="end center">
+                            <grid-pagination 
+                                max-size="10"
+                                boundary-links="true"
+                                class="pagination mdl-shadow--2dp"
+                                ng-if="bindCtrl.pager.totalData > bindCtrl.pager.size"
+                                total-items="bindCtrl.pager.totalData"
+                                ng-model="bindCtrl.pager.page"
+                                ng-change="bindCtrl.onChangePage()"
+                                items-per-page="bindCtrl.pager.size">
+                            </grid-pagination>
+                        </div>
+                    </div>
+                </div>
+            </md-content>
+        </md-card>
+    </div>
+</div>

@@ -1,0 +1,119 @@
+<div ng-if="!vm.isTextArea.get()">
+    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip>
+    <div ng-if="vm.isForm.get()">
+        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label>
+            <input 
+                type="{{vm.type.get()}}"
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                md-maxlength="{{vm.maxLength.get()}}"
+                minlength="{{vm.minLength.get()}}"
+                name="{{vm.name.get()}}"
+                aria-label="{{vm.name.get()}}"
+                ng-change="vm.runOnChangeTrigger()"
+                ng-model-options="vm.modelOptions.get()"
+                step="any"
+                number-validation="{{vm.numberValidation.get()}}"
+                number-block/>
+                <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div>
+                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div>
+                    <div ng-message="email">{{vm.emailMessage.get()}}</div>
+                    <div ng-message="url">{{vm.urlMessage.get()}}</div>
+                    <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                </div>
+        </md-input-container>
+        <div ng-hide="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label><br/>
+            <strong>{{vm.getDisplay()}}</strong>
+        </div>
+    </div>
+    <div ng-if="!vm.isForm.get()">
+        <md-input-container class="md-block">
+            <label>{{vm.title.get()}}</label>
+            <input
+                type="{{vm.type.get()}}"
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                md-maxlength="{{vm.maxLength.get()}}"
+                minlength="{{vm.minLength.get()}}"
+                name="{{vm.name.get()}}"
+                aria-label="{{vm.name.get()}}"
+                ng-change="vm.runOnChangeTrigger()"
+                ng-model-options="vm.modelOptions.get()"
+                step="any"
+                number-validation="{{vm.numberValidation.get()}}"
+                number-block/>
+                <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div>
+                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div>
+                    <div ng-message="email">{{vm.emailMessage.get()}}</div>
+                    <div ng-message="url">{{vm.urlMessage.get()}}</div>
+                    <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                </div>
+        </md-input-container>
+    </div>
+</div>
+
+<div ng-if="vm.isTextArea.get()">
+    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip>
+    <div ng-if="vm.isForm.get()">
+        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label>
+            <textarea
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                md-maxlength="{{vm.maxLength.get()}}"
+                rows="{{vm.rows.get()}}"
+                minlength="{{vm.minLength.get()}}"
+                name="{{vm.name.get()}}"
+                aria-label="{{vm.name.get()}}"
+                ng-change="vm.runOnChangeTrigger()"
+                ng-model-options="vm.modelOptions.get()"
+                step="any"
+                number-validation="{{vm.numberValidation.get()}}"
+                number-block/></textarea>
+                <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div>
+                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div>
+                    <div ng-message="email">{{vm.emailMessage.get()}}</div>
+                    <div ng-message="url">{{vm.urlMessage.get()}}</div>
+                    <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                </div>
+        </md-input-container>
+        <div ng-hide="vm.canShowEditableFields.get()">
+            <label>{{vm.title.get()}}</label><br/>
+            <strong>{{vm.getDisplay()}}</strong>
+        </div>
+    </div>
+    <div ng-if="!vm.isForm.get()">
+        <md-input-container class="md-block">
+            <label>{{vm.title.get()}}</label>
+            <textarea 
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                md-maxlength="{{vm.maxLength.get()}}"
+                rows="{{vm.rows.get()}}"
+                minlength="{{vm.minLength.get()}}"
+                name="{{vm.name.get()}}"
+                aria-label="{{vm.name.get()}}"
+                ng-change="vm.runOnChangeTrigger()"
+                ng-model-options="vm.modelOptions.get()"
+                step="any"
+                number-validation="{{vm.numberValidation.get()}}"
+                number-block/></textarea>
+                <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+                    <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div>
+                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div>
+                    <div ng-message="email">{{vm.emailMessage.get()}}</div>
+                    <div ng-message="url">{{vm.urlMessage.get()}}</div>
+                    <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                </div>
+        </md-input-container>
+    </div>
+</div>

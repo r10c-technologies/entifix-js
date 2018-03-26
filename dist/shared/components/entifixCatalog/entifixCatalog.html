@@ -1,0 +1,131 @@
+<!-- Main Tab Mode -->
+<div layout="row" ng-if="bindCtrl.useMainTab.get()">
+    <div flex="5"></div>
+    <div flex="90">
+        <div ng-if="!bindCtrl.isModal.get()">
+            <md-toolbar ng-if="bindCtrl.showBar.get()">
+                <div class="md-toolbar-tools" md-colors="{color: 'default-primary-50'}" layout>
+                    <div flex layout layout-align="start center">
+                        <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button>      
+                        <h2>{{' ' + bindCtrl.title.get()}}</h2>
+                    </div>
+                    <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()">
+                        <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}">
+                            <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip>
+                            <md-icon class="material-icons">delete_sweep</md-icon>
+                        </md-button>
+                    </div>
+                    <div layout layout-align="end end" ng-if="bindCtrl.canViewHistory.get()">
+                        <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.history.set()">
+                            <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip>
+                            <md-icon class="material-icons">history</md-icon>
+                        </md-button>
+                    </div>
+                </div>
+            </md-toolbar>
+            <div layout="column" ng-if="bindCtrl.onMainView.get()">
+                <entifix-table
+                    query-details="bindCtrl.tableQueryDetails"
+                    component-construction="bindCtrl.tableComponentConstruction" 
+                    component-behavior="bindCtrl.tableComponentBehavior"
+                    component-binding-out="bindCtrl.tableComponentBindingOut">   
+                </entifix-table>
+            </div> 
+            <div layout="column" ng-if="bindCtrl.onSingleView.get()">
+                <entifix-entity-form
+                    query-details="bindCtrl.entityQueryDetails"
+                    component-construction="bindCtrl.entityComponentConstruction" 
+                    component-behavior="bindCtrl.entityComponentBehavior"
+                    component-binding-out="bindCtrl.entityComponentBindingOut">
+                </entifix-entity-form>
+            </div>
+        </div>
+        <div ng-if="bindCtrl.isModal.get()">
+            <md-toolbar ng-if="bindCtrl.showBar.get()">      
+                <div class="md-toolbar-tools" md-colors="{color: 'default-primary-50'}">
+                    <div flex layout layout-align="start center">
+                        <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button>      
+                        <h2>{{' ' + bindCtrl.title.get()}}</h2>
+                    </div>
+                    <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()">
+                        <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}">
+                            <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip>
+                            <md-icon class="material-icons">delete_sweep</md-icon>
+                        </md-button>
+                    </div>
+                </div>
+            </md-toolbar>
+            <div layout="column">
+                <entifix-table
+                    query-details="bindCtrl.tableQueryDetails"
+                    component-construction="bindCtrl.tableComponentConstruction" 
+                    component-behavior="bindCtrl.tableComponentBehavior"
+                    component-binding-out="bindCtrl.tableComponentBindingOut">   
+                </entifix-table>
+            </div> 
+        </div>
+    </div>
+    <div flex="5"></div>
+</div>
+
+<!-- No Main Tab Mode -->
+<div ng-if="!bindCtrl.useMainTab.get()">
+    <md-content ng-if="!bindCtrl.isModal.get()">
+        <div layout>
+            <div flex layout layout-align="start center">
+                <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>{{' ' + bindCtrl.title.get()}}</span>
+            </div>
+            <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()">
+                <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}">
+                    <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip>
+                    <md-icon class="material-icons">delete_sweep</md-icon>
+                </md-button>
+            </div>
+        </div>
+        <md-content layout-padding>
+            <div layout="column" ng-if="bindCtrl.onMainView.get()">
+                <entifix-table
+                    query-details="bindCtrl.tableQueryDetails"
+                    component-construction="bindCtrl.tableComponentConstruction" 
+                    component-behavior="bindCtrl.tableComponentBehavior"
+                    component-binding-out="bindCtrl.tableComponentBindingOut">   
+                </entifix-table>
+            </div> 
+            <div layout="column" ng-if="bindCtrl.onSingleView.get()">
+                <entifix-entity-form
+                    query-details="bindCtrl.entityQueryDetails"
+                    component-construction="bindCtrl.entityComponentConstruction" 
+                    component-behavior="bindCtrl.entityComponentBehavior"
+                    component-binding-out="bindCtrl.entityComponentBindingOut">
+                </entifix-entity-form>
+            </div>
+        </md-content>
+    </md-content>
+    <md-content ng-if="bindCtrl.isModal.get()">
+        <div layout>
+            <div flex layout layout-align="start center">
+                <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>{{' ' + bindCtrl.title.get()}}</span>
+            </div>
+            <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get(true)">
+                <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}">
+                    <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip>
+                    <md-icon class="material-icons">delete_sweep</md-icon>
+                </md-button>
+            </div>
+        </div>
+        <md-content layout-padding>
+            <div layout="row">
+                <div flex>
+                    <div layout="column">
+                        <entifix-table
+                            query-details="bindCtrl.tableQueryDetails"
+                            component-construction="bindCtrl.tableComponentConstruction" 
+                            component-behavior="bindCtrl.tableComponentBehavior"
+                            component-binding-out="bindCtrl.tableComponentBindingOut">   
+                        </entifix-table>
+                    </div>
+                </div>
+            </div>
+        </md-content>
+    </md-content>
+</div>

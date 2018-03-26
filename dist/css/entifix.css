@@ -1,0 +1,497 @@
+/*********************************************************/
+/******************* Side Menu Styling *******************/
+/*********************************************************/
+.side-menu-logo{
+  width: 275px;
+  height: 190px;
+  display: block;
+  margin: 0 auto;
+  padding-top: 65px;
+  padding-left: 20px;
+}
+.main-toolbar{
+  position:fixed !important;
+}
+.mp-sidenav {
+  width: 350px;
+}
+.md-sidemenu-wrapper {
+  height: 0;
+}
+.md-sidemenu-wrapper.md-active {
+  height: auto;
+}
+.main-header {
+  position: relative;
+  z-index: 2;
+}
+
+/*********************************************************/
+/**************** Structure Body Styling *****************/
+/*********************************************************/
+.wrapper{
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+.header{
+  flex: 0 0 auto;
+}
+.content{
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+/*********************************************************/
+/***************** Sticky Footer Styling *****************/
+/*********************************************************/
+.footer-powered-by{
+  font-size: 16px; font-weight: bold; opacity: 0.4;
+  display: block;
+  margin: 0 auto;
+  color: white;
+}
+.footer-project-name{
+  font-size: 16px;
+  color: white;
+}
+.footer{
+  flex: 0 0 auto;
+}
+
+/*********************************************************/
+/******************** Buttons Styling ********************/
+/*********************************************************/
+.btn-success, .text-success{
+  color: #4caf50;
+}
+.btn-warning, .text-warning{
+  color: #ff5722;
+}
+.btn-danger, .text-danger{
+  color: #f44336;
+}
+.btn-none, .text-black{
+  color: black;
+}
+.text-white{
+  color: white;
+}
+.text-bold{
+  font-weight: bold;
+}
+
+/*********************************************************/
+/************** State Transition Animations **************/
+/*********************************************************/
+.ui-view-container {
+  position: relative;
+  height: 65px;
+}
+
+/*********************************************************/
+/***************** Custom Search Styling *****************/
+/*********************************************************/
+.customSearchSwitch{
+  padding-left: 15px;
+}
+
+/*********************************************************/
+/****************** Data Table Styling *******************/
+/*********************************************************/
+.md-table-head {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+.md-table-container {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table.md-table {
+  width: 100%;
+  border-spacing: 0;
+  overflow: hidden;
+}
+table.md-table thead.md-head > tr.md-row {
+  height: 56px;
+}
+table.md-table tbody.md-body > tr.md-row,
+table.md-table tfoot.md-foot > tr.md-row {
+  height: 48px;
+}
+table.md-table thead.md-head + .md-table-progress md-progress-linear {
+  top: -3px;
+}
+table.md-table .md-table-progress th {
+  padding: 0;
+}
+table.md-table .md-table-progress th md-progress-linear {
+  height: 0;
+  transition: opacity 1s;
+}
+table.md-table .md-table-progress th md-progress-linear.ng-hide {
+  opacity: 0;
+}
+table.md-table .md-table-progress th md-progress-linear > .md-container {
+  height: 3px;
+  top: 0;
+  transition: none;
+}
+table.md-table .md-table-progress th md-progress-linear > .md-container > .md-bar {
+  height: 3px;
+}
+table.md-table th.md-column {
+  color: rgba(0, 0, 0, 0.54);
+  font-size: 12px;
+  font-weight: bold;
+  white-space: nowrap;
+  cursor: pointer;
+}
+table.md-table th.md-column.md-sort {
+  cursor: pointer;
+}
+table.md-table th.md-column md-icon {
+  height: 16px;
+  width: 16px;
+  font-size: 16px !important;
+  line-height: 16px !important;
+}
+table.md-table th.md-column md-icon.md-sort-icon {
+  color: rgba(0, 0, 0, 0.26);
+  opacity: 0;
+  transition: -webkit-transform 0.25s, opacity 0.25s;
+  transition: transform 0.25s, opacity 0.25s;
+}
+table.md-table th.md-column md-icon.md-sort-icon.md-asc {
+  -webkit-transform: rotate(0deg);
+          transform: rotate(0deg);
+}
+table.md-table th.md-column md-icon.md-sort-icon.md-desc {
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+}
+table.md-table th.md-column md-icon:not(:first-child) {
+  margin-left: 8px;
+}
+table.md-table th.md-column md-icon:not(:last-child) {
+  margin-right: 8px;
+}
+table.md-table th.md-column.md-active,
+table.md-table th.md-column.md-active md-icon {
+  color: rgba(0, 0, 0, 0.87);
+}
+table.md-table th.md-column:hover md-icon.md-sort-icon,
+table.md-table th.md-column.md-active md-icon.md-sort-icon {
+  opacity: 1;
+}
+table.md-table tr.md-row[ng\:repeat].ng-leave,
+table.md-table tr.md-row[ng-repeat].ng-leave,
+table.md-table tr.md-row[x-ng-repeat].ng-leave,
+table.md-table tr.md-row[data-ng-repeat].ng-leave {
+  display: none;
+}
+.md-row-select tbody.md-body > tr.md-row {
+  transition: background-color 0.2s;
+}
+.md-row-select tbody.md-body > tr.md-row:not([disabled]):hover {
+  background-color: #eeeeee !important;
+}
+.md-row-select tbody.md-body > tr.md-row.md-selected {
+  background-color: #f5f5f5;
+}
+.md-row-select td.md-cell:nth-child(2),
+.md-row-select th.md-column:nth-child(2) {
+  padding: 0 24px;
+}
+.md-row-select td.md-cell:nth-child(n+3):nth-last-child(n+2),
+.md-row-select th.md-column:nth-child(n+3):nth-last-child(n+2) {
+  padding: 0 56px 0 0;
+}
+table.md-table:not(.md-row-select) td.md-cell:first-child,
+table.md-table:not(.md-row-select) th.md-column:first-child {
+  padding: 0 24px;
+}
+table.md-table:not(.md-row-select) td.md-cell:nth-child(n+2):nth-last-child(n+2),
+table.md-table:not(.md-row-select) th.md-column:nth-child(n+2):nth-last-child(n+2) {
+  padding: 0 56px 0 0;
+}
+table.md-table td.md-cell,
+table.md-table th.md-column {
+  vertical-align: middle;
+  text-align: left;
+}
+table.md-table td.md-cell > *,
+table.md-table th.md-column > * {
+  vertical-align: middle;
+}
+table.md-table td.md-cell:last-child,
+table.md-table th.md-column:last-child {
+  padding: 0 24px 0 0;
+}
+table.md-table td.md-cell.md-clickable,
+table.md-table th.md-column.md-clickable {
+  cursor: pointer;
+}
+table.md-table td.md-cell.md-clickable:focus,
+table.md-table th.md-column.md-clickable:focus {
+  outline: none;
+}
+table.md-table td.md-cell.md-numeric,
+table.md-table th.md-column.md-numeric {
+  text-align: right;
+}
+table.md-table td.md-cell md-checkbox,
+table.md-table th.md-column md-checkbox {
+  margin: 0;
+  width: 20px;
+}
+table.md-table td.md-cell {
+  color: rgba(0, 0, 0, 0.87);
+  font-size: 13px;
+  border-top: 1px rgba(0, 0, 0, 0.12) solid;
+}
+table.md-table td.md-cell.md-numeric md-select {
+  -webkit-justify-content: flex-end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+table.md-table td.md-cell.md-numeric md-select .md-select-value {
+  -webkit-flex: 0 0 auto;
+      -ms-flex: 0 0 auto;
+          flex: 0 0 auto;
+}
+table.md-table td.md-cell.md-placeholder {
+  color: rgba(0, 0, 0, 0.26);
+}
+table.md-table td.md-cell md-select > .md-select-value > span.md-select-icon {
+  -webkit-justify-content: flex-end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+  color: rgba(0, 0, 0, 0.54);
+  width: 18px;
+  text-align: right;
+}
+table.md-table td.md-cell md-select > .md-select-value > span.md-select-icon:after {
+  -webkit-transform: scaleY(0.4) scaleX(0.8);
+          transform: scaleY(0.4) scaleX(0.8);
+}
+.md-row-select{
+  background-color: #f2f2f2;
+}
+th:focus,
+a:focus {
+  outline: none; 
+}
+.codepen-wrap {
+  margin-top: 15px; 
+}
+.mdl-data-table {
+  width: 100%; 
+}
+.mdl-data-table th {
+    cursor: pointer; 
+}
+.mdl-data-table tr {
+  transition: none !important; 
+}
+th md-select {
+  margin: 0; 
+}
+table > thead > tr > td > center > md-checkbox,
+table > tbody > tr > td > center > md-checkbox {
+  margin-top: 7px;
+  margin-bottom: 7px;
+}
+.md-row-saved{
+  background-color: lightgray;
+}
+.md-row-write{
+  background-color: #cce6ff;
+}
+.cursor-pointer{
+  cursor: pointer;
+}
+
+/*********************************************************/
+/****************** Pagination Styling *******************/
+/*********************************************************/
+
+.pagination {
+    padding: 0;
+    font-size: 0;
+    display: inline-block; 
+}
+.pagination > li {
+    display: inline-block;
+    vertical-align: middle;
+    height: 30px;
+    border: 1px solid #ddd;
+    border-left: 0; 
+}
+.pagination > li:first-child {
+    border-left: 1px solid #ddd;
+    border-radius: 2px 0 0 2px; 
+}
+.pagination > li:last-child {
+    border-radius: 0 2px 2px 0; 
+}
+.pagination a {
+    color: #444;
+    font-size: 13px;
+    padding: 0 10px;
+    line-height: 30px;
+    display: inline-block;
+    text-decoration: none; 
+}
+.pagination .active {
+    background: #009688;
+    border-color: #009688; 
+}
+.pagination .active a {
+    color: #fff; 
+}
+.pagination-page.active {
+    background: #009688; 
+}
+.pagination-page.active a {
+    color: #fff; 
+}
+
+.sortable md-icon {
+  position: relative;
+}
+.sortable md-icon:before {
+  content: 'keyboard_arrow_down';
+  position: absolute;
+  top: 10px;
+}
+.sortable md-icon:after {
+  content: 'keyboard_arrow_up';
+  position: absolute;
+}
+.sortable.sort-ascent md-icon:before {
+  display: none;
+}
+.sortable.sort-ascent md-icon:after {
+  top: 0px;
+}
+.sortable.sort-descent md-icon:before {
+  top: 10px;
+}
+.sortable.sort-descent md-icon:after {
+  display: none;
+}
+
+/*********************************************************/
+/********************* Modal Styling *********************/
+/*********************************************************/
+.md-xl {
+  width: 100%;
+}
+.md-lg {
+  width: 65%;
+}
+.md-md {
+  width: 50%;
+}
+.md-sm {
+  width: 35%;
+}
+.md-xs {
+  width: 20%;
+}
+
+/*********************************************************/
+/**************** ngMessage Error Styling ****************/
+/*********************************************************/
+.ngMessage-error {
+  padding-top: 5px;
+  font-size: 12px; 
+  color: #dd2c00; 
+}
+
+/*********************************************************/
+/*************** Select Component Styling ****************/
+/*********************************************************/
+.selectSelectHeader {
+  /* Please note: All these selectors are only applied to children of elements with the 'selectSelectHeader' class */ }
+  .selectSelectHeader .header-searchbox {
+    border: none;
+    outline: none;
+    height: 100%;
+    width: 100%;
+    padding: 0; }
+  .selectSelectHeader .select-header {
+    box-shadow: 0 1px 0 0 rgba(0, 0, 0, 0.1), 0 0 0 0 rgba(0, 0, 0, 0.14), 0 0 0 0 rgba(0, 0, 0, 0.12);
+    padding-left: 10.667px;
+    height: 48px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: auto; }
+  .selectSelectHeader md-content._md {
+    max-height: 240px; }
+  .entifix-select-width {
+    width: 100%;
+  }
+
+/*********************************************************/
+/*********** DatetimePicker Component Styling ************/
+/*********************************************************/
+  .datetimepicker {
+    padding-right: 6px;
+  }
+  .date-time-picker-position {
+    top:-12px;
+    left:-12px;
+  }
+
+/*********************************************************/
+/******* ngIf && ngShow && ngHide Animation Styling ******/
+/*********************************************************/
+.animate-if.ng-enter, .animate-if.ng-leave {
+  transition:all cubic-bezier(0.250, 0.460, 0.450, 0.940) 0.5s;
+}
+
+.animate-if.ng-enter,
+.animate-if.ng-leave.ng-leave-active {
+  opacity:0;
+}
+
+.animate-if.ng-leave,
+.animate-if.ng-enter.ng-enter-active {
+  opacity:1;
+}
+
+.md-navcolorbar{
+  color: #009688;
+}
+
+.md-inkcolorbar{
+  background-color: #009688;
+}
+
+md-content{
+  background-color: white;
+}
+
+/*********************************************************/
+/*********** Checkbox Switch Component Styling ***********/
+/*********************************************************/
+md-checkbox.md-checked.checkbox-default .md-icon {
+  background-color: #009688;
+}
+md-switch.md-checked .md-bar {
+  background-color: #00b3a1;
+}
+md-switch.md-checked .md-thumb {
+  background-color: #009688;
+}
+.md-checkbox-padding {
+  padding-top: 20px;
+  padding-bottom: 0px;
+}
