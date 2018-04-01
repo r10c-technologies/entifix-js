@@ -1,9 +1,9 @@
 (function(){
     'use strict';
  
-    angular.module(entifix-js)
+    angular.module('entifix-js')
             .directive("entifixSecurityContext",
-                        ['entifixSession', '$compile',
+                        ['EntifixSession', '$compile',
                             function(EntifixSession, $compile)
                             {
                                 return {

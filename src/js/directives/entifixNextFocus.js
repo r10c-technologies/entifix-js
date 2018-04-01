@@ -1,7 +1,7 @@
 (function(){
     'use strict';
  
-    angular.module(entifix-js).directive('entifixNextFocus', function () {
+    angular.module('entifix-js').directive('entifixNextFocus', function () {
         return {
             restrict: 'A',
             link: function($scope,elem,attrs) {

@@ -1,7 +1,7 @@
 (function(){
     'use strict';
  
-    angular.module(entifix-js).directive('entifixNumberValidation', function() {
+    angular.module('entifix-js').directive('entifixNumberValidation', function() {
         return {
             require: 'ngModel',
             link: function(scope, element, attrs, ctrl) {

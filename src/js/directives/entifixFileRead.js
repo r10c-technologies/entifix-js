@@ -1,7 +1,7 @@
 (function(){
     'use strict';
  
-    angular.module(entifix-js).directive("entifixFileread", [function () {
+    angular.module('entifix-js').directive("entifixFileread", [function () {
         return {
             require: "ngModel",
             link: function postLink(scope,elem,attrs,ngModel) {

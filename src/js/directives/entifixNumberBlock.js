@@ -1,7 +1,7 @@
 (function(){
     'use strict';
  
-    angular.module(entifix-js).directive('entifixNumberBlock', function () {
+    angular.module('entifix-js').directive('entifixNumberBlock', function () {
         return {
             restrict: 'A',
             link: function($scope,elem,attrs) {
