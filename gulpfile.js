@@ -27,10 +27,10 @@ gulp.task('dist', ['clean-dist'], ()=>
                             .pipe(gulp.dest('dist'));
 
     // Minify module
-    var minifyEntifix = gulp.src(['src/entifix.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
+    var minifyEntifix = gulp.src(['src/entifix-js.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
                             .pipe(replace('src/','dist/'))
                             .pipe(babel({presets: ['babel-preset-es2015'].map(require.resolve)}))
-                            .pipe(concat('entifix.min.js'))
+                            .pipe(concat('entifix-js.min.js'))
                             .pipe(uglify().on('error', function(e){
                                 console.log('Error al minificar/ofuscar entifix: ' + e);
                             }))
