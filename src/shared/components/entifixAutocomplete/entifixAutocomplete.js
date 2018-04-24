@@ -705,7 +705,80 @@
             componentBindingOut: '=',
             onChange: '&'
         },
-        templateUrl: 'src/shared/components/entifixAutocomplete/entifixAutocomplete.html',
+        //templateUrl: 'src/shared/components/entifixAutocomplete/entifixAutocomplete.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
+                                <md-autocomplete \
+                                    md-floating-label={{vm.title.get()}} \
+                                    md-input-name={{vm.name.get()}} \
+                                    md-min-length="vm.minLengthRequest.get()" \
+                                    md-input-minlength="{{vm.minLength.get()}}" \
+                                    md-input-maxlength="{{vm.maxLength.get()}}" \
+                                    md-no-cache="vm.noCache.get()" \
+                                    md-selected-item="vm.selectedItem" \
+                                    md-search-text="vm.searchText" \
+                                    md-items="item in vm.searchItems(vm.searchText)" \
+                                    md-item-text="item" \
+                                    md-selected-item-change="vm.changeSelectedItem()" \
+                                    ng-required="vm.isRequired.get()" \
+                                    md-require-match="vm.requiredMatch.get()" \
+                                    placeholder="{{vm.placeholder.get()}}" \
+                                    ng-disabled="vm.disabled.get()"> \
+                                    <md-item-template> \
+                                        <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                    </md-item-template> \
+                                    <md-not-found> \
+                                        <div> \
+                                            {{vm.notFoundText.get()}} \
+                                        </div> \
+                                    </md-not-found> \
+                                    <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                        <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
+                                        <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                        <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    </div> \
+                                </md-autocomplete> \
+                            </div> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()" ng-click="vm.onFocus($event)"> \
+                            <md-autocomplete \
+                                md-floating-label={{vm.title.get()}} \
+                                md-input-name={{vm.name.get()}} \
+                                md-min-length="vm.minLengthRequest.get()" \
+                                md-input-minlength="{{vm.minLength.get()}}" \
+                                md-input-maxlength="{{vm.maxLength.get()}}" \
+                                md-no-cache="vm.noCache.get()" \
+                                md-selected-item="vm.selectedItem" \
+                                md-search-text="vm.searchText" \
+                                md-items="item in vm.searchItems(vm.searchText)" \
+                                md-item-text="item" \
+                                md-selected-item-change="vm.changeSelectedItem()" \
+                                ng-required="vm.isRequired.get()" \
+                                md-require-match="vm.requiredMatch.get()" \
+                                placeholder="{{vm.placeholder.get()}}" \
+                                ng-disabled="vm.disabled.get()"> \
+                                <md-item-template> \
+                                    <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                </md-item-template> \
+                                <md-not-found> \
+                                    {{vm.notFoundText.get()}} \
+                                </md-not-found> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                </div> \
+                            </md-autocomplete> \
+                        </div> \
+                    </div>',
         controller: componentcontroller,
         controllerAs: 'vm'
     };

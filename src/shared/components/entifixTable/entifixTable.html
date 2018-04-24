@@ -14,7 +14,7 @@
                 <div layout-xs="column" layout-gt-xs="row" flex>
                     <div flex layout layout-align="center center">
                         <md-button class="md-primary btn-success" ng-click="bindCtrl.searchItemsDate()" ng-disabled="!bindCtrl.startDate || !bindCtrl.endDate">
-                            <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> {{' ' + bindCtrl.searchText.get()}}
+                            <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> &nbsp;{{bindCtrl.searchText.get()}}
                         </md-button>
                     </div>
                     <div flex layout layout-align="center center">
@@ -64,7 +64,7 @@
                 </div>
                 <div flex layout layout-align="center center">
                     <md-button class="md-primary btn-success" ng-click="bindCtrl.addChip()" ng-disabled="!bindCtrl.columnToSearch || !bindCtrl.operator || !bindCtrl.valueToSearch">
-                        <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> {{' ' + bindCtrl.addFilterText.get()}}
+                        <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> &nbsp;{{bindCtrl.addFilterText.get()}}
                     </md-button>
                 </div>
             </div>
@@ -98,13 +98,13 @@
                         <section layout-xs="column" layout="row" layout-align="end center">
                             <div>
                                 <md-button class="md-primary btn-success" ng-click="bindCtrl.addElement()" ng-disabled="!(bindCtrl.canAdd.get() && !bindCtrl.multipleAddOptions.get())" ng-if="bindCtrl.componentConstruction.add">
-                                    <md-icon class="material-icons">{{bindCtrl.addIcon.get()}}</md-icon> {{' ' + bindCtrl.addText.get()}}
+                                    <md-icon class="material-icons">{{bindCtrl.addIcon.get()}}</md-icon> &nbsp;{{bindCtrl.addText.get()}}
                                 </md-button>
                                 <md-button class="md-warn btn-danger" ng-click="bindCtrl.removeElement()" ng-disabled="!(bindCtrl.canRemove.get() && !bindCtrl.multipleRemoveOptions.get())"  ng-if="bindCtrl.componentConstruction.remove">
-                                    <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon> {{' ' + bindCtrl.removeText.get()}}
+                                    <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon> &nbsp;{{bindCtrl.removeText.get()}}
                                 </md-button>
                                 <md-button class="md-accent btn-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit">
-                                    <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> {{' ' + bindCtrl.editText.get()}}
+                                    <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}}
                                 </md-button>
                                 <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()">
                                     <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.ds()">

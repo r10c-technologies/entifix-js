@@ -18,25 +18,23 @@ gulp.task('clean-dist', () => {
 gulp.task('dist', ['clean-dist'], ()=>
 {
     // Transfer files
-    var cssFiles = gulp.src('src/css/**/*.*').pipe(gulp.dest('dist/css'));
-    var fontFiles = gulp.src('src/fonts/*.*').pipe(gulp.dest('dist/fonts'));
-    var imgFiles = gulp.src('src/img/*.*').pipe(gulp.dest('dist/img'));
+    var cssFiles = gulp.src('src/css/**/*.*').pipe(gulp.dest('dist'));
     
-    var htmlFiles = gulp.src('src/**/*.html')
-                            .pipe(replace('src/img/security.png', 'dist/img/security.png'))
-                            .pipe(gulp.dest('dist'));
+    //var htmlFiles = gulp.src('src/**/*.html')
+    //                        .pipe(replace('src/img/security.png', 'dist/img/security.png'))
+    //                        .pipe(gulp.dest('dist'));
 
     // Minify module
-    var minifyEntifix = gulp.src(['src/entifix.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
+    var minifyEntifix = gulp.src(['src/entifix-js.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
                             .pipe(replace('src/','dist/'))
                             .pipe(babel({presets: ['babel-preset-es2015'].map(require.resolve)}))
-                            .pipe(concat('entifix.min.js'))
+                            .pipe(concat('entifix-js.min.js'))
                             .pipe(uglify().on('error', function(e){
                                 console.log('Error al minificar/ofuscar entifix: ' + e);
                             }))
-                            .pipe(gulp.dest('dist/js'))
+                            .pipe(gulp.dest('dist'))
     
-    return merge(cssFiles, fontFiles, imgFiles, htmlFiles, minifyEntifix);
+    return merge(cssFiles, minifyEntifix);
 });
 
 //====================================================================================================================

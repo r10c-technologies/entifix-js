@@ -697,7 +697,42 @@
 
     var component =
     {
-        templateUrl: 'src/shared/components/entifixEntityForm/entifixEntityForm.html',
+        //templateUrl: 'src/shared/components/entifixEntityForm/entifixEntityForm.html',
+        template: '<br/> \
+                    <md-card md-whiteframe="4" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }"> \
+                        <md-card-title> \
+                            <md-card-title-text> \
+                                <span class="md-headline"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span> \
+                            </md-card-title-text> \
+                        </md-card-title> \
+                        <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()"> \
+                            <md-card-content> \
+                                <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
+                            </md-card-content> \
+                            <md-card-actions layout="row" layout-align="end center" ng-if="bindCtrl.allowActions.get()"> \
+                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()"> \
+                                    <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon> &nbsp;{{bindCtrl.cancelText.get()}} \
+                                </md-button> \
+                                <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()"> \
+                                    <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon> &nbsp;{{bindCtrl.removeText.get()}} \
+                                </md-button> \
+                                <md-button type="submit" class="md-primary" ng-show="bindCtrl.canSave.get()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
+                                    <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                    <md-icon class="material-icons">{{bindCtrl.saveIcon.get()}}</md-icon> &nbsp;{{bindCtrl.saveText.get()}} \
+                                </md-button> \
+                                <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()"> \
+                                    <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
+                                </md-button> \
+                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()"> \
+                                    <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon> &nbsp;{{bindCtrl.okText.get()}} \
+                                </md-button> \
+                                <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid || !bindCtrl.isValidEntity.get()"> \
+                                    <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                    <md-icon class="material-icons">{{bindCtrl.processIcon.get()}}</md-icon> &nbsp;{{bindCtrl.processText.get()}} \
+                                </md-button> \
+                            </md-card-actions> \
+                        </form> \
+                    </md-card>',
         controller: componentController,
         controllerAs: 'bindCtrl',
         bindings:

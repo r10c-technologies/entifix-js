@@ -340,7 +340,64 @@
             componentConstruction: '<',
             onChange: '&'
         },
-        templateUrl: 'src/shared/components/entifixChip/entifixChip.html',
+        //templateUrl: 'src/shared/components/entifixChip/entifixChip.html',
+        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-chips \
+                            ng-if="vm.canShowEditableFields.get()" \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd$chip()" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.placeholder.get()}}</label><br/> \
+                            <strong>{{vm.getStringValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-chips \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd($chip, $index)" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                    </div> \
+                    <br/>',
         controller: componentcontroller,
         controllerAs: 'vm'
     };
