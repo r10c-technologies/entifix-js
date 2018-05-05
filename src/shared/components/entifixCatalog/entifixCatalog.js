@@ -41,7 +41,7 @@
                         personalizeEditTable(entity);
                     else 
                     {
-                        vm.entityQueryDetails.resource.loadAsResource(entity.id, (entity) => {
+                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.queryDetails.resource.getKeyProperty.get()], (entity) => {
                             if (vm.isModal.get())
                                 vm.openModal(entity);
                             else
@@ -205,7 +205,7 @@
 
                 vm.entityQueryDetails.resource.listenSaved( (args) => {
                     if (vm.entityComponentConstruction.save.autoChange == false)
-                        vm.changeToSingleView(args.fullResponse.data.data[0]);
+                        vm.changeToSingleView(args.fullResponse.data.data);
                     else
                         vm.changeToMainView();
                 });
@@ -246,7 +246,7 @@
                     {
                         if (vm.entityComponentBindingOut)
                         {
-                            if ($stateParams[vm.paramName.get()] > 0)
+                            if ($stateParams[vm.paramName.get()] != '-1' && $stateParams[vm.paramName.get()] != '0')
                                 loadEntity();
                             else 
                                 createEntity();
@@ -500,7 +500,7 @@
             if (entity)
                 navid = vm.entityQueryDetails.resource.getId(entity);
             
-            if (vm.onSingleView.get() || (vm.tableComponentBindingOut.allowedActions.canEdit.get() && navid > 0) || (vm.tableComponentBindingOut.allowedActions.canAdd.get() && navid == -1) )
+            if (vm.onSingleView.get() || (vm.tableComponentBindingOut.allowedActions.canEdit.get()) || (vm.tableComponentBindingOut.allowedActions.canAdd.get() && navid == -1) )
                 $state.go($state.current.name, { [vm.paramName.get()]: navid });
         };
 
@@ -592,8 +592,8 @@
                     {
                         if (defaultOk && vm.closeWhenSaving.get())
                             defaultOk();
-                        else if (response && response.data.data[0])
-                            setViewState(true, response.data.data[0]);
+                        else if (response && response.data.data)
+                            setViewState(true, response.data.data);
                         if (vm.tableComponentBindingOut && vm.tableComponentBindingOut.pager)
                             $timeout(vm.tableComponentBindingOut.pager.reload(), 500);
                     }

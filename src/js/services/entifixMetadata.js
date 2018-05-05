@@ -5,9 +5,9 @@
         .module('entifix-js')
         .service('EntifixMetadata', service);
 
-    service.$inject = ['$http'];
+    service.$inject = [];
 
-    function service($http)
+    function service()
     {
         var vm = this;
 
@@ -125,7 +125,9 @@
         
         vm.getResourceURL = function(resourceName)
         {
-            var path = getResource(resourceName).url;
+            var resource = getResource(resourceName);
+
+            var path = resource.url + resource.name;
 
             var base = getBase(resourceName);
 

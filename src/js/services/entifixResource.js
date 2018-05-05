@@ -140,18 +140,19 @@
 
             function getBaseUrl()
             {
-                var tempUrl = AppResources.baseUrl + AppResources.api;
+                // var tempUrl = AppResources.baseUrl + AppResources.api;
 
-                var prefix = vm.urlPrefix.get();
+                // var prefix = vm.urlPrefix.get();
 
-                if (prefix)
-                {
-                    tempUrl += prefix;
-                    if (!_denyBarPrefix)
-                        tempUrl += '/';                    
-                }
+                // if (prefix)
+                // {
+                //     tempUrl += prefix;
+                //     if (!_denyBarPrefix)
+                //         tempUrl += '/';                    
+                // }
 
-                return tempUrl + _resourceUrl;
+                //return tempUrl + _resourceUrl;
+                return _resourceUrl;
             };
 
             function transformDataToRequest (data)
@@ -467,14 +468,14 @@
             //Manage request timing
             function createArgs(response)
             {
-                return { friendlyMessage: response.data.friendlyMessage, fullResponse: response };
+                return { message: response.data.message, fullResponse: response };
             };
             
             function onSaveTransactionEnd(callback, isError)
             {
                 return (response) => 
                 {
-                    var saveSuccess = !response.data.isError;
+                    var saveSuccess = !response.data.isLogicError;
                     
                     if (!_onMultipleStorage && callback)
                         callback(response, saveSuccess);
@@ -594,7 +595,7 @@
                     _isLoading = true;
 
                     if (ActionSuccess)
-                        ActionSuccess(transformDataFromResponse(response.data.data[0]));
+                        ActionSuccess(transformDataFromResponse(response.data.data));
                     
                     _isLoading = false;
                 } 
@@ -662,7 +663,7 @@
                         stringfilter = '/' + filter;
                     
                     else if  ( typeof filter == 'string')
-                        stringfilter = filter;
+                        stringfilter = '/' + filter;
                     
                     else if (filter instanceof Array)
                         stringfilter = convertToQueryParams(filter);
@@ -805,9 +806,11 @@
             {
                 _isLoading = true;
 
-                var pagUrl = + pageIndex + '/' + pageSize;
+                var skip = { property: 'skip', value: pageIndex };
+                var take = { property: 'take', value: pageSize };
+                var pagUrl = '';
 
-                var allFilters = [];
+                var allFilters = [skip, take];
 
                 if (constFilters)
                 {
@@ -830,7 +833,7 @@
                                                                                             var dataPag =
                                                                                             {
                                                                                                 resultSet: response.data.data,
-                                                                                                total: parseInt(response.data.results)
+                                                                                                total: parseInt(response.data.info.total)
                                                                                             }
                                                                                             _isLoading = false;
                                                                                             return dataPag;

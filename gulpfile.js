@@ -24,6 +24,12 @@ gulp.task('dist', ['clean-dist'], ()=>
     //                        .pipe(replace('src/img/security.png', 'dist/img/security.png'))
     //                        .pipe(gulp.dest('dist'));
 
+    var concatEntifix = gulp.src(['src/entifix-js.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
+                            .pipe(replace('src/','dist/'))
+                            .pipe(babel({presets: ['babel-preset-es2015'].map(require.resolve)}))
+                            .pipe(concat('entifix-js.js'))
+                            .pipe(gulp.dest('dist'));
+
     // Minify module
     var minifyEntifix = gulp.src(['src/entifix-js.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
                             .pipe(replace('src/','dist/'))
@@ -32,9 +38,9 @@ gulp.task('dist', ['clean-dist'], ()=>
                             .pipe(uglify().on('error', function(e){
                                 console.log('Error al minificar/ofuscar entifix: ' + e);
                             }))
-                            .pipe(gulp.dest('dist'))
+                            .pipe(gulp.dest('dist'));
     
-    return merge(cssFiles, minifyEntifix);
+    return merge(cssFiles, concatEntifix, minifyEntifix);
 });
 
 //====================================================================================================================

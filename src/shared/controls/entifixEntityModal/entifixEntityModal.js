@@ -791,8 +791,8 @@
                                                                                 {
                                                                                     if (saveSuccess)
                                                                                     {
-                                                                                        if (response && response.data.data[0])
-                                                                                            vm.entity.set(response.data.data[0]);
+                                                                                        if (response && response.data.data)
+                                                                                            vm.entity.set(response.data.data);
                                                                                         defaultOk();
                                                                                     }
                                                                                 });

@@ -129,8 +129,8 @@
             function saved(args)
             {
                 var message = _savedMessage;
-                if (args.friendlyMessage)
-                    message = args.friendlyMessage;
+                if (args.message)
+                    message = args.message;
 
                 EntifixNotification.success(message);
             };
@@ -138,8 +138,8 @@
             function deleted(args)
             {
                 var message = _deletedMessage;
-                if (args.friendlyMessage)
-                    message = args.friendlyMessage;
+                if (args.message)
+                    message = args.message;
 
                 EntifixNotification.success(message);
             };
@@ -147,8 +147,8 @@
             function errorSave(args)
             {
                 var message = _errorSaveMessage;
-                if (args.friendlyMessage)
-                    message = args.friendlyMessage;
+                if (args.message)
+                    message = args.message;
 
                 EntifixNotification.error(message);
             };
@@ -156,8 +156,8 @@
             function errorDelete(args)
             {
                 var message = _errorDeleteMessage;
-                if (args.friendlyMessage)
-                    message = args.friendlyMessage;
+                if (args.message)
+                    message = args.message;
 
                 EntifixNotification.error(message);
             };
@@ -165,8 +165,8 @@
             function nonValidSave(args)
             {
                 var message = _errorValidationMessage;
-                if (args.friendlyMessage)
-                    message = args.friendlyMessage;
+                if (args.message)
+                    message = args.message;
 
                 EntifixNotification.error(message);
             };
