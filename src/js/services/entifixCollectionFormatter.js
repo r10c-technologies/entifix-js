@@ -3,9 +3,9 @@
 
     angular.module('entifix-js').factory('EntifixCollectionFormatter', factory);
 
-    factory.$inject = [];
+    factory.$inject = ['EntifixDateGenerator'];
 
-    function factory ()
+    function factory (EntifixDateGenerator)
     {
         return function()
         {
@@ -35,7 +35,8 @@
                 var filters = [{ property: 'operator', value: 'or' }];
                 collection.forEach(
                     (element) => {
-                        filters.push({ property: singleParam.resource.getKeyProperty.get(), value: element[singleParam.property]});
+                        if (element[singleParam.property])
+                            filters.push({ property: singleParam.resource.getKeyProperty.get(), value: element[singleParam.property]});
                     }
                 );
                 return filters;
@@ -72,34 +73,17 @@
                     var value = element[singleParam.property]; 
                                     
                     //Transform dates
-                    if (singleParam.type == 'date'|| singleParam.type == 'datetime')
+                    if (value && singleParam.type == 'date'|| singleParam.type == 'datetime')
                     {
-                        var asDate = new Date(value);
-                        var year = asDate.getFullYear();
-                        var month = (asDate.getMonth() + 1).toString();
-                        var day = asDate.getDate().toString();
-
-                        if (month.length < 2)
-                            month = '0' + month;
-                        if (day.length < 2)
-                            day = '0' + day;
-
-                        if (singleParam.type == 'datetime')
-                        {
-                            var hours = asDate.getHours().toString();
-                            var minutes = asDate.getMinutes().toString();
-                            var seconds = asDate.getSeconds().toString();
-                            if (hours.length < 2)
-                                hours = '0' + hours;
-                            if (minutes.length < 2)
-                                minutes = '0' + minutes;
-                            if (seconds.length < 2)
-                                seconds = '0' + seconds;
-                            element[(singleParam.outProperty || singleParam.property)] = day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
-                        }
+                        var dateGenerator = new EntifixDateGenerator();
+                        if (value && !(value instanceof Date))
+                            var asDate = dateGenerator.transformStringToDate(value);
+                        else if (value)
+                            var asDate = value;
                         else
-                            element[(singleParam.outProperty || singleParam.property)] = day + '/' + month + '/' + year;
+                            var asDate = null;
 
+                        element[(singleParam.outProperty || singleParam.property)] = dateGenerator.transformDateToString(asDate, singleParam.type, true);
                         onEnd();
                     }
 
@@ -185,4 +169,5 @@
             activate();
         };
     };
+
 })();

@@ -5,9 +5,9 @@
         .module('entifix-js')
         .factory('EntifixResource', resource);
 
-    resource.$inject = ['$http', 'AppResources', 'EntifixMetadata', 'EntifixErrorManager'];
+    resource.$inject = ['$http', 'AppResources', 'EntifixMetadata', 'EntifixErrorManager', 'EntifixDateGenerator'];
 
-    function resource($http, AppResources, EntifixMetadata, EntifixErrorManager)
+    function resource($http, AppResources, EntifixMetadata, EntifixErrorManager, EntifixDateGenerator)
     {
         var resource = function(resourceName)
         {
@@ -188,27 +188,13 @@
                             //For date properties
                             if (TProperty.transformType == 'date' || TProperty.transformType == 'datetime')
                             {
-                                var dateValue = new Date(data[TProperty.name]);
+                                var dateGenerator = new EntifixDateGenerator();
+                                if (!(data[TProperty.name] instanceof Date))
+                                    var dateValue = dateGenerator.transformStringToDate(data[TProperty.name]);
+                                else
+                                    var dateValue = data[TProperty.name];
 
-                                var year = dateValue.getFullYear().toString();
-                                var month = (dateValue.getMonth() + 1).toString();
-                                var day = dateValue.getDate().toString();
-                                var hours = dateValue.getHours().toString();
-                                var minutes = dateValue.getMinutes().toString();
-                                var seconds = dateValue.getSeconds().toString();
-
-                                if (month.length < 2)
-                                    month = '0' + month;
-                                if (day.length < 2)
-                                    day = '0' + day;
-                                if (hours.length < 2)
-                                    hours = '0' + hours;
-                                if (minutes.length < 2)
-                                    minutes = '0' + minutes;
-                                if (seconds.length < 2)
-                                    seconds = '0' + seconds;
-                                
-                                data[TProperty.name] = year + '-' +  month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds;
+                                data[TProperty.name] = dateGenerator.transformDateToString(dateValue, TProperty.transformType, false);
                             }
 
                             //Other types of properties to transform....
@@ -276,9 +262,10 @@
 
                                 //For date-time properties
                                 if (TProperty.transformType == 'date' || TProperty.transformType == 'datetime')
-                                {   
+                                {
                                     var objectValue = data[TProperty.name];
-                                    data[TProperty.name] = new Date(objectValue);
+                                    if (!(objectValue instanceof Date))
+                                        data[TProperty.name] = new EntifixDateGenerator().transformStringToDate(objectValue);
                                 }
 
                                 //Other types of properties to transform....
@@ -616,19 +603,43 @@
                             {
                                 var property = filters[i].property;
                                 var value = filters[i].value;
-                                if (value != null && property != null)
+                                var type = filters[i].type || 'optional_filter';
+                                var operator = filters[i].operator || '=';
+                                var sort = filters[i].sort;
+
+                                if (value != null && (property != null || sort != null))
                                 {
                                     //Function filters
                                     if (typeof value == "function")
                                     {
                                         var possibleValue = value();
                                         if (possibleValue)
-                                            querystring = querystring + property + '=' + possibleValue;
-                                    }                                        
+                                        {
+                                            if (sort)
+                                                querystring = querystring + 'order_by' + '=' + sort + '|' + possibleValue;
+                                            else
+                                            {
+                                                if (property == 'skip' || property == 'take')
+                                                    querystring = querystring + property + '=' + possibleValue;
+                                                else
+                                                    querystring = querystring + type + '=' + property + '|' + operator + '|' + possibleValue;
+                                            }
+                                        }
+                                    }
                                     
                                     //Clasic filters
                                     else 
-                                        querystring = querystring + property + '=' + value;
+                                    {
+                                        if (sort)
+                                            querystring = querystring + 'order_by' + '=' + sort + '|' + value;
+                                        else
+                                        {
+                                            if (property == 'skip' || property == 'take')
+                                                querystring = querystring + property + '=' + value;
+                                            else
+                                                querystring = querystring + type + '=' + property + '|' + operator + '|' + value;
+                                        }
+                                    }
                                     
                                     //Other types of filters
                                     /*
@@ -662,7 +673,7 @@
                     if (!isNaN(filter))
                         stringfilter = '/' + filter;
                     
-                    else if  ( typeof filter == 'string')
+                    else if  (typeof filter == 'string')
                         stringfilter = '/' + filter;
                     
                     else if (filter instanceof Array)
@@ -847,14 +858,14 @@
 
             vm.getPagFilters = function(searchText, searchArray, columnsSelected)
             {
+                var resPagFilters = [];
                 if (searchText && (!searchArray || searchArray.length <= 0))
                 {
                     var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected).map( (p)=>{ return (p.pageProperty ? p.pageProperty : p.name); } );
                     var joinProperties = filterProperties(EntifixMetadata.getJoinProperties(resourceName), columnsSelected);
-                    var resPagFilters = [ { property: 'operator', value: 'or' } ];
                     
                     for (var prop in pagProperties)
-                        resPagFilters.push({property: pagProperties[prop], value: 'like;' + searchText});
+                        resPagFilters.push({property: pagProperties[prop], value: searchText});
 
                     for (var prop in joinProperties)
                     {
@@ -865,29 +876,8 @@
                 }
                 else if (searchArray)
                 {
-                    var resPagFilters = [ { property: 'operator', value: 'and' } ];
-                    searchArray.forEach((element) => {
-                                                        if (element.operator == '=' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'like;' + element.value});
-
-                                                        if (element.operator == '%' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'like;%25' + element.value});
-
-                                                        if (element.operator == '>' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'gt;' + element.value});
-
-                                                        if (element.operator == '>=' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'gte;' + element.value});
-
-                                                        if (element.operator == '<' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'lt;' + element.value});
-
-                                                        if (element.operator == '<=' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'lte;' + element.value});
-
-                                                        if (element.operator == '<>' && element.property.name)
-                                                            resPagFilters.push({property: element.property.pageProperty || element.property.name, value: 'neq;' + element.value});
-                                                     });
+                    var type = 'fixed_filter';
+                    searchArray.forEach((element) => { resPagFilters.push({property: element.property.pageProperty || element.property.name, value: element.value, type: type, operator: element.operator}); });
                 }
 
                 return resPagFilters;

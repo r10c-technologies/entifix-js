@@ -4,9 +4,9 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu'];
+    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu)
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator)
     {
         var vm = this;
         var cont = 0;
@@ -377,7 +377,7 @@
                         { display: 'Mayor o igual que', operator: '>=' },
                         { display: 'Menor o igual que', operator: '<=' },
                         { display: 'Diferente', operator: '<>' },
-                        { display: 'Incluya', operator: '%'}];
+                        { display: 'Incluya', operator: 'lk'}];
             },
 
             strings: () =>
@@ -388,7 +388,7 @@
                 //Default value
                 return [{ display: 'Igual', operator: '=' },
                         { display: 'Diferente', operator: '<>' },
-                        { display: 'Incluya', operator: '%'}];
+                        { display: 'Incluya', operator: 'lk'}];
             },
 
             enums: () =>
@@ -687,7 +687,7 @@
                 
                 vm.tablePropertiesNavigation.filter((p) => { return (p.display != column.display); }).forEach((p) => { p.$selected = null; });
                 setClassColumn();
-                vm.connectionComponent.pager.sortTableColumns.set([{ property: 'orderby', value: (column.property.pageProperty || column.property.name) + (column.$selected ? ';asc' : ';desc') }]);
+                vm.connectionComponent.pager.sortTableColumns.set([{ sort: (column.property.pageProperty || column.property.name), value: (column.$selected ? 'asc' : 'desc') }]);
                 vm.connectionComponent.pager.reload();
             };
 
@@ -840,7 +840,9 @@
         {
             if (type == 'date' || type == 'datetime' && value)
             {
-                value = new Date(value);
+
+                if (!(value instanceof Date))
+                    var value = transformStringToDate(value);
                 var year = value.getFullYear().toString();
                 var month = (value.getMonth() + 1).toString();
                 var day = value.getDate().toString();
@@ -871,6 +873,11 @@
                 return year + '-' +  month + '-' + day;
             }
             return value;
+        }
+
+        function transformStringToDate(value)
+        {
+            return new EntifixDateGenerator().transformStringToDate(value);
         }
 
         function transformBool(value)
@@ -1132,10 +1139,10 @@
 
             //Date filters
             if ($stateParams.startDate && vm.queryParams.get())
-                vm.startDate = new Date($stateParams.startDate);
+                vm.startDate = transformStringToDate($stateParams.startDate);
 
             if ($stateParams.endDate && vm.queryParams.get())
-                vm.endDate = new Date($stateParams.endDate);
+                vm.endDate = transformStringToDate($stateParams.endDate);
 
             if (vm.startDate || vm.endDate)
                 vm.searchItemsDate(true);
@@ -1269,10 +1276,7 @@
             if (vm.columnToSearch.display && vm.operator.operator && vm.valueToSearch)
             {
                 vm.valueToSearch = transformDate(vm.valueToSearch, vm.columnToSearch.type);
-                if (vm.operator.operator == '%')
-                    vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' = ' + vm.operator.operator + vm.valueToSearch + vm.operator.operator);
-                else 
-                    vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' ' + vm.operator.operator + ' ' + vm.valueToSearch);
+                vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' ' + vm.operator.operator + ' ' + vm.valueToSearch);
                 vm.searchArray.push({ property: vm.columnToSearch.property, operator: vm.operator.operator, value: vm.valueToSearch });
             }
             cleanCustomSearchValues();
@@ -1353,7 +1357,7 @@
 
         vm.searchItemsDate = function(skipReload)
         {
-            vm.queryDetails.constantFilters.getter = () => { return [ { property: vm.startDateProperty.get(), value: 'gte;' + transformDate(vm.startDate, 'datetime') }, { property: vm.endDateProperty.get(), value: 'lte;' + transformDate(vm.endDate, 'datetime') }, { property: vm.notApplyProperty.get(), value: vm.notApplyValue.get() } ]; };
+            vm.queryDetails.constantFilters.getter = () => { return [ { property: vm.startDateProperty.get(), value: transformDate(vm.startDate, 'datetime'), operator: '>=', type: 'fixed_filter' }, { property: vm.endDateProperty.get(), value: transformDate(vm.endDate, 'datetime'), operator: '<=', type: 'fixed_filter' } ]; };
             if (!skipReload)
                 vm.connectionComponent.pager.reload();
         }
@@ -1373,9 +1377,9 @@
             vm.queryDetails.constantFilters = {};
             var constantFilters = [];
             if (value)
-                constantFilters.push({ property: vm.notApplyProperty.get(), value: vm.notApplyValue.get() })
+                constantFilters.push({ property: vm.notApplyProperty.get(), value: vm.notApplyValue.get(), type: 'fixed_filter' })
             if (vm.startDate && vm.endDate)
-                constantFilters.push({ property: vm.startDateProperty.get(), value: 'gte;' + transformDate(vm.startDate, 'datetime') }, { property: vm.endDateProperty.get(), value: 'lte;' + transformDate(vm.endDate, 'datetime') });
+                constantFilters.push({ property: vm.startDateProperty.get(), value: transformDate(vm.startDate, 'datetime'), type: 'fixed_filter', operator: '>=' }, { property: vm.endDateProperty.get(), value: transformDate(vm.endDate, 'datetime'), type: 'fixed_filter', operator: '<=' });
             vm.queryDetails.constantFilters.getter = () => { return constantFilters; };
             vm.connectionComponent.pager.reload();
         }

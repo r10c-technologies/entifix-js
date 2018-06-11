@@ -1,7 +1,7 @@
 (function () {
     'use strict';
    
-    function componentcontroller(mdcDateTimeDialog, $scope)
+    function componentcontroller(mdcDateTimeDialog, $scope, EntifixDateGenerator)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
@@ -470,7 +470,11 @@
         {
             if (vm.valueModel)
             {
-                var dateValueModel = new Date(vm.valueModel);
+                if (!(vm.valueModel instanceof Date))
+                    var dateValueModel = transformStringToDate(vm.valueModel);
+                else
+                    var dateValueModel = vm.valueModel;
+
                 if (dateValueModel instanceof Date)
                 {
                     var date = dateValueModel;
@@ -532,7 +536,10 @@
                     clickOutsideToClose: vm.clickOutsideToClose.get()
                 })
                 .then(function (date) {
-                    vm.valueModel = new Date(date.toString());
+                    if (!(date instanceof Date))
+                        vm.valueModel = transformStringToDate(value);
+                    else
+                        vm.valueModel = date;
                 }, function(){ console.log('Selección cancelada'); });
             }
             else
@@ -555,7 +562,10 @@
                     clickOutsideToClose: vm.clickOutsideToClose.get()
                 })
                 .then(function (date) {
-                    vm.valueModel = new Date(date.toString());
+                    if (!(date instanceof Date))
+                        vm.valueModel = transformStringToDate(value);    
+                    else
+                        vm.valueModel = date;
                 }, function(){ console.log('Selección cancelada'); });
             }
 
@@ -567,11 +577,16 @@
                 vm.onChange( { value: vm.valueModel } );
         }
 
+        function transformStringToDate(value)
+        {
+            return new EntifixDateGenerator().transformStringToDate(value);
+        }
+
         $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); } )
         //=======================================================================================================================================================================        
     };
 
-    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope'];
+    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope', 'EntifixDateGenerator'];
 
     var component = 
     {

@@ -2,7 +2,7 @@
     'use strict';
 
     //Module creation
-    var entifix = angular.module('entifix-js', ['app.config', 'angular-jwt', 'angular-md5', 'entifix-security-management'] )
+    var entifix = angular.module('entifix-js', ['app.config', 'angular-jwt', 'angular-md5'] )
 
 
 

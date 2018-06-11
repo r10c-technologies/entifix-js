@@ -505,11 +505,8 @@
             //Construct Filters
             var allFilters = [];
 
-            if (!vm.queryDetails.operator || vm.queryDetails.operator == 'or')
-                allFilters.push( { property: 'operator', value: 'or' } );
-
             if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0)
-                allFilters = allFilters.concat( vm.componentConstruction.searchProperties.map( (D_searchProperty) => { return { property: D_searchProperty, value: 'like;' + searchText } } ));
+                allFilters = allFilters.concat( vm.componentConstruction.searchProperties.map( (D_searchProperty) => { return { property: D_searchProperty, value: searchText } } ));
                 
             if (vm.queryDetails && vm.queryDetails.filters)
                 allFilters = allFilters.concat(vm.queryDetails.filters);
@@ -609,7 +606,7 @@
                                         {
                                             
                                         },
-                                        [{ property: vm.keyProperty.get(), value: id}]
+                                        [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter'}]
                                     );
         }
 

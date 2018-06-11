@@ -347,14 +347,14 @@ table > tbody > tr > td > center > md-checkbox {
     text-decoration: none; 
 }
 .pagination .active {
-    background: #009688;
-    border-color: #009688; 
+    background: #1a8cff;
+    border-color: #1a8cff; 
 }
 .pagination .active a {
     color: #fff; 
 }
 .pagination-page.active {
-    background: #009688; 
+    background: #1a8cff; 
 }
 .pagination-page.active a {
     color: #fff; 
@@ -468,11 +468,11 @@ table > tbody > tr > td > center > md-checkbox {
 }
 
 .md-navcolorbar{
-  color: #009688;
+  color: #1a8cff;
 }
 
 .md-inkcolorbar{
-  background-color: #009688;
+  background-color: #1a8cff;
 }
 
 md-content{
@@ -483,15 +483,17 @@ md-content{
 /*********** Checkbox Switch Component Styling ***********/
 /*********************************************************/
 md-checkbox.md-checked.checkbox-default .md-icon {
-  background-color: #009688;
+  background-color: #1a8cff;
 }
 md-switch.md-checked .md-bar {
-  background-color: #00b3a1;
+  background-color: #46a2ff;
 }
 md-switch.md-checked .md-thumb {
-  background-color: #009688;
+  background-color: #1a8cff;
 }
 .md-checkbox-padding {
   padding-top: 20px;
   padding-bottom: 0px;
 }
+
+/*009688*/

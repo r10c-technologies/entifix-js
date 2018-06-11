@@ -61,6 +61,16 @@
                     <div ng-if="bindCtrl.columnToSearch.type == 'enum'" flex>
                         <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete>
                     </div>
+                    <div ng-if="bindCtrl.columnToSearch.type == 'bool'" flex>
+                        <md-input-container class="md-block">
+                            <label>{{bindCtrl.operatorsText.get()}}</label>
+                            <md-select
+                                ng-model="bindCtrl.operator"
+                                aria-label="{{bindCtrl.operatorsText.get()}}">
+                                <md-option ng-repeat="item in bindCtrl.operators" ng-value="item">{{item.display}}</md-option>
+                            </md-select>
+                        </md-input-container>
+                    </div>
                 </div>
                 <div flex layout layout-align="center center">
                     <md-button class="md-primary btn-success" ng-click="bindCtrl.addChip()" ng-disabled="!bindCtrl.columnToSearch || !bindCtrl.operator || !bindCtrl.valueToSearch">
