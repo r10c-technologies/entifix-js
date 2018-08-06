@@ -894,8 +894,8 @@
                 $mdDialog.show({
                                     //templateUrl: 'src/shared/controls/entifixEntityModal/entifixEntityModal.html',
                                     template: '<md-dialog aria-label="{{bindCtrl.title.get()}}" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }" class="{{bindCtrl.size.get()}}"> \
-                                                    <md-toolbar> \
-                                                        <div class="md-toolbar-tools" md-colors="{color: \'default-primary-50\'}" layout> \
+                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
                                                             <div flex layout layout-align="start center"> \
                                                                 <div class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></div> \
                                                                 <h2>&nbsp{{bindCtrl.title.get()}}</h2> \

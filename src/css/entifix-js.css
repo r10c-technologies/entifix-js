@@ -467,13 +467,13 @@ table > tbody > tr > td > center > md-checkbox {
   opacity:1;
 }
 
-.md-navcolorbar{
+/* .md-navcolorbar{
   color: #1a8cff;
 }
 
 .md-inkcolorbar{
   background-color: #1a8cff;
-}
+} */
 
 md-content{
   background-color: white;

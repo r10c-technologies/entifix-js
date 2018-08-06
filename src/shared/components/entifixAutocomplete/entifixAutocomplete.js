@@ -581,7 +581,7 @@
                                                 data.reject();
                                         },
                                         vm.getConstantFilters(),
-                                        { skip: 0, take: maxItems }
+                                        { skp: 0, take: maxItems }
                                     );
                      
         }
@@ -606,7 +606,7 @@
                                         {
                                             
                                         },
-                                        [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter'}]
+                                        [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter', operator: 'eq'}]
                                     );
         }
 

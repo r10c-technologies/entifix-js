@@ -49,8 +49,8 @@
         vm.preconditionFailedError = function(error)
         {
             $mdDialog.show({    template: '<md-dialog aria-label="Elija una Bodega para trabajar" class="md-md"> \
-                                                <md-toolbar> \
-                                                    <div class="md-toolbar-tools" md-colors="{color: \'default-primary-50\'}" layout> \
+                                                <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                    <div class="md-toolbar-tools" layout> \
                                                         <div flex layout layout-align="start center"> \
                                                             <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
                                                             <h2>&nbsp Elija una Bodega para trabajar</h2> \

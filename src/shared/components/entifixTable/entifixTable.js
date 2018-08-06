@@ -414,18 +414,6 @@
             }
         };
 
-        vm.searchIcon =
-        {
-            get: () =>
-            {
-                if (vm.componentConstruction && vm.componentConstruction.searchIcon)
-                    return  vm.componentConstruction.searchIcon;
-
-                //Default value
-                return 'search';
-            }
-        };
-
         vm.valueToSearchText =
         {
             get: () =>

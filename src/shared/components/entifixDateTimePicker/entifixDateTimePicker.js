@@ -212,6 +212,17 @@
             }
         }
 
+        vm.toConverte =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.toConverte)
+                    return vm.componentConstruction.toConverte;
+                
+                return false;
+            }
+        }
+
         // Date Picker Configuration -------------------------------------------------------------------------------------------------------------------------------------------------
         vm.hasDate =
         {
@@ -579,7 +590,9 @@
 
         function transformStringToDate(value)
         {
-            return new EntifixDateGenerator().transformStringToDate(value);
+            if (vm.toConverte.get())
+                return new EntifixDateGenerator().transformStringToDate(value);
+            return new Date(value);
         }
 
         $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); } )

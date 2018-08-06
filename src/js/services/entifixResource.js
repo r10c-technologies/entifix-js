@@ -701,7 +701,7 @@
                     if (suffix_pagination instanceof Function)
                         tempSuffix = suffix_pagination();
                     else
-                        tempSuffix = suffix_pagination.skip + '/' + suffix_pagination.take;
+                        tempSuffix = '?skip=' + suffix_pagination.skip + '&take=' + suffix_pagination.take;
                 }                    
 
                 var preSuccess = (response) =>
