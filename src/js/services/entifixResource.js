@@ -946,8 +946,16 @@
                 var filterProp = [];
                 columnsSelected.forEach((cs) => { 
                                                     var filter = properties.filter((p) => { return getDisplay(p) == cs });
-                                                    if (filter.length > 0)
-                                                        filterProp.push(filter[0]); 
+                                                    if (filter.length > 0 && !filter[0].alwaysExclude)
+                                                        filterProp.push(filter[0]);
+                                                });
+                properties.forEach((property) => {
+                                                    if (property.alwaysInclude) {
+                                                        var contains = filterProp.includes(property);
+                                                        if (!contains) {
+                                                            filterProp.push(property);
+                                                        }
+                                                    }
                                                 });
                 return filterProp;
             }

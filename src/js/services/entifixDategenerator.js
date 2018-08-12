@@ -33,56 +33,61 @@
 
             vm.transformStringToDate = function(value)
             {
-                var dayOrYear = value.split("-");
-                if (dayOrYear.length > 0 && dayOrYear[0].length > 2)
-                    var isToDisplay = false;
-                else
-                    var isToDisplay = true;
-
-                if (value.length > 10)
-                    var isDateTime = true;
-                else
-                    var isDateTime = false;
-
-                if (value && !(value instanceof Date))
+                if (isInvalidDate(value))
                 {
-                    if (isDateTime)
+                    var dayOrYear = value.split("-");
+                    if (dayOrYear.length > 0 && dayOrYear[0].length > 2)
+                        var isToDisplay = false;
+                    else
+                        var isToDisplay = true;
+
+                    if (value.length > 10)
+                        var isDateTime = true;
+                    else
+                        var isDateTime = false;
+
+                    if (value && !(value instanceof Date))
                     {
-                        if (isToDisplay)
+                        if (isDateTime)
                         {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value); 
-                            return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]),(+dateArray[4]),(+dateArray[5]),(+dateArray[6]));
+                            if (isToDisplay)
+                            {
+                                var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+                                var dateArray = reggie.exec(value); 
+                                return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]),(+dateArray[4]),(+dateArray[5]),(+dateArray[6]));
+                            }
+                            else
+                            {
+                                var reggie  = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+                                var dateArray = reggie.exec(value); 
+                                return new Date((+dateArray[1]),(+dateArray[2])-1,(+dateArray[3]),(+dateArray[4]),(+dateArray[5]),(+dateArray[6]));
+                            }
                         }
                         else
                         {
-                            var reggie  = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value); 
-                            return new Date((+dateArray[1]),(+dateArray[2])-1,(+dateArray[3]),(+dateArray[4]),(+dateArray[5]),(+dateArray[6]));
+                            if (isToDisplay)
+                            {
+                                var reggie = /(\d{2})-(\d{2})-(\d{4})/;
+                                var dateArray = reggie.exec(value);
+                                return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]));    
+                            }
+                            else
+                            {
+                                var reggie  = /(\d{4})-(\d{2})-(\d{2})/;
+                                var dateArray = reggie.exec(value);
+                                return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]));    
+                            }
                         }
+                    }
+                    else if (value)
+                    {
+                        return value;
                     }
                     else
-                    {
-                        if (isToDisplay)
-                        {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]));    
-                        }
-                        else
-                        {
-                            var reggie  = /(\d{4})-(\d{2})-(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date((+dateArray[3]),(+dateArray[2])-1,(+dateArray[1]));    
-                        }
-                    }
+                        return null;
                 }
-                else if (value)
-                {
-                    return value;
-                }
-                else
-                    return null;
+                else 
+                    return new Date(value);
             }
 
             vm.transformDateToString = function(value, type, isToDisplay)
@@ -129,6 +134,14 @@
                     return valueToReturn;
                 }
                 return value;
+            }
+
+            function isInvalidDate(value) 
+            {
+                let valueDate = new Date(value);
+                if (valueDate === 'Invalid Date' || isNaN(valueDate))
+                    return true;
+                return false;
             }
 
             // =========================================================================================================================

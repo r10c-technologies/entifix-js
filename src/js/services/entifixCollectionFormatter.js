@@ -32,11 +32,11 @@
 
             function getFilters(collection, singleParam)
             {
-                var filters = [{ property: 'operator', value: 'or' }];
+                var filters = [];
                 collection.forEach(
                     (element) => {
                         if (element[singleParam.property])
-                            filters.push({ property: singleParam.resource.getKeyProperty.get(), value: element[singleParam.property]});
+                            filters.push({ property: singleParam.resource.getKeyProperty.get(), value: element[singleParam.property] });
                     }
                 );
                 return filters;
@@ -115,7 +115,7 @@
                             transform();
                     }
 
-                    if (singleParam.type == 'bool')
+                    if (singleParam.type == 'boolean')
                     {
                         if (value)
                             element[(singleParam.outProperty || singleParam.property)] = 'Si';

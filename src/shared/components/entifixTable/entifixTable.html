@@ -61,7 +61,7 @@
                     <div ng-if="bindCtrl.columnToSearch.type == 'enum'" flex>
                         <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete>
                     </div>
-                    <div ng-if="bindCtrl.columnToSearch.type == 'bool'" flex>
+                    <div ng-if="bindCtrl.columnToSearch.type == 'boolean'" flex>
                         <md-input-container class="md-block">
                             <label>{{bindCtrl.operatorsText.get()}}</label>
                             <md-select

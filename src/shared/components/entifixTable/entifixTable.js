@@ -785,8 +785,8 @@
                         }
                     }
 
-                    if (transformColumn.type == 'bool')
-                        return transformBool(value);
+                    if (transformColumn.type == 'boolean')
+                        return transformBoolean(value);
                 }
             };            
         };
@@ -868,7 +868,7 @@
             return new EntifixDateGenerator().transformStringToDate(value);
         }
 
-        function transformBool(value)
+        function transformBoolean(value)
         {
             if (value)
                 return 'Si';
