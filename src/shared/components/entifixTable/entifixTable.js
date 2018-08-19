@@ -1070,7 +1070,7 @@
         {
             vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
-            vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.transformType || 'text' , property: property }); if (property.default) vm.columnsSelected.push(getDisplay(property)); });
+            vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.transformType || 'text' , property: property }); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
             vm.tablePropertiesNavigation = vm.tableProperties.filter((p) => { return p.property.paginable });
             setClassColumn();
             vm.operators = vm.propertiesOperators.defaults();
@@ -1383,7 +1383,7 @@
             else
             {
                 vm.columnsSelected = [];
-                vm.resourceMembers.forEach((property) => { if (property.default) vm.columnsSelected.push(getDisplay(property))});
+                vm.resourceMembers.forEach((property) => { if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property))});
             }
             cont++;
         };
