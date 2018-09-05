@@ -5,7 +5,7 @@
             <span class="md-headline"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span>
         </md-card-title-text>
     </md-card-title>
-    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()">
+    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off">
         <md-card-content>
             <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div>
         </md-card-content>

@@ -4,9 +4,9 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', '$filter', 'EntifixResource', 'EntifixNotification', 'EntifixNotifier', '$scope', '$timeout', '$rootScope'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope'];
 
-    function componentController(BaseComponentFunctions, $filter, EntifixResource, EntifixNotification, EntifixNotifier, $scope, $timeout, $rootScope)
+    function componentController(BaseComponentFunctions, EntifixNotification, EntifixNotifier, $timeout, $rootScope)
     {
         var vm = this;
 
@@ -420,7 +420,7 @@
             {
                 get: () =>
                 {
-                    return (_state == _statesForm.edit);
+                    if (vm.entity.get()) return (_state == _statesForm.edit); else return true;
                 },
                 set: (value) =>
                 {
@@ -705,7 +705,7 @@
                                 <span class="md-headline"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span> \
                             </md-card-title-text> \
                         </md-card-title> \
-                        <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()"> \
+                        <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off"> \
                             <md-card-content> \
                                 <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
                             </md-card-content> \

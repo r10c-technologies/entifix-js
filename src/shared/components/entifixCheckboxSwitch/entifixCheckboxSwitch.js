@@ -151,6 +151,8 @@
         {
             if (vm.init)
                 vm.init();
+            if (vm.valueModel == undefined)
+                vm.valueModel = false;
         };
 
         vm.runOnChangeTrigger = function()
