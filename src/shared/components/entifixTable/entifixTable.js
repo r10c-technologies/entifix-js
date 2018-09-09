@@ -593,6 +593,18 @@
                 return false;
             }
         }
+
+        vm.allowCustomSerch = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.allowCustomSerch != null)
+                    return vm.componentConstruction.allowCustomSerch;
+
+                //Default value
+                return true;
+            }
+        }
         // =======================================================================================================================================================================
         
         // Methods ===============================================================================================================================================================
@@ -1523,7 +1535,7 @@
                                         <entifix-chip value-model="bindCtrl.textBoxSearchValueChips" component-construction="bindCtrl.chipsCC"></entifix-chip> \
                                     </div> \
                                 </div> \
-                                <div layout-xs="column" layout-gt-xs="row" flex-xs="100" flex-gt-sm="25"> \
+                                <div layout-xs="column" layout-gt-xs="row" flex-xs="100" flex-gt-sm="25" ng-if="bindCtrl.allowCustomSearch.get()"> \
                                     <div flex layout layout-align="center center"> \
                                         <div flex layout layout-align="center center"> \
                                             <entifix-checkbox-switch value-model="bindCtrl.customSearch" component-construction="bindCtrl.customSearchCC" on-change="bindCtrl.onChangeSwitch(v)"></entifix-checkbox-switch> \
