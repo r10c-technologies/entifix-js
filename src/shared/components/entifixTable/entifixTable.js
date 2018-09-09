@@ -594,12 +594,12 @@
             }
         }
 
-        vm.allowCustomSerch = 
+        vm.allowCustomSearch = 
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.allowCustomSerch != null)
-                    return vm.componentConstruction.allowCustomSerch;
+                if (vm.componentConstruction && vm.componentConstruction.allowCustomSearch != null)
+                    return vm.componentConstruction.allowCustomSearch;
 
                 //Default value
                 return true;

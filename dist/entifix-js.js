@@ -4885,426 +4885,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller($filter) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.maxLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
-                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
-
-                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado largo';
-            }
-        };
-
-        vm.minLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.minLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
-                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
-
-                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado corto';
-            }
-        };
-
-        vm.emailMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.emailMessage) {
-                    if (vm.componentConstruction.emailMessage.getter) return vm.componentConstruction.emailMessage.getter();
-
-                    if (vm.componentConstruction.emailMessage.text) return vm.componentConstruction.emailMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese una dirección de correo válida';
-            }
-        };
-
-        vm.urlMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.urlMessage) {
-                    if (vm.componentConstruction.urlMessage.getter) return vm.componentConstruction.urlMessage.getter();
-
-                    if (vm.componentConstruction.urlMessage.text) return vm.componentConstruction.urlMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese una dirección URL válida';
-            }
-        };
-
-        vm.numberMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.numberMessage) {
-                    if (vm.componentConstruction.numberMessage.getter) return vm.componentConstruction.numberMessage.getter();
-
-                    if (vm.componentConstruction.numberMessage.text) return vm.componentConstruction.numberMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese una número válido';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
-                return 'entifixinput' + randomNumber;
-            }
-        };
-
-        vm.isTextArea = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isTextArea) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.type = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.type) return vm.componentConstruction.type;
-
-                //Default value
-                return 'text';
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.rows = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.rows) return vm.componentConstruction.rows;
-
-                //Default value
-                return 1;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.modelOptions = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.modelOptions) return vm.componentConstruction.modelOptions;
-
-                return {};
-            }
-        };
-
-        vm.numberValidation = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.numberValidation) return vm.componentConstruction.numberValidation;
-
-                return false;
-            }
-        };
-
-        vm.format = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.format) return vm.componentConstruction.format;
-
-                return null;
-            }
-        };
-
-        vm.currency = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.currency) return vm.componentConstruction.currency;
-
-                return '';
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-            //=======================================================================================================================================================================
-
-
-            //Methods________________________________________________________________________________________________________________________________________________________________ 
-            //=======================================================================================================================================================================
-
-        };vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.runOnChangeTrigger = function () {
-            if (vm.onChange) vm.onChange({ value: vm.valueModel });
-        };
-
-        function getCleanedString(stringToClean) {
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) {
-                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-            }stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g, "");
-            stringToClean = stringToClean.replace(/á/gi, "a");
-            stringToClean = stringToClean.replace(/é/gi, "e");
-            stringToClean = stringToClean.replace(/í/gi, "i");
-            stringToClean = stringToClean.replace(/ó/gi, "o");
-            stringToClean = stringToClean.replace(/ú/gi, "u");
-            stringToClean = stringToClean.replace(/ñ/gi, "n");
-            return stringToClean;
-        }
-
-        vm.getDisplay = function () {
-            if (vm.valueModel) {
-                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
-                return vm.valueModel;
-            } else return vm.nullValueLabel.get();
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$filter'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '&',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixInput/entifixInput.html',
-        template: '<div ng-if="!vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <input \
-                                type="{{vm.type.get()}}" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
-                                step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
-                                number-block \
-                                autocomplete="off"/> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                </div> \
-                        </md-input-container> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <input \
-                                type="{{vm.type.get()}}" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
-                                step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
-                                number-block \
-                                autocomplete="off"/> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                </div> \
-                        </md-input-container> \
-                    </div> \
-                </div> \
-                <div ng-if="vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <textarea \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
-                                step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
-                                number-block></textarea> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                </div> \
-                        </md-input-container> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <textarea \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
-                                step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
-                                number-block></textarea> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                </div> \
-                        </md-input-container> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixInput', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     var module = angular.module('entifix-js');
 
     componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope'];
@@ -5932,6 +5512,426 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 'use strict';
 
 (function () {
+    'use strict';
+
+    function componentcontroller($filter) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields();
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.maxLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
+                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
+
+                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado largo';
+            }
+        };
+
+        vm.minLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.minLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
+                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
+
+                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado corto';
+            }
+        };
+
+        vm.emailMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.emailMessage) {
+                    if (vm.componentConstruction.emailMessage.getter) return vm.componentConstruction.emailMessage.getter();
+
+                    if (vm.componentConstruction.emailMessage.text) return vm.componentConstruction.emailMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese una dirección de correo válida';
+            }
+        };
+
+        vm.urlMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.urlMessage) {
+                    if (vm.componentConstruction.urlMessage.getter) return vm.componentConstruction.urlMessage.getter();
+
+                    if (vm.componentConstruction.urlMessage.text) return vm.componentConstruction.urlMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese una dirección URL válida';
+            }
+        };
+
+        vm.numberMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.numberMessage) {
+                    if (vm.componentConstruction.numberMessage.getter) return vm.componentConstruction.numberMessage.getter();
+
+                    if (vm.componentConstruction.numberMessage.text) return vm.componentConstruction.numberMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese una número válido';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
+                return 'entifixinput' + randomNumber;
+            }
+        };
+
+        vm.isTextArea = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isTextArea) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.type = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.type) return vm.componentConstruction.type;
+
+                //Default value
+                return 'text';
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.rows = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.rows) return vm.componentConstruction.rows;
+
+                //Default value
+                return 1;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.modelOptions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.modelOptions) return vm.componentConstruction.modelOptions;
+
+                return {};
+            }
+        };
+
+        vm.numberValidation = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.numberValidation) return vm.componentConstruction.numberValidation;
+
+                return false;
+            }
+        };
+
+        vm.format = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.format) return vm.componentConstruction.format;
+
+                return null;
+            }
+        };
+
+        vm.currency = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.currency) return vm.componentConstruction.currency;
+
+                return '';
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+            //=======================================================================================================================================================================
+
+
+            //Methods________________________________________________________________________________________________________________________________________________________________ 
+            //=======================================================================================================================================================================
+
+        };vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.runOnChangeTrigger = function () {
+            if (vm.onChange) vm.onChange({ value: vm.valueModel });
+        };
+
+        function getCleanedString(stringToClean) {
+            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+            for (var i = 0; i < specialChars.length; i++) {
+                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+            }stringToClean = stringToClean.toLowerCase();
+            stringToClean = stringToClean.replace(/ /g, "");
+            stringToClean = stringToClean.replace(/á/gi, "a");
+            stringToClean = stringToClean.replace(/é/gi, "e");
+            stringToClean = stringToClean.replace(/í/gi, "i");
+            stringToClean = stringToClean.replace(/ó/gi, "o");
+            stringToClean = stringToClean.replace(/ú/gi, "u");
+            stringToClean = stringToClean.replace(/ñ/gi, "n");
+            return stringToClean;
+        }
+
+        vm.getDisplay = function () {
+            if (vm.valueModel) {
+                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
+                return vm.valueModel;
+            } else return vm.nullValueLabel.get();
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$filter'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '&',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixInput/entifixInput.html',
+        template: '<div ng-if="!vm.isTextArea.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <input \
+                                type="{{vm.type.get()}}" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                md-maxlength="{{vm.maxLength.get()}}" \
+                                minlength="{{vm.minLength.get()}}" \
+                                name="{{vm.name.get()}}" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.get()" \
+                                step="any" \
+                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-block \
+                                autocomplete="off"/> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                </div> \
+                        </md-input-container> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplay()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-input-container class="md-block"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <input \
+                                type="{{vm.type.get()}}" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                md-maxlength="{{vm.maxLength.get()}}" \
+                                minlength="{{vm.minLength.get()}}" \
+                                name="{{vm.name.get()}}" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.get()" \
+                                step="any" \
+                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-block \
+                                autocomplete="off"/> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                </div> \
+                        </md-input-container> \
+                    </div> \
+                </div> \
+                <div ng-if="vm.isTextArea.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <textarea \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                md-maxlength="{{vm.maxLength.get()}}" \
+                                rows="{{vm.rows.get()}}" \
+                                minlength="{{vm.minLength.get()}}" \
+                                name="{{vm.name.get()}}" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.get()" \
+                                step="any" \
+                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-block></textarea> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                </div> \
+                        </md-input-container> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplay()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-input-container class="md-block"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <textarea \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                md-maxlength="{{vm.maxLength.get()}}" \
+                                rows="{{vm.rows.get()}}" \
+                                minlength="{{vm.minLength.get()}}" \
+                                name="{{vm.name.get()}}" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.get()" \
+                                step="any" \
+                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-block></textarea> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                </div> \
+                        </md-input-container> \
+                    </div> \
+                </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixInput', component);
+})();
+'use strict';
+
+(function () {
         'use strict';
 
         angular.module('entifix-js').controller('PreconditionFailedErrorController', controller);
@@ -5997,6 +5997,401 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 activate();
                 // ==============================================================================================================================================================
         };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller() {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields();
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.multipleMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.multipleMessage) {
+                    if (vm.componentConstruction.multipleMessage.getter) return vm.componentConstruction.multipleMessage.getter();
+
+                    if (vm.componentConstruction.multipleMessage.text) return vm.componentConstruction.multipleMessage.text;
+                }
+
+                //Default value
+                return 'Error en la elección del elemento, vuelva a seleccionarlo';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
+                return 'entifixselect' + randomNumber;
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.isMultipleDisplay = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.isMultiple = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultiple) return vm.componentConstruction.isMultiple;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.collection = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.collection) {
+                    if (vm.componentConstruction.collection.getter) return vm.componentConstruction.collection.getter();
+                    if (vm.componentConstruction.collection.elements) return vm.componentConstruction.collection.elements;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+            //=======================================================================================================================================================================
+
+
+            //Methods________________________________________________________________________________________________________________________________________________________________ 
+            //=======================================================================================================================================================================
+
+        };vm.$onInit = function () {
+            loadCollection();
+            checkoutputs();
+            vm.searchText;
+        };
+
+        function loadCollection() {
+            if (vm.collection.get()) vm.items = vm.collection.get();else {
+                if (!vm.isMultipleDisplay.get()) {
+                    vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
+                        vm.items = enumResult;
+                    });
+                } else {
+                    prepareMultiDisplayParameters();
+                    vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
+                }
+            }
+        };
+
+        function prepareMultiDisplayParameters() {
+            var actionSuccess = function actionSuccess(enumResult) {
+                vm.items = enumResult;
+            };
+            vm.parameters = {
+                displayProperties: vm.componentConstruction.displayProperties,
+                actionSuccess: actionSuccess,
+                actionError: vm.queryDetails.actionError,
+                filters: vm.queryDetails.filters
+            };
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        return vm.getValue();
+                    }
+                }
+            };
+
+            if (vm.init) vm.init();
+        };
+
+        vm.getDisplayValue = function () {
+            if (!vm.isMultiple.get()) {
+                if (vm.valueModel && vm.items && vm.items.length > 0) {
+                    var item = vm.items.filter(function (e) {
+                        return e.Value == vm.valueModel;
+                    })[0];
+                    if (item) return item.Display;
+                }
+            } else {
+                if (vm.valueModel && vm.items && vm.items.length > 0) {
+                    var item = '';
+                    vm.valueModel.forEach(function (valueModel) {
+                        item += vm.items.filter(function (e) {
+                            return e.Value == valueModel;
+                        })[0].Display;
+                    });
+                    if (item) return item;
+                }
+            }
+            return vm.nullValueLabel.get();
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item;
+            }
+
+            return null;
+        };
+
+        vm.runOnChangeTrigger = function () {
+            var entity = vm.items.filter(function (e) {
+                return e.Value == vm.valueModel;
+            })[0];
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
+        };
+
+        function getCleanedString(stringToClean) {
+            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+            for (var i = 0; i < specialChars.length; i++) {
+                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+            }stringToClean = stringToClean.toLowerCase();
+            stringToClean = stringToClean.replace(/ /g, "");
+            stringToClean = stringToClean.replace(/á/gi, "a");
+            stringToClean = stringToClean.replace(/é/gi, "e");
+            stringToClean = stringToClean.replace(/í/gi, "i");
+            stringToClean = stringToClean.replace(/ó/gi, "o");
+            stringToClean = stringToClean.replace(/ú/gi, "u");
+            stringToClean = stringToClean.replace(/ñ/gi, "n");
+            return stringToClean;
+        }
+
+        vm.cleanSearch = function () {
+            vm.searchText = '';
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = [];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '&',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixSelect/entifixSelect.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="!vm.isMultiple.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader"> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-input-container> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()"> \
+                            <md-input-container class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader"> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div> \
+                            </md-input-container> \
+                        </div> \
+                    </div> \
+                    <div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="vm.isMultiple.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader" \
+                                    multiple=""> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
+                                </div>  \
+                            </md-input-container> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()"> \
+                            <md-input-container class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader" \
+                                    multiple=""> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
+                                </div> \
+                            </md-input-container> \
+                        </div> \
+                    </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixSelect', component);
 })();
 'use strict';
 
@@ -6724,9 +7119,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.allowCustomSerch = {
+        vm.allowCustomSearch = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.allowCustomSerch != null) return vm.componentConstruction.allowCustomSerch;
+                if (vm.componentConstruction && vm.componentConstruction.allowCustomSearch != null) return vm.componentConstruction.allowCustomSearch;
 
                 //Default value
                 return true;
@@ -7592,401 +7987,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller() {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.multipleMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.multipleMessage) {
-                    if (vm.componentConstruction.multipleMessage.getter) return vm.componentConstruction.multipleMessage.getter();
-
-                    if (vm.componentConstruction.multipleMessage.text) return vm.componentConstruction.multipleMessage.text;
-                }
-
-                //Default value
-                return 'Error en la elección del elemento, vuelva a seleccionarlo';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
-                return 'entifixselect' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.isMultipleDisplay = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.isMultiple = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultiple) return vm.componentConstruction.isMultiple;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.collection = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.collection) {
-                    if (vm.componentConstruction.collection.getter) return vm.componentConstruction.collection.getter();
-                    if (vm.componentConstruction.collection.elements) return vm.componentConstruction.collection.elements;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-            //=======================================================================================================================================================================
-
-
-            //Methods________________________________________________________________________________________________________________________________________________________________ 
-            //=======================================================================================================================================================================
-
-        };vm.$onInit = function () {
-            loadCollection();
-            checkoutputs();
-            vm.searchText;
-        };
-
-        function loadCollection() {
-            if (vm.collection.get()) vm.items = vm.collection.get();else {
-                if (!vm.isMultipleDisplay.get()) {
-                    vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
-                        vm.items = enumResult;
-                    });
-                } else {
-                    prepareMultiDisplayParameters();
-                    vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
-                }
-            }
-        };
-
-        function prepareMultiDisplayParameters() {
-            var actionSuccess = function actionSuccess(enumResult) {
-                vm.items = enumResult;
-            };
-            vm.parameters = {
-                displayProperties: vm.componentConstruction.displayProperties,
-                actionSuccess: actionSuccess,
-                actionError: vm.queryDetails.actionError,
-                filters: vm.queryDetails.filters
-            };
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        return vm.getValue();
-                    }
-                }
-            };
-
-            if (vm.init) vm.init();
-        };
-
-        vm.getDisplayValue = function () {
-            if (!vm.isMultiple.get()) {
-                if (vm.valueModel && vm.items && vm.items.length > 0) {
-                    var item = vm.items.filter(function (e) {
-                        return e.Value == vm.valueModel;
-                    })[0];
-                    if (item) return item.Display;
-                }
-            } else {
-                if (vm.valueModel && vm.items && vm.items.length > 0) {
-                    var item = '';
-                    vm.valueModel.forEach(function (valueModel) {
-                        item += vm.items.filter(function (e) {
-                            return e.Value == valueModel;
-                        })[0].Display;
-                    });
-                    if (item) return item;
-                }
-            }
-            return vm.nullValueLabel.get();
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item;
-            }
-
-            return null;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            var entity = vm.items.filter(function (e) {
-                return e.Value == vm.valueModel;
-            })[0];
-            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
-        };
-
-        function getCleanedString(stringToClean) {
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) {
-                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-            }stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g, "");
-            stringToClean = stringToClean.replace(/á/gi, "a");
-            stringToClean = stringToClean.replace(/é/gi, "e");
-            stringToClean = stringToClean.replace(/í/gi, "i");
-            stringToClean = stringToClean.replace(/ó/gi, "o");
-            stringToClean = stringToClean.replace(/ú/gi, "u");
-            stringToClean = stringToClean.replace(/ñ/gi, "n");
-            return stringToClean;
-        }
-
-        vm.cleanSearch = function () {
-            vm.searchText = '';
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = [];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '&',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixSelect/entifixSelect.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="!vm.isMultiple.get()"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
-                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader"> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-input-container> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
-                            </div> \
-                        </div> \
-                        <div ng-if="!vm.isForm.get()"> \
-                            <md-input-container class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader"> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div> \
-                            </md-input-container> \
-                        </div> \
-                    </div> \
-                    <div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="vm.isMultiple.get()"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
-                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader" \
-                                    multiple=""> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
-                                </div>  \
-                            </md-input-container> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
-                            </div> \
-                        </div> \
-                        <div ng-if="!vm.isForm.get()"> \
-                            <md-input-container class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader" \
-                                    multiple=""> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
-                                </div> \
-                            </md-input-container> \
-                        </div> \
-                    </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixSelect', component);
 })();
 'use strict';
 
