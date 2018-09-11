@@ -810,6 +810,10 @@
                                     () => 
                                     {
                                         vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { defaultOk(); });
+                                    },
+                                    () =>
+                                    {
+                                        
                                     });
         };
 

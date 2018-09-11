@@ -38,13 +38,13 @@
         {
             encabezado = encabezado || '¿Está seguro de proceder?';
           
-        swal({ title: encabezado, 
-                text: detalle, 
-                type: 'warning', 
-                showCancelButton: true, 
-                confirmButtonColor: '#DD6B55', 
-                confirmButtonText: 'Sí',   
-                cancelButtonText: 'No'}).then(actionConfirm,actionCancel);
+            swal({ title: encabezado, 
+                    text: detalle, 
+                    type: 'warning', 
+                    showCancelButton: true, 
+                    confirmButtonColor: '#DD6B55', 
+                    confirmButtonText: 'Sí',
+                    cancelButtonText: 'No'}).then((value) => { if (value.value) actionConfirm(); else actionCancel(); });
 
         };
 

@@ -667,6 +667,10 @@
                                     () => 
                                     {
                                         vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { _state = _statesForm.view; });
+                                    },
+                                    () =>
+                                    {
+                                        
                                     });
         };
 

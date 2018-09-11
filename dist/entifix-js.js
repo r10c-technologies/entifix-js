@@ -1264,7 +1264,9 @@
                 showCancelButton: true,
                 confirmButtonColor: '#DD6B55',
                 confirmButtonText: 'Sí',
-                cancelButtonText: 'No' }).then(actionConfirm, actionCancel);
+                cancelButtonText: 'No' }).then(function (value) {
+                if (value.value) actionConfirm();else actionCancel();
+            });
         };
 
         return vm;
@@ -2576,6 +2578,615 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+(function () {
+    'use strict';
+
+    componentController.$inject = ['$stateParams', '$state', '$timeout', 'EntifixEntityModal', 'EntifixNotification', '$rootScope'];
+
+    function componentController($stateParams, $state, $timeout, EntifixEntityModal, EntifixNotification, $rootScope) {
+        var vm = this;
+
+        vm.$onInit = function () {
+            setdefaults();
+            activate();
+        };
+
+        // Init Methods
+        // ==============================================================================================================================================================
+
+        function setdefaults() {
+            // Defaults for table =======================================================================================================================================
+
+            vm.componentConstruction.reload = vm.reload;
+
+            if (checkDefaultTableConstruction('search')) {
+                if (!vm.tableComponentConstruction.search) vm.tableComponentConstruction.search = {};
+            }
+
+            if (checkDefaultTableConstruction('edit')) {
+                if (!vm.tableComponentConstruction.edit) vm.tableComponentConstruction.edit = {};
+
+                var personalizeEditTable = vm.tableComponentConstruction.edit.customAction;
+
+                vm.tableComponentConstruction.edit.customAction = function (entity) {
+                    if (personalizeEditTable) personalizeEditTable(entity);else {
+                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.queryDetails.resource.getKeyProperty.get()], function (entity) {
+                            if (vm.isModal.get()) vm.openModal(entity);else vm.changeToSingleView(entity);
+                        });
+                    }
+                };
+            }
+
+            if (checkDefaultTableConstruction('add')) {
+                if (!vm.tableComponentConstruction.add) vm.tableComponentConstruction.add = {};
+
+                var personalizeAddTable = vm.tableComponentConstruction.add.customAction;
+
+                vm.tableComponentConstruction.add.customAction = function () {
+                    if (personalizeAddTable) personalizeAddTable();else {
+                        if (vm.isModal.get()) vm.openModal();else vm.changeToSingleView();
+                    }
+                };
+            }
+
+            if (checkDefaultTableConstruction('remove')) {
+                if (!vm.tableComponentConstruction.remove) vm.tableComponentConstruction.remove = {};
+
+                var personalizeRemoveTable = vm.tableComponentConstruction.remove.customAction;
+
+                if (personalizeRemoveTable) vm.tableComponentConstruction.remove.customAction = function (entity) {
+                    personalizeRemoveTable(entity);
+                };
+            };
+
+            if (vm.isProcessEntity.get()) {
+                if (checkDefaultTableConstruction('process')) {
+                    if (!vm.tableComponentConstruction.process) vm.tableComponentConstruction.process = {};
+
+                    var personalizeProcessTable = vm.tableComponentConstruction.process.customAction;
+
+                    if (personalizeProcessTable) vm.tableComponentConstruction.process.customAction = function (entity) {
+                        personalizeProcessTable(entity);
+                    };
+                };
+            }
+
+            if (!vm.tableQueryDetails) vm.tableQueryDetails = vm.queryDetails;
+
+            if (!vm.entityQueryDetails) vm.entityQueryDetails = vm.queryDetails;
+
+            if (!vm.isModal.get()) {
+                // Defaults for entity form =============================================================================================================================
+                if (checkDefaultEntityConstruction('cancel')) {
+                    if (!vm.entityComponentConstruction.cancel) vm.entityComponentConstruction.cancel = {};
+
+                    var personalizeCancelEntity = vm.entityComponentConstruction.cancel.customAction;
+
+                    vm.entityComponentConstruction.cancel.customAction = function () {
+                        if (personalizeCancelEntity) personalizeCancelEntity();else {
+                            if (vm.entityQueryDetails.resource.isNewEntity(vm.entityComponentBindingOut.entity.get())) vm.changeToMainView();else loadEntity();
+                        }
+                    };
+                }
+
+                if (checkDefaultEntityConstruction('ok')) {
+                    if (!vm.entityComponentConstruction.ok) vm.entityComponentConstruction.ok = {};
+
+                    var personalizeOkEntity = vm.entityComponentConstruction.ok.customAction;
+
+                    vm.entityComponentConstruction.ok.customAction = function () {
+                        if (personalizeOkEntity) personalizeOkEntity();else vm.changeToMainView();
+                    };
+                }
+
+                if (checkDefaultEntityConstruction('edit')) {
+                    if (!vm.entityComponentConstruction.edit) vm.entityComponentConstruction.edit = {};
+
+                    var personalizeEditEntity = vm.entityComponentConstruction.edit.customAction;
+
+                    if (personalizeEditEntity) vm.entityComponentConstruction.edit.customAction = function (entity) {
+                        personalizeEditEntity(entity);
+                    };
+                }
+
+                if (checkDefaultEntityConstruction('save')) {
+                    if (!vm.entityComponentConstruction.save) vm.entityComponentConstruction.save = {};
+
+                    vm.entityComponentConstruction.save.autoChange = false;
+
+                    var personalizeSaveEntity = vm.entityComponentConstruction.save.customAction;
+
+                    if (personalizeSaveEntity) vm.entityComponentConstruction.save.customAction = function (entity) {
+                        personalizeSaveEntity(entity);
+                    };
+                }
+
+                if (checkDefaultEntityConstruction('remove')) {
+                    if (!vm.entityComponentConstruction.remove) vm.entityComponentConstruction.remove = {};
+
+                    var personalizeRemoveEntity = vm.entityComponentConstruction.remove.customAction;
+
+                    if (personalizeRemoveEntity) vm.entityComponentConstruction.remove.customAction = function (entity) {
+                        personalizeRemoveEntity(entity);
+                    };
+                }
+
+                if (vm.isProcessEntity.get()) {
+                    if (!vm.entityComponentConstruction.process) vm.entityComponentConstruction.process = {};
+
+                    var personalizeProcessEntity = vm.entityComponentConstruction.process.customAction;
+
+                    vm.entityComponentConstruction.process.customAction = function (entity, setViewState) {
+                        if (personalizeProcessEntity) personalizeProcessEntity(entity, setViewState);else {
+                            var ent = {};
+                            ent[vm.entityQueryDetails.resource.getKeyProperty.get()] = entity[vm.entityQueryDetails.resource.getKeyProperty.get()];
+                            ent[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
+                            saveModal(ent, null, setViewState);
+                        }
+                    };
+                }
+
+                vm.tableComponentConstruction.blockTableOnChangeView = true;
+                vm.entityComponentConstruction.canViewHistory = vm.canViewHistory;
+
+                vm.entityQueryDetails.resource.listenSaved(function (args) {
+                    if (vm.entityComponentConstruction.save.autoChange == false) vm.changeToSingleView(args.fullResponse.data.data);else vm.changeToMainView();
+                });
+                vm.entityQueryDetails.resource.listenDeleted(function () {
+                    if (vm.entityComponentConstruction.remove.autoChange != false) vm.changeToMainView();
+                });
+            }
+        };
+
+        function checkDefaultTableConstruction(defaultValueName) {
+            if (vm.tableComponentConstruction.useDefaults == null || vm.tableComponentConstruction.useDefaults == true) return true;
+
+            if (vm.tableComponentConstruction.defaultValuesAllowed && vm.tableComponentConstruction.defaultValuesAllowed.length > 0) return vm.tableComponentConstruction.defaultValuesAllowed.filter(function (valueName) {
+                return valueName == defaultValueName;
+            }).length > 0;
+        }
+
+        function checkDefaultEntityConstruction(defaultValueName) {
+            if (vm.entityComponentConstruction.useDefaults == null || vm.entityComponentConstruction.useDefaults == true) return true;
+
+            if (vm.entityComponentConstruction.defaultValuesAllowed && vm.entityComponentConstruction.defaultValuesAllowed.length > 0) return vm.entityComponentConstruction.defaultValuesAllowed.filter(function (valueName) {
+                return valueName == defaultValueName;
+            }).length > 0;
+        }
+
+        function activate() {
+            if (!vm.isModal.get()) {
+                if ($stateParams[vm.paramName.get()]) {
+                    _state = _states.singleView; // The change of the state compile the component     
+
+                    var initForm = function initForm() {
+                        if (vm.entityComponentBindingOut) {
+                            if ($stateParams[vm.paramName.get()] != '-1' && $stateParams[vm.paramName.get()] != '0') loadEntity();else createEntity();
+                        } else {
+                            console.log('Ciclo de inicializacion del formulario');
+                            $timeout(initForm, 100);
+                        }
+                    };
+
+                    initForm();
+                } else {
+                    _state = _states.mainView;
+                }
+            }
+        };
+
+        function loadEntity() {
+            vm.entityQueryDetails.resource.loadAsResource($stateParams[vm.paramName.get()], function (entity) {
+                vm.entityComponentBindingOut.entity.set(entity);
+            });
+            vm.entityComponentBindingOut.showEditableFields.set(false);
+        };
+
+        function createEntity() {
+            vm.entityComponentBindingOut.entity.set({});
+            vm.entityComponentBindingOut.showEditableFields.set(true);
+        };
+
+        // ==============================================================================================================================================================
+
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // Fields
+        var _states = { mainView: 1, singleView: 2 };
+        var _state = _states.mainView;
+
+        // Properties
+        vm.onMainView = {
+            get: function get() {
+                return _state == _states.mainView;
+            }
+        };
+
+        vm.onSingleView = {
+            get: function get() {
+                return _state == _states.singleView;
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter(_state);
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                return 'Catálogo';
+            }
+        };
+
+        vm.icon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.icon) {
+                    if (vm.componentConstruction.icon.getter) return vm.componentConstruction.icon.getter(_state);
+                    return vm.componentConstruction.icon;
+                }
+
+                return '';
+            }
+        };
+
+        vm.paramName = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.paramName) return vm.componentConstruction.paramName;
+
+                //Default value
+                return 'id';
+            }
+        };
+
+        vm.useMainTab = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.useMainTab != null) return vm.componentConstruction.useMainTab;
+
+                return true;
+            }
+        };
+
+        vm.showBar = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.showBar) {
+                    if (vm.componentConstruction.showBar.getter) return vm.componentConstruction.showBar.getter(_state);
+                    return vm.componentConstruction.showBar;
+                }
+
+                return true;
+            }
+        };
+
+        vm.isModal = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isModal != null) return vm.componentConstruction.isModal;
+
+                return false;
+            }
+        };
+
+        vm.closeWhenSaving = {
+            get: function get() {
+                if (vm.entityComponentConstruction && vm.entityComponentConstruction.closeWhenSaving != null) return vm.entityComponentConstruction.closeWhenSaving;
+
+                return true;
+            }
+        };
+
+        vm.isProcessEntity = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isProcessEntity != null) return vm.componentConstruction.isProcessEntity;
+
+                return false;
+            }
+        };
+
+        vm.noFilterTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.noFilterTooltip != null) return vm.componentConstruction.noFilterTooltip;
+
+                return 'Quitar todos los filtros';
+            }
+        };
+
+        vm.showNoFilter = {
+            get: function get(skip) {
+                if (vm.componentConstruction && vm.componentConstruction.showNoFilter != null) return vm.componentConstruction.showNoFilter;else {
+                    if (!skip) {
+                        if ($stateParams[vm.paramName.get()]) return false;
+
+                        return true;
+                    } else return true;
+                }
+            }
+        };
+
+        var _canViewHistory = true;
+        vm.canViewHistory = {
+            get: function get() {
+                if (_canViewHistory) {
+                    if ($stateParams[vm.paramName.get()]) return true;
+                    return false;
+                }
+                return false;
+            },
+
+            set: function set(value) {
+                _canViewHistory = value;
+            }
+        };
+
+        vm.historyTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
+
+                //Default value
+                return 'Mostrar Bitácora';
+            }
+        };
+
+        vm.history = {
+            get: function get() {
+                return $rootScope.showHistory;
+            },
+            set: function set() {
+                $rootScope.showHistory = !$rootScope.showHistory;
+            }
+        };
+
+        vm.reload = {
+            invoke: function invoke() {
+                setdefaults();
+            }
+
+            // ==============================================================================================================================================================
+
+
+            // Methods
+            // ==============================================================================================================================================================
+
+        };vm.changeToMainView = function () {
+            $state.go($state.current.name, _defineProperty({}, vm.paramName.get(), null));
+        };
+
+        vm.changeToSingleView = function (entity) {
+            var navid = -1;
+
+            if (entity) navid = vm.entityQueryDetails.resource.getId(entity);
+
+            if (vm.onSingleView.get() || vm.tableComponentBindingOut.allowedActions.canEdit.get() || vm.tableComponentBindingOut.allowedActions.canAdd.get() && navid == -1) $state.go($state.current.name, _defineProperty({}, vm.paramName.get(), navid));
+        };
+
+        vm.openModal = function (entity, event) {
+            // Defaults for modal =======================================================================================================================================
+            // Component Construction Configuration
+            if (!vm.entityComponentConstruction) vm.entityComponentConstruction = {};
+
+            if (checkDefaultEntityConstruction('cancel')) if (!vm.entityComponentConstruction.cancel) vm.entityComponentConstruction.cancel = {};
+
+            if (checkDefaultEntityConstruction('edit')) if (!vm.entityComponentConstruction.edit) vm.entityComponentConstruction.edit = {};
+
+            if (checkDefaultEntityConstruction('ok')) if (!vm.entityComponentConstruction.ok) vm.entityComponentConstruction.ok = {};
+
+            if (checkDefaultEntityConstruction('save')) {
+                if (!vm.entityComponentConstruction.save) vm.entityComponentConstruction.save = {};
+
+                vm.entityComponentConstruction.save.customAction = function (entity, defaultOk, setViewState) {
+                    saveModal(entity, defaultOk, setViewState);
+                };
+            }
+
+            if (checkDefaultEntityConstruction('remove')) {
+                if (!vm.entityComponentConstruction.remove) vm.entityComponentConstruction.remove = {};
+
+                vm.entityComponentConstruction.remove.customAction = function (entity, defaultOk, setViewState) {
+                    EntifixNotification.confirm('Está seguro de eliminar el registro', 'Confirmación requerida', function () {
+                        vm.entityQueryDetails.resource.deleteEntity(entity, function () {
+                            defaultOk();$timeout(vm.tableComponentBindingOut.pager.reload(), 500);
+                        });
+                    }, function () {});
+                };
+            }
+
+            vm.entityComponentConstruction.event = event;
+
+            if (vm.isProcessEntity.get()) {
+                if (!vm.entityComponentConstruction.process) vm.entityComponentConstruction.process = {};
+
+                vm.entityComponentConstruction.process.customAction = function (entity, defaultOk, setViewState) {
+                    entity[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
+                    saveModal(entity, defaultOk, setViewState);
+                };
+            }
+
+            // Query Details Configuration
+            if (!vm.entityQueryDetails) vm.entityQueryDetails = vm.queryDetails;
+
+            // Component Binding Out Configuration
+            if (!vm.entityComponentBindingOut) vm.entityComponentBindingOut = {};
+            vm.entityComponentBindingOut.object = entity;
+
+            // Component Behavior Configuration
+            if (!vm.entityComponentBehavior) vm.entityComponentBehavior = {};
+
+            // Creating new instance of EntifixEntityModal factory
+            vm.modal = new EntifixEntityModal(vm.entityComponentConstruction, vm.entityComponentBehavior, vm.entityComponentBindingOut, vm.entityQueryDetails);
+
+            // Call openModal method for call the modal behavior in its controller
+            vm.modal.openModal();
+        };
+
+        function saveModal(entity, defaultOk, setViewState) {
+            vm.entityQueryDetails.resource.saveEntity(entity, function (response, saveSuccess) {
+                if (saveSuccess) {
+                    if (defaultOk && vm.closeWhenSaving.get()) defaultOk();else if (response && response.data.data) setViewState(true, response.data.data);
+                    if (vm.tableComponentBindingOut && vm.tableComponentBindingOut.pager) $timeout(vm.tableComponentBindingOut.pager.reload(), 500);
+                }
+            });
+        }
+
+        // ==============================================================================================================================================================
+    };
+
+    var component = {
+        //templateUrl: 'dist/shared/components/entifixCatalog/entifixCatalog.html',
+        template: ' \
+                <!-- Main Tab Mode --> \
+                    <div layout="row" ng-if="bindCtrl.useMainTab.get()"> \
+                        <div flex="5"></div> \
+                        <div flex="90"> \
+                            <div ng-if="!bindCtrl.isModal.get()"> \
+                                <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
+                                    <div class="md-toolbar-tools" layout> \
+                                        <div flex layout layout-align="start center"> \
+                                            <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button> \
+                                            <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
+                                        </div> \
+                                        <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
+                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                                <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
+                                                <md-icon class="material-icons">delete_sweep</md-icon> \
+                                            </md-button> \
+                                        </div> \
+                                        <div layout layout-align="end end" ng-if="bindCtrl.canViewHistory.get()"> \
+                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
+                                                <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
+                                                <md-icon class="material-icons">history</md-icon> \
+                                            </md-button> \
+                                        </div> \
+                                    </div> \
+                                </md-toolbar> \
+                                <div layout="column" ng-if="bindCtrl.onMainView.get()"> \
+                                    <entifix-table \
+                                        query-details="bindCtrl.tableQueryDetails" \
+                                        component-construction="bindCtrl.tableComponentConstruction" \
+                                        component-behavior="bindCtrl.tableComponentBehavior" \
+                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
+                                    </entifix-table> \
+                                </div> \
+                                <div layout="column" ng-if="bindCtrl.onSingleView.get()"> \
+                                    <entifix-entity-form \
+                                        query-details="bindCtrl.entityQueryDetails" \
+                                        component-construction="bindCtrl.entityComponentConstruction"  \
+                                        component-behavior="bindCtrl.entityComponentBehavior" \
+                                        component-binding-out="bindCtrl.entityComponentBindingOut"> \
+                                    </entifix-entity-form> \
+                                </div> \
+                            </div> \
+                            <div ng-if="bindCtrl.isModal.get()"> \
+                                <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
+                                    <div class="md-toolbar-tools"> \
+                                        <div flex layout layout-align="start center"> \
+                                            <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button> \
+                                            <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
+                                        </div> \
+                                        <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
+                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                                <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
+                                                <md-icon class="material-icons">delete_sweep</md-icon> \
+                                            </md-button> \
+                                        </div> \
+                                    </div> \
+                                </md-toolbar> \
+                                <div layout="column"> \
+                                    <entifix-table \
+                                        query-details="bindCtrl.tableQueryDetails" \
+                                        component-construction="bindCtrl.tableComponentConstruction" \
+                                        component-behavior="bindCtrl.tableComponentBehavior" \
+                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
+                                    </entifix-table> \
+                                </div> \
+                            </div> \
+                        </div> \
+                        <div flex="5"></div> \
+                    </div> \
+                    <!-- No Main Tab Mode --> \
+                    <div ng-if="!bindCtrl.useMainTab.get()"> \
+                        <md-content ng-if="!bindCtrl.isModal.get()"> \
+                            <div layout> \
+                                <div flex layout layout-align="start center"> \
+                                    <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>{{"  " + bindCtrl.title.get()}}</span> \
+                                </div> \
+                                <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
+                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                        <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
+                                        <md-icon class="material-icons">delete_sweep</md-icon> \
+                                    </md-button> \
+                                </div> \
+                            </div> \
+                            <md-content layout-padding> \
+                                <div layout="column" ng-if="bindCtrl.onMainView.get()"> \
+                                    <entifix-table \
+                                        query-details="bindCtrl.tableQueryDetails" \
+                                        component-construction="bindCtrl.tableComponentConstruction"  \
+                                        component-behavior="bindCtrl.tableComponentBehavior" \
+                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
+                                    </entifix-table> \
+                                </div>  \
+                                <div layout="column" ng-if="bindCtrl.onSingleView.get()"> \
+                                    <entifix-entity-form \
+                                        query-details="bindCtrl.entityQueryDetails" \
+                                        component-construction="bindCtrl.entityComponentConstruction" \
+                                        component-behavior="bindCtrl.entityComponentBehavior" \
+                                        component-binding-out="bindCtrl.entityComponentBindingOut"> \
+                                    </entifix-entity-form> \
+                                </div> \
+                            </md-content> \
+                        </md-content> \
+                        <md-content ng-if="bindCtrl.isModal.get()"> \
+                            <div layout> \
+                                <div flex layout layout-align="start center"> \
+                                    <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span> \
+                                </div> \
+                                <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get(true)"> \
+                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                        <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
+                                        <md-icon class="material-icons">delete_sweep</md-icon> \
+                                    </md-button> \
+                                </div> \
+                            </div> \
+                            <md-content layout-padding> \
+                                <div layout="row"> \
+                                    <div flex> \
+                                        <div layout="column"> \
+                                            <entifix-table \
+                                                query-details="bindCtrl.tableQueryDetails" \
+                                                component-construction="bindCtrl.tableComponentConstruction"  \
+                                                component-behavior="bindCtrl.tableComponentBehavior" \
+                                                component-binding-out="bindCtrl.tableComponentBindingOut"> \
+                                            </entifix-table> \
+                                        </div> \
+                                    </div> \
+                                </div> \
+                            </md-content> \
+                        </md-content> \
+                    </div>',
+        controller: componentController,
+        controllerAs: 'bindCtrl',
+        bindings: {
+            componentConstruction: '<',
+            queryDetails: '<',
+            tableComponentConstruction: '<',
+            tableComponentBehavior: '<',
+            tableComponentBindingOut: '=',
+            tableQueryDetails: '=',
+            entityComponentConstruction: '<',
+            entityComponentBehavior: '<',
+            entityComponentBindingOut: '=',
+            entityQueryDetails: '='
+        }
+    };
+
+    //Register component
+    angular.module('entifix-js').component('entifixCatalog', component);
+})();
+'use strict';
+
 (function () {
     'use strict';
 
@@ -3175,615 +3786,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixAutocomplete', component);
-})();
-'use strict';
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-(function () {
-    'use strict';
-
-    componentController.$inject = ['$stateParams', '$state', '$timeout', 'EntifixEntityModal', 'EntifixNotification', '$rootScope'];
-
-    function componentController($stateParams, $state, $timeout, EntifixEntityModal, EntifixNotification, $rootScope) {
-        var vm = this;
-
-        vm.$onInit = function () {
-            setdefaults();
-            activate();
-        };
-
-        // Init Methods
-        // ==============================================================================================================================================================
-
-        function setdefaults() {
-            // Defaults for table =======================================================================================================================================
-
-            vm.componentConstruction.reload = vm.reload;
-
-            if (checkDefaultTableConstruction('search')) {
-                if (!vm.tableComponentConstruction.search) vm.tableComponentConstruction.search = {};
-            }
-
-            if (checkDefaultTableConstruction('edit')) {
-                if (!vm.tableComponentConstruction.edit) vm.tableComponentConstruction.edit = {};
-
-                var personalizeEditTable = vm.tableComponentConstruction.edit.customAction;
-
-                vm.tableComponentConstruction.edit.customAction = function (entity) {
-                    if (personalizeEditTable) personalizeEditTable(entity);else {
-                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.queryDetails.resource.getKeyProperty.get()], function (entity) {
-                            if (vm.isModal.get()) vm.openModal(entity);else vm.changeToSingleView(entity);
-                        });
-                    }
-                };
-            }
-
-            if (checkDefaultTableConstruction('add')) {
-                if (!vm.tableComponentConstruction.add) vm.tableComponentConstruction.add = {};
-
-                var personalizeAddTable = vm.tableComponentConstruction.add.customAction;
-
-                vm.tableComponentConstruction.add.customAction = function () {
-                    if (personalizeAddTable) personalizeAddTable();else {
-                        if (vm.isModal.get()) vm.openModal();else vm.changeToSingleView();
-                    }
-                };
-            }
-
-            if (checkDefaultTableConstruction('remove')) {
-                if (!vm.tableComponentConstruction.remove) vm.tableComponentConstruction.remove = {};
-
-                var personalizeRemoveTable = vm.tableComponentConstruction.remove.customAction;
-
-                if (personalizeRemoveTable) vm.tableComponentConstruction.remove.customAction = function (entity) {
-                    personalizeRemoveTable(entity);
-                };
-            };
-
-            if (vm.isProcessEntity.get()) {
-                if (checkDefaultTableConstruction('process')) {
-                    if (!vm.tableComponentConstruction.process) vm.tableComponentConstruction.process = {};
-
-                    var personalizeProcessTable = vm.tableComponentConstruction.process.customAction;
-
-                    if (personalizeProcessTable) vm.tableComponentConstruction.process.customAction = function (entity) {
-                        personalizeProcessTable(entity);
-                    };
-                };
-            }
-
-            if (!vm.tableQueryDetails) vm.tableQueryDetails = vm.queryDetails;
-
-            if (!vm.entityQueryDetails) vm.entityQueryDetails = vm.queryDetails;
-
-            if (!vm.isModal.get()) {
-                // Defaults for entity form =============================================================================================================================
-                if (checkDefaultEntityConstruction('cancel')) {
-                    if (!vm.entityComponentConstruction.cancel) vm.entityComponentConstruction.cancel = {};
-
-                    var personalizeCancelEntity = vm.entityComponentConstruction.cancel.customAction;
-
-                    vm.entityComponentConstruction.cancel.customAction = function () {
-                        if (personalizeCancelEntity) personalizeCancelEntity();else {
-                            if (vm.entityQueryDetails.resource.isNewEntity(vm.entityComponentBindingOut.entity.get())) vm.changeToMainView();else loadEntity();
-                        }
-                    };
-                }
-
-                if (checkDefaultEntityConstruction('ok')) {
-                    if (!vm.entityComponentConstruction.ok) vm.entityComponentConstruction.ok = {};
-
-                    var personalizeOkEntity = vm.entityComponentConstruction.ok.customAction;
-
-                    vm.entityComponentConstruction.ok.customAction = function () {
-                        if (personalizeOkEntity) personalizeOkEntity();else vm.changeToMainView();
-                    };
-                }
-
-                if (checkDefaultEntityConstruction('edit')) {
-                    if (!vm.entityComponentConstruction.edit) vm.entityComponentConstruction.edit = {};
-
-                    var personalizeEditEntity = vm.entityComponentConstruction.edit.customAction;
-
-                    if (personalizeEditEntity) vm.entityComponentConstruction.edit.customAction = function (entity) {
-                        personalizeEditEntity(entity);
-                    };
-                }
-
-                if (checkDefaultEntityConstruction('save')) {
-                    if (!vm.entityComponentConstruction.save) vm.entityComponentConstruction.save = {};
-
-                    vm.entityComponentConstruction.save.autoChange = false;
-
-                    var personalizeSaveEntity = vm.entityComponentConstruction.save.customAction;
-
-                    if (personalizeSaveEntity) vm.entityComponentConstruction.save.customAction = function (entity) {
-                        personalizeSaveEntity(entity);
-                    };
-                }
-
-                if (checkDefaultEntityConstruction('remove')) {
-                    if (!vm.entityComponentConstruction.remove) vm.entityComponentConstruction.remove = {};
-
-                    var personalizeRemoveEntity = vm.entityComponentConstruction.remove.customAction;
-
-                    if (personalizeRemoveEntity) vm.entityComponentConstruction.remove.customAction = function (entity) {
-                        personalizeRemoveEntity(entity);
-                    };
-                }
-
-                if (vm.isProcessEntity.get()) {
-                    if (!vm.entityComponentConstruction.process) vm.entityComponentConstruction.process = {};
-
-                    var personalizeProcessEntity = vm.entityComponentConstruction.process.customAction;
-
-                    vm.entityComponentConstruction.process.customAction = function (entity, setViewState) {
-                        if (personalizeProcessEntity) personalizeProcessEntity(entity, setViewState);else {
-                            var ent = {};
-                            ent[vm.entityQueryDetails.resource.getKeyProperty.get()] = entity[vm.entityQueryDetails.resource.getKeyProperty.get()];
-                            ent[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
-                            saveModal(ent, null, setViewState);
-                        }
-                    };
-                }
-
-                vm.tableComponentConstruction.blockTableOnChangeView = true;
-                vm.entityComponentConstruction.canViewHistory = vm.canViewHistory;
-
-                vm.entityQueryDetails.resource.listenSaved(function (args) {
-                    if (vm.entityComponentConstruction.save.autoChange == false) vm.changeToSingleView(args.fullResponse.data.data);else vm.changeToMainView();
-                });
-                vm.entityQueryDetails.resource.listenDeleted(function () {
-                    if (vm.entityComponentConstruction.remove.autoChange != false) vm.changeToMainView();
-                });
-            }
-        };
-
-        function checkDefaultTableConstruction(defaultValueName) {
-            if (vm.tableComponentConstruction.useDefaults == null || vm.tableComponentConstruction.useDefaults == true) return true;
-
-            if (vm.tableComponentConstruction.defaultValuesAllowed && vm.tableComponentConstruction.defaultValuesAllowed.length > 0) return vm.tableComponentConstruction.defaultValuesAllowed.filter(function (valueName) {
-                return valueName == defaultValueName;
-            }).length > 0;
-        }
-
-        function checkDefaultEntityConstruction(defaultValueName) {
-            if (vm.entityComponentConstruction.useDefaults == null || vm.entityComponentConstruction.useDefaults == true) return true;
-
-            if (vm.entityComponentConstruction.defaultValuesAllowed && vm.entityComponentConstruction.defaultValuesAllowed.length > 0) return vm.entityComponentConstruction.defaultValuesAllowed.filter(function (valueName) {
-                return valueName == defaultValueName;
-            }).length > 0;
-        }
-
-        function activate() {
-            if (!vm.isModal.get()) {
-                if ($stateParams[vm.paramName.get()]) {
-                    _state = _states.singleView; // The change of the state compile the component     
-
-                    var initForm = function initForm() {
-                        if (vm.entityComponentBindingOut) {
-                            if ($stateParams[vm.paramName.get()] != '-1' && $stateParams[vm.paramName.get()] != '0') loadEntity();else createEntity();
-                        } else {
-                            console.log('Ciclo de inicializacion del formulario');
-                            $timeout(initForm, 100);
-                        }
-                    };
-
-                    initForm();
-                } else {
-                    _state = _states.mainView;
-                }
-            }
-        };
-
-        function loadEntity() {
-            vm.entityQueryDetails.resource.loadAsResource($stateParams[vm.paramName.get()], function (entity) {
-                vm.entityComponentBindingOut.entity.set(entity);
-            });
-            vm.entityComponentBindingOut.showEditableFields.set(false);
-        };
-
-        function createEntity() {
-            vm.entityComponentBindingOut.entity.set({});
-            vm.entityComponentBindingOut.showEditableFields.set(true);
-        };
-
-        // ==============================================================================================================================================================
-
-
-        // Properties & fields
-        // ==============================================================================================================================================================
-
-        // Fields
-        var _states = { mainView: 1, singleView: 2 };
-        var _state = _states.mainView;
-
-        // Properties
-        vm.onMainView = {
-            get: function get() {
-                return _state == _states.mainView;
-            }
-        };
-
-        vm.onSingleView = {
-            get: function get() {
-                return _state == _states.singleView;
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter(_state);
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                return 'Catálogo';
-            }
-        };
-
-        vm.icon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.icon) {
-                    if (vm.componentConstruction.icon.getter) return vm.componentConstruction.icon.getter(_state);
-                    return vm.componentConstruction.icon;
-                }
-
-                return '';
-            }
-        };
-
-        vm.paramName = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.paramName) return vm.componentConstruction.paramName;
-
-                //Default value
-                return 'id';
-            }
-        };
-
-        vm.useMainTab = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.useMainTab != null) return vm.componentConstruction.useMainTab;
-
-                return true;
-            }
-        };
-
-        vm.showBar = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.showBar) {
-                    if (vm.componentConstruction.showBar.getter) return vm.componentConstruction.showBar.getter(_state);
-                    return vm.componentConstruction.showBar;
-                }
-
-                return true;
-            }
-        };
-
-        vm.isModal = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isModal != null) return vm.componentConstruction.isModal;
-
-                return false;
-            }
-        };
-
-        vm.closeWhenSaving = {
-            get: function get() {
-                if (vm.entityComponentConstruction && vm.entityComponentConstruction.closeWhenSaving != null) return vm.entityComponentConstruction.closeWhenSaving;
-
-                return true;
-            }
-        };
-
-        vm.isProcessEntity = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isProcessEntity != null) return vm.componentConstruction.isProcessEntity;
-
-                return false;
-            }
-        };
-
-        vm.noFilterTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.noFilterTooltip != null) return vm.componentConstruction.noFilterTooltip;
-
-                return 'Quitar todos los filtros';
-            }
-        };
-
-        vm.showNoFilter = {
-            get: function get(skip) {
-                if (vm.componentConstruction && vm.componentConstruction.showNoFilter != null) return vm.componentConstruction.showNoFilter;else {
-                    if (!skip) {
-                        if ($stateParams[vm.paramName.get()]) return false;
-
-                        return true;
-                    } else return true;
-                }
-            }
-        };
-
-        var _canViewHistory = true;
-        vm.canViewHistory = {
-            get: function get() {
-                if (_canViewHistory) {
-                    if ($stateParams[vm.paramName.get()]) return true;
-                    return false;
-                }
-                return false;
-            },
-
-            set: function set(value) {
-                _canViewHistory = value;
-            }
-        };
-
-        vm.historyTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
-
-                //Default value
-                return 'Mostrar Bitácora';
-            }
-        };
-
-        vm.history = {
-            get: function get() {
-                return $rootScope.showHistory;
-            },
-            set: function set() {
-                $rootScope.showHistory = !$rootScope.showHistory;
-            }
-        };
-
-        vm.reload = {
-            invoke: function invoke() {
-                setdefaults();
-            }
-
-            // ==============================================================================================================================================================
-
-
-            // Methods
-            // ==============================================================================================================================================================
-
-        };vm.changeToMainView = function () {
-            $state.go($state.current.name, _defineProperty({}, vm.paramName.get(), null));
-        };
-
-        vm.changeToSingleView = function (entity) {
-            var navid = -1;
-
-            if (entity) navid = vm.entityQueryDetails.resource.getId(entity);
-
-            if (vm.onSingleView.get() || vm.tableComponentBindingOut.allowedActions.canEdit.get() || vm.tableComponentBindingOut.allowedActions.canAdd.get() && navid == -1) $state.go($state.current.name, _defineProperty({}, vm.paramName.get(), navid));
-        };
-
-        vm.openModal = function (entity, event) {
-            // Defaults for modal =======================================================================================================================================
-            // Component Construction Configuration
-            if (!vm.entityComponentConstruction) vm.entityComponentConstruction = {};
-
-            if (checkDefaultEntityConstruction('cancel')) if (!vm.entityComponentConstruction.cancel) vm.entityComponentConstruction.cancel = {};
-
-            if (checkDefaultEntityConstruction('edit')) if (!vm.entityComponentConstruction.edit) vm.entityComponentConstruction.edit = {};
-
-            if (checkDefaultEntityConstruction('ok')) if (!vm.entityComponentConstruction.ok) vm.entityComponentConstruction.ok = {};
-
-            if (checkDefaultEntityConstruction('save')) {
-                if (!vm.entityComponentConstruction.save) vm.entityComponentConstruction.save = {};
-
-                vm.entityComponentConstruction.save.customAction = function (entity, defaultOk, setViewState) {
-                    saveModal(entity, defaultOk, setViewState);
-                };
-            }
-
-            if (checkDefaultEntityConstruction('remove')) {
-                if (!vm.entityComponentConstruction.remove) vm.entityComponentConstruction.remove = {};
-
-                vm.entityComponentConstruction.remove.customAction = function (entity, defaultOk, setViewState) {
-                    EntifixNotification.confirm('Está seguro de eliminar el registro', 'Confirmación requerida', function () {
-                        vm.entityQueryDetails.resource.deleteEntity(entity, function () {
-                            defaultOk();$timeout(vm.tableComponentBindingOut.pager.reload(), 500);
-                        });
-                    });
-                };
-            }
-
-            vm.entityComponentConstruction.event = event;
-
-            if (vm.isProcessEntity.get()) {
-                if (!vm.entityComponentConstruction.process) vm.entityComponentConstruction.process = {};
-
-                vm.entityComponentConstruction.process.customAction = function (entity, defaultOk, setViewState) {
-                    entity[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
-                    saveModal(entity, defaultOk, setViewState);
-                };
-            }
-
-            // Query Details Configuration
-            if (!vm.entityQueryDetails) vm.entityQueryDetails = vm.queryDetails;
-
-            // Component Binding Out Configuration
-            if (!vm.entityComponentBindingOut) vm.entityComponentBindingOut = {};
-            vm.entityComponentBindingOut.object = entity;
-
-            // Component Behavior Configuration
-            if (!vm.entityComponentBehavior) vm.entityComponentBehavior = {};
-
-            // Creating new instance of EntifixEntityModal factory
-            vm.modal = new EntifixEntityModal(vm.entityComponentConstruction, vm.entityComponentBehavior, vm.entityComponentBindingOut, vm.entityQueryDetails);
-
-            // Call openModal method for call the modal behavior in its controller
-            vm.modal.openModal();
-        };
-
-        function saveModal(entity, defaultOk, setViewState) {
-            vm.entityQueryDetails.resource.saveEntity(entity, function (response, saveSuccess) {
-                if (saveSuccess) {
-                    if (defaultOk && vm.closeWhenSaving.get()) defaultOk();else if (response && response.data.data) setViewState(true, response.data.data);
-                    if (vm.tableComponentBindingOut && vm.tableComponentBindingOut.pager) $timeout(vm.tableComponentBindingOut.pager.reload(), 500);
-                }
-            });
-        }
-
-        // ==============================================================================================================================================================
-    };
-
-    var component = {
-        //templateUrl: 'dist/shared/components/entifixCatalog/entifixCatalog.html',
-        template: ' \
-                <!-- Main Tab Mode --> \
-                    <div layout="row" ng-if="bindCtrl.useMainTab.get()"> \
-                        <div flex="5"></div> \
-                        <div flex="90"> \
-                            <div ng-if="!bindCtrl.isModal.get()"> \
-                                <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
-                                    <div class="md-toolbar-tools" layout> \
-                                        <div flex layout layout-align="start center"> \
-                                            <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button> \
-                                            <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
-                                        </div> \
-                                        <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
-                                                <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
-                                                <md-icon class="material-icons">delete_sweep</md-icon> \
-                                            </md-button> \
-                                        </div> \
-                                        <div layout layout-align="end end" ng-if="bindCtrl.canViewHistory.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
-                                                <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
-                                                <md-icon class="material-icons">history</md-icon> \
-                                            </md-button> \
-                                        </div> \
-                                    </div> \
-                                </md-toolbar> \
-                                <div layout="column" ng-if="bindCtrl.onMainView.get()"> \
-                                    <entifix-table \
-                                        query-details="bindCtrl.tableQueryDetails" \
-                                        component-construction="bindCtrl.tableComponentConstruction" \
-                                        component-behavior="bindCtrl.tableComponentBehavior" \
-                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
-                                    </entifix-table> \
-                                </div> \
-                                <div layout="column" ng-if="bindCtrl.onSingleView.get()"> \
-                                    <entifix-entity-form \
-                                        query-details="bindCtrl.entityQueryDetails" \
-                                        component-construction="bindCtrl.entityComponentConstruction"  \
-                                        component-behavior="bindCtrl.entityComponentBehavior" \
-                                        component-binding-out="bindCtrl.entityComponentBindingOut"> \
-                                    </entifix-entity-form> \
-                                </div> \
-                            </div> \
-                            <div ng-if="bindCtrl.isModal.get()"> \
-                                <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
-                                    <div class="md-toolbar-tools"> \
-                                        <div flex layout layout-align="start center"> \
-                                            <md-button class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></md-button> \
-                                            <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
-                                        </div> \
-                                        <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
-                                                <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
-                                                <md-icon class="material-icons">delete_sweep</md-icon> \
-                                            </md-button> \
-                                        </div> \
-                                    </div> \
-                                </md-toolbar> \
-                                <div layout="column"> \
-                                    <entifix-table \
-                                        query-details="bindCtrl.tableQueryDetails" \
-                                        component-construction="bindCtrl.tableComponentConstruction" \
-                                        component-behavior="bindCtrl.tableComponentBehavior" \
-                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
-                                    </entifix-table> \
-                                </div> \
-                            </div> \
-                        </div> \
-                        <div flex="5"></div> \
-                    </div> \
-                    <!-- No Main Tab Mode --> \
-                    <div ng-if="!bindCtrl.useMainTab.get()"> \
-                        <md-content ng-if="!bindCtrl.isModal.get()"> \
-                            <div layout> \
-                                <div flex layout layout-align="start center"> \
-                                    <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>{{"  " + bindCtrl.title.get()}}</span> \
-                                </div> \
-                                <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
-                                        <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
-                                        <md-icon class="material-icons">delete_sweep</md-icon> \
-                                    </md-button> \
-                                </div> \
-                            </div> \
-                            <md-content layout-padding> \
-                                <div layout="column" ng-if="bindCtrl.onMainView.get()"> \
-                                    <entifix-table \
-                                        query-details="bindCtrl.tableQueryDetails" \
-                                        component-construction="bindCtrl.tableComponentConstruction"  \
-                                        component-behavior="bindCtrl.tableComponentBehavior" \
-                                        component-binding-out="bindCtrl.tableComponentBindingOut"> \
-                                    </entifix-table> \
-                                </div>  \
-                                <div layout="column" ng-if="bindCtrl.onSingleView.get()"> \
-                                    <entifix-entity-form \
-                                        query-details="bindCtrl.entityQueryDetails" \
-                                        component-construction="bindCtrl.entityComponentConstruction" \
-                                        component-behavior="bindCtrl.entityComponentBehavior" \
-                                        component-binding-out="bindCtrl.entityComponentBindingOut"> \
-                                    </entifix-entity-form> \
-                                </div> \
-                            </md-content> \
-                        </md-content> \
-                        <md-content ng-if="bindCtrl.isModal.get()"> \
-                            <div layout> \
-                                <div flex layout layout-align="start center"> \
-                                    <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span> \
-                                </div> \
-                                <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get(true)"> \
-                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
-                                        <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
-                                        <md-icon class="material-icons">delete_sweep</md-icon> \
-                                    </md-button> \
-                                </div> \
-                            </div> \
-                            <md-content layout-padding> \
-                                <div layout="row"> \
-                                    <div flex> \
-                                        <div layout="column"> \
-                                            <entifix-table \
-                                                query-details="bindCtrl.tableQueryDetails" \
-                                                component-construction="bindCtrl.tableComponentConstruction"  \
-                                                component-behavior="bindCtrl.tableComponentBehavior" \
-                                                component-binding-out="bindCtrl.tableComponentBindingOut"> \
-                                            </entifix-table> \
-                                        </div> \
-                                    </div> \
-                                </div> \
-                            </md-content> \
-                        </md-content> \
-                    </div>',
-        controller: componentController,
-        controllerAs: 'bindCtrl',
-        bindings: {
-            componentConstruction: '<',
-            queryDetails: '<',
-            tableComponentConstruction: '<',
-            tableComponentBehavior: '<',
-            tableComponentBindingOut: '=',
-            tableQueryDetails: '=',
-            entityComponentConstruction: '<',
-            entityComponentBehavior: '<',
-            entityComponentBindingOut: '=',
-            entityQueryDetails: '='
-        }
-    };
-
-    //Register component
-    angular.module('entifix-js').component('entifixCatalog', component);
 })();
 'use strict';
 
@@ -5438,7 +5440,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
                     _state = _statesForm.view;
                 });
-            });
+            }, function () {});
         };
 
         vm.submit = function () {
@@ -6019,6 +6021,282 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
+        //Label - Editable Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields();
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
+                return 'entifixradiobutton' + randomNumber;
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.isMultipleDisplay = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            loadCollection();
+            checkoutputs();
+        };
+
+        function loadCollection() {
+            if (!vm.isMultipleDisplay.get()) {
+                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
+                    vm.items = enumResult;
+                });
+            } else {
+                prepareMultiDisplayParameters();
+                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
+            }
+        };
+
+        function prepareMultiDisplayParameters() {
+            var actionSuccess = function actionSuccess(enumResult) {
+                vm.items = enumResult;
+            };
+            vm.parameters = {
+                displayProperties: vm.componentConstruction.displayProperties,
+                actionSuccess: actionSuccess,
+                actionError: vm.queryDetails.actionError,
+                filters: vm.queryDetails.filters
+            };
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        return vm.getValue();
+                    }
+                }
+            };
+
+            if (vm.init) vm.init();
+        };
+
+        vm.getDisplayValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item.Display;
+            }
+
+            return null;
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item;
+            }
+
+            return null;
+        };
+
+        vm.runOnChangeTrigger = function () {
+            var entity = vm.items.filter(function (e) {
+                return e.Value == vm.valueModel;
+            })[0];
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
+        };
+
+        function getCleanedString(stringToClean) {
+            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+            for (var i = 0; i < specialChars.length; i++) {
+                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+            }stringToClean = stringToClean.toLowerCase();
+            stringToClean = stringToClean.replace(/ /g, "");
+            stringToClean = stringToClean.replace(/á/gi, "a");
+            stringToClean = stringToClean.replace(/é/gi, "e");
+            stringToClean = stringToClean.replace(/í/gi, "i");
+            stringToClean = stringToClean.replace(/ó/gi, "o");
+            stringToClean = stringToClean.replace(/ú/gi, "u");
+            stringToClean = stringToClean.replace(/ñ/gi, "n");
+            return stringToClean;
+        }
+
+        //=======================================================================================================================================================================
+    };
+
+    componentcontroller.$inject = [];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '&',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixRadioButton', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller() {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
@@ -6392,282 +6670,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixSelect', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller() {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Editable Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
-                return 'entifixradiobutton' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.isMultipleDisplay = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            loadCollection();
-            checkoutputs();
-        };
-
-        function loadCollection() {
-            if (!vm.isMultipleDisplay.get()) {
-                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
-                    vm.items = enumResult;
-                });
-            } else {
-                prepareMultiDisplayParameters();
-                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
-            }
-        };
-
-        function prepareMultiDisplayParameters() {
-            var actionSuccess = function actionSuccess(enumResult) {
-                vm.items = enumResult;
-            };
-            vm.parameters = {
-                displayProperties: vm.componentConstruction.displayProperties,
-                actionSuccess: actionSuccess,
-                actionError: vm.queryDetails.actionError,
-                filters: vm.queryDetails.filters
-            };
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        return vm.getValue();
-                    }
-                }
-            };
-
-            if (vm.init) vm.init();
-        };
-
-        vm.getDisplayValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item.Display;
-            }
-
-            return null;
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item;
-            }
-
-            return null;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            var entity = vm.items.filter(function (e) {
-                return e.Value == vm.valueModel;
-            })[0];
-            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
-        };
-
-        function getCleanedString(stringToClean) {
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) {
-                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-            }stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g, "");
-            stringToClean = stringToClean.replace(/á/gi, "a");
-            stringToClean = stringToClean.replace(/é/gi, "e");
-            stringToClean = stringToClean.replace(/í/gi, "i");
-            stringToClean = stringToClean.replace(/ó/gi, "o");
-            stringToClean = stringToClean.replace(/ú/gi, "u");
-            stringToClean = stringToClean.replace(/ñ/gi, "n");
-            return stringToClean;
-        }
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = [];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '&',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixRadioButton', component);
 })();
 'use strict';
 
@@ -8648,7 +8650,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
                     defaultOk();
                 });
-            });
+            }, function () {});
         };
 
         vm.submit = function () {

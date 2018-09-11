@@ -545,6 +545,10 @@
                                                                                                 () => 
                                                                                                 {
                                                                                                     vm.entityQueryDetails.resource.deleteEntity(entity, () => { defaultOk(); $timeout(vm.tableComponentBindingOut.pager.reload(), 500); });
+                                                                                                },
+                                                                                                () =>
+                                                                                                {
+                                                                                                    
                                                                                                 });
                                                                     };
             }
