@@ -65,7 +65,7 @@
 
         vm.getTransformProperties = function(resourceName)
         {
-            return vm.getDefinedMembers(resourceName).filter( (p) => { return p.transformType; });         
+            return vm.getDefinedMembers(resourceName).filter( (p) => { return p.transformType && p.transformType != "false"; });         
         };
 
         vm.getPaginableProperties = function(resourceName)

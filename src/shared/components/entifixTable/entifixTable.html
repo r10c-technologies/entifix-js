@@ -49,7 +49,7 @@
             </div>
             <div layout-sm="column" layout-gt-sm="row" flex>
                 <div flex>
-                    <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == 'text'|| bindCtrl.columnToSearch.type == 'navigation'" flex>
+                    <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == 'text'|| bindCtrl.columnToSearch.type == 'entity'" flex>
                         <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input>
                     </div>
                     <div ng-if="bindCtrl.columnToSearch.type == 'date'" flex>

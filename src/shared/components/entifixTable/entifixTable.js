@@ -775,7 +775,7 @@
                         return transformDate(value, transformColumn.type, true);
 
                     //Transform navigation
-                    if (transformColumn.type == 'navigation')
+                    if (transformColumn.type == 'entity')
                     {
                         if (_transformValues && _transformValues.length > 0)
                         {
@@ -1082,7 +1082,7 @@
         {
             vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
-            vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.transformType || 'text' , property: property }); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
+            vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.type || 'text' , property: property }); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
             vm.tablePropertiesNavigation = vm.tableProperties.filter((p) => { return p.property.paginable });
             setClassColumn();
             vm.operators = vm.propertiesOperators.defaults();
@@ -1503,7 +1503,7 @@
                                 </div> \
                                 <div layout-sm="column" layout-gt-sm="row" flex> \
                                     <div flex> \
-                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'navigation\'" flex> \
+                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'entity\'" flex> \
                                             <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input> \
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'date\'" flex> \

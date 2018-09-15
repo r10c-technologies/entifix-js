@@ -172,8 +172,8 @@
                         
                         if (data[TProperty.name])
                         {
-                            //For navigation properties
-                            if (TProperty.transformType == 'navigation')
+                            //For entity properties
+                            if (TProperty.type == 'entity')
                             {
                                 var value = data[TProperty.name];
                                 
@@ -186,7 +186,7 @@
                             }
 
                             //For date properties
-                            if (TProperty.transformType == 'date' || TProperty.transformType == 'datetime')
+                            if (TProperty.type == 'date' || TProperty.type == 'datetime')
                             {
                                 var dateGenerator = new EntifixDateGenerator();
                                 if (!(data[TProperty.name] instanceof Date))
@@ -194,12 +194,12 @@
                                 else
                                     var dateValue = data[TProperty.name];
 
-                                data[TProperty.name] = dateGenerator.transformDateToString(dateValue, TProperty.transformType, false);
+                                data[TProperty.name] = dateGenerator.transformDateToString(dateValue, TProperty.type, false);
                             }
 
                             //Other types of properties to transform....
 
-                            /*if (TProperty.propertyMetaData.transformType == ?)
+                            /*if (TProperty.propertyMetaData.type == ?)
                             {
 
                             }*/
@@ -245,8 +245,8 @@
                             
                             if (data[TProperty.name])
                             {
-                                //For navigation properties
-                                if (TProperty.transformType == 'navigation')
+                                //For entity properties
+                                if (TProperty.type == 'entity')
                                 {   
                                     var objectValue = data[TProperty.name];
                                     var keyNavigationProperty = TProperty.keyNavigationProperty || EntifixMetadata.getKeyProperty(TProperty.resource);
@@ -261,7 +261,7 @@
                                 }
 
                                 //For date-time properties
-                                if (TProperty.transformType == 'date' || TProperty.transformType == 'datetime')
+                                if (TProperty.type == 'date' || TProperty.type == 'datetime')
                                 {
                                     var objectValue = data[TProperty.name];
                                     if (!(objectValue instanceof Date))
@@ -269,7 +269,7 @@
                                 }
 
                                 //Other types of properties to transform....
-                                /*if (TProperty.propertyMetaData.transformType == ?)
+                                /*if (TProperty.propertyMetaData.type == ?)
                                 {
 
                                 }*/
@@ -946,7 +946,7 @@
                 var filterProp = [];
                 columnsSelected.forEach((cs) => { 
                                                     var filter = properties.filter((p) => { return getDisplay(p) == cs });
-                                                    if (filter.length > 0 && !filter[0].alwaysExclude)
+                                                    if (filter.length > 0 && !filter[0].alwaysExclude && (!filter[0].type || filter[0].type == "string"))
                                                         filterProp.push(filter[0]);
                                                 });
                 properties.forEach((property) => {

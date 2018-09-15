@@ -44,7 +44,7 @@
 
             function processProperty(collection, singleParam, onEnd)
             {
-                if (singleParam.type == 'navigation')
+                if (singleParam.type == 'entity')
                 {
                     if (!(_transformValues && _transformValues.length > 0 && _transformValues.filter((tv) => { return tv.property == singleParam.property }).length > 0 ))
                     {
@@ -87,8 +87,8 @@
                         onEnd();
                     }
 
-                    //Transform navigation
-                    if (singleParam.type == 'navigation')
+                    //Transform entity
+                    if (singleParam.type == 'entity')
                     {
                         var transform = () =>
                         {
