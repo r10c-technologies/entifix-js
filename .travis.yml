@@ -3,6 +3,5 @@ node_js:
   - "8"
 before_script:
   - npm install -g gulp-cli
-  - mkdir dist
   - sudo chown dist
 script: npm run compile
