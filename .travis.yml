@@ -1,8 +1,8 @@
 language: node_js
-sudo: required
 node_js:
   - "8"
 before_script:
   - npm install -g gulp-cli
   - rm -R dist
-script: sudo npm run compile
+  - mkdir dist
+script: npm run compile
