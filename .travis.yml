@@ -4,4 +4,4 @@ node_js:
 sudo: required
 before_script:
   - npm install -g gulp-cli
-script: sudo $(type -P npm) run compile
+script: sudo $(which npm) run compile
