@@ -15,6 +15,7 @@ gulp.task('clean-dist', () => {
     return del(['dist/**/*']);
 });
 
+//gulp.task('dist', ['clean-dist'], ()=>
 gulp.task('dist', ['clean-dist'], ()=>
 {
     // Transfer files
