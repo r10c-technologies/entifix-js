@@ -4,6 +4,6 @@ node_js:
 sudo: required
 before_script:
   - npm install -g gulp-cli
-  - rm dist
+  - rm -R dist
   - mkdir dist
 script: npm run compile
