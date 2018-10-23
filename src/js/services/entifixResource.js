@@ -455,14 +455,14 @@
             //Manage request timing
             function createArgs(response)
             {
-                return { message: response.data.message, fullResponse: response };
+                return { message: response.data ? response.data.message : response.data, fullResponse: response };
             };
             
             function onSaveTransactionEnd(callback, isError)
             {
                 return (response) => 
                 {
-                    var saveSuccess = !response.data.isLogicError;
+                    var saveSuccess = response.data && !response.data.isLogicError;
                     
                     if (!_onMultipleStorage && callback)
                         callback(response, saveSuccess);
@@ -582,7 +582,7 @@
                     _isLoading = true;
 
                     if (ActionSuccess)
-                        ActionSuccess(transformDataFromResponse(response.data.data));
+                        ActionSuccess(transformDataFromResponse(response.data ? response.data.data : response.data));
                     
                     _isLoading = false;
                 } 
@@ -700,14 +700,14 @@
                 {
                     if (suffix_pagination instanceof Function)
                         tempSuffix = suffix_pagination();
-                    else
-                        tempSuffix = '?skip=' + suffix_pagination.skip + '&take=' + suffix_pagination.take;
+                    //else
+                        //tempSuffix = '?skip=' + suffix_pagination.skip + '&take=' + suffix_pagination.take;                        
                 }                    
 
                 var preSuccess = (response) =>
                 {
                     _isLoading = true;
-                    var resultData = response.data.data || [];
+                    var resultData = response.data ? response.data.data : [];
                     actionSuccess(resultData);
                     _isLoading = false;            
                 }; 
@@ -772,7 +772,7 @@
                 var preSuccess = (response) =>
                 {
                     _isLoading = true;
-                    var resultData = response.data.data || [];
+                    var resultData = response.data ? response.data.data : [];
                     actionSuccess(resultData);
                     _isLoading = false;          
                 }; 
@@ -843,8 +843,8 @@
                                                                                         {
                                                                                             var dataPag =
                                                                                             {
-                                                                                                resultSet: response.data.data,
-                                                                                                total: parseInt(response.data.info.total)
+                                                                                                resultSet: response.data ? response.data.data : response.data,
+                                                                                                total: parseInt(response.data ? response.data.info.total : response.data)
                                                                                             }
                                                                                             _isLoading = false;
                                                                                             return dataPag;

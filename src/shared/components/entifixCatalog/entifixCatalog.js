@@ -541,15 +541,17 @@
 
                 vm.entityComponentConstruction.remove.customAction = (entity, defaultOk, setViewState) => 
                                                                     {
-                                                                        EntifixNotification.confirm('Está seguro de eliminar el registro', 'Confirmación requerida', 
-                                                                                                () => 
+                                                                        EntifixNotification.confirm({ 
+                                                                                                "body": "Está seguro de eliminar el registro", 
+                                                                                                "header": "Confirmación requerida", 
+                                                                                                "actionConfirm": () => 
                                                                                                 {
                                                                                                     vm.entityQueryDetails.resource.deleteEntity(entity, () => { defaultOk(); $timeout(vm.tableComponentBindingOut.pager.reload(), 500); });
                                                                                                 },
-                                                                                                () =>
+                                                                                                "actionCancel": () =>
                                                                                                 {
                                                                                                     
-                                                                                                });
+                                                                                                }});
                                                                     };
             }
 
@@ -624,13 +626,13 @@
                                             <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
                                         </div> \
                                         <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                            <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
                                                 <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
                                                 <md-icon class="material-icons">delete_sweep</md-icon> \
                                             </md-button> \
                                         </div> \
                                         <div layout layout-align="end end" ng-if="bindCtrl.canViewHistory.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
+                                            <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
                                                 <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
                                                 <md-icon class="material-icons">history</md-icon> \
                                             </md-button> \
@@ -662,7 +664,7 @@
                                             <h2>&nbsp;{{bindCtrl.title.get()}}</h2> \
                                         </div> \
                                         <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                            <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                            <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
                                                 <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
                                                 <md-icon class="material-icons">delete_sweep</md-icon> \
                                             </md-button> \
@@ -689,7 +691,7 @@
                                     <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>{{"  " + bindCtrl.title.get()}}</span> \
                                 </div> \
                                 <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get()"> \
-                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                    <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
                                         <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
                                         <md-icon class="material-icons">delete_sweep</md-icon> \
                                     </md-button> \
@@ -720,7 +722,7 @@
                                     <span class="md-headline" ng-if="bindCtrl.showBar.get()"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon>&nbsp;{{bindCtrl.title.get()}}</span> \
                                 </div> \
                                 <div layout layout-align="end end" ng-if="bindCtrl.showNoFilter.get(true)"> \
-                                    <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
+                                    <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.tableComponentBindingOut.cleanFilters()" aria-label="{{bindCtrl.tableComponentBindingOut.noFilterTooltip()}}"> \
                                         <md-tooltip>{{bindCtrl.noFilterTooltip.get()}}</md-tooltip> \
                                         <md-icon class="material-icons">delete_sweep</md-icon> \
                                     </md-button> \

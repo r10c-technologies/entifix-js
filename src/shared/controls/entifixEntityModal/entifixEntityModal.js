@@ -806,15 +806,17 @@
 
         function defaultRemove()
         {
-            EntifixNotification.confirm('Está seguro de eliminar el registro', 'Confirmación requerida', 
-                                    () => 
+            EntifixNotification.confirm({
+                                    "body": "Está seguro de eliminar el registro", 
+                                    "header": "Confirmación requerida", 
+                                    "actionConfirm": () => 
                                     {
                                         vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { defaultOk(); });
                                     },
-                                    () =>
+                                    "actionCancel": () =>
                                     {
                                         
-                                    });
+                                    }});
         };
 
         vm.submit = function()
@@ -905,7 +907,7 @@
                                                                 <h2>&nbsp{{bindCtrl.title.get()}}</h2> \
                                                             </div> \
                                                             <div flex layout layout-align="end center" ng-if="bindCtrl.canViewHistory.get()"> \
-                                                                <md-button layout layout-align="end end" class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
+                                                                <md-button layout layout-align="end end" class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
                                                                     <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">history</md-icon> \
                                                                 </md-button> \

@@ -1,50 +1,78 @@
-(function(){
+(function () {
     'use strict';
 
     angular.module('entifix-js')
-            .service('EntifixNotification', service);
+        .service('EntifixNotification', service);
 
     service.$inject = [];
 
-    function service()
-    {
+    function service() {
         var vm = this;
 
-        vm.success = function(detalle, encabezado)
-        {
-            detalle = detalle || 'Acción realizada correctamente';
-            encabezado = encabezado || '¡Hecho!';
+        vm.success = function (options) {
+            let body = options.body || 'Acción realizada correctamente';
+            let header = options.header || '¡Hecho!';
 
-            swal(encabezado, detalle, 'success');
+            if (options.isToast) {
+                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                toast({ type: 'success', title: header + " " + body });
+            }
+            else {
+                swal(header, body, 'success');
+            }
         };
 
-        vm.error = function(detalle, encabezado)
-        {
-            detalle = detalle || 'Error al realizar la acción solicitada';
-            encabezado = encabezado || '¡Error!';
+        vm.error = function (options) {
+            let body = options.body || 'Error al realizar la acción solicitada';
+            let header = options.header || '¡Error!';
 
-            swal(encabezado, detalle, 'error');
+            if (options.isToast) {
+                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                toast({ type: 'error', title: header + " " + body });
+            }
+            else {
+                swal(header, body, 'error');
+            }
         };
 
-        vm.info = function(detalle, encabezado)
-        {
-            detalle = detalle || 'Error al realizar la acción solicitada';
-            encabezado = encabezado || 'Información';
+        vm.info = function (options) {
+            let body = options.body || '';
+            let header = options.header || 'Información';
 
-            swal(encabezado, detalle, 'info');
+            if (options.isToast) {
+                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                toast({ type: 'info', title: header + " " + body });
+            }
+            else {
+                swal(header, body, 'info');
+            }
         };
 
-        vm.confirm = function(detalle, encabezado, actionConfirm, actionCancel)
-        {
-            encabezado = encabezado || '¿Está seguro de proceder?';
-          
-            swal({ title: encabezado, 
-                    text: detalle, 
-                    type: 'warning', 
-                    showCancelButton: true, 
-                    confirmButtonColor: '#DD6B55', 
-                    confirmButtonText: 'Sí',
-                    cancelButtonText: 'No'}).then((value) => { if (value.value) actionConfirm(); else actionCancel(); });
+        vm.warning = function (options) {
+            let body = options.body || '';
+            let header = options.header || 'Precaución';
+
+            if (options.isToast) {
+                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                toast({ type: 'warning', title: header + " " + body });
+            }
+            else {
+                swal(header, body, 'warning');
+            }
+        };
+
+        vm.confirm = function (options) {
+            let header = options.header || '¿Está seguro de proceder?';
+
+            swal({
+                title: header,
+                text: options.body,
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Sí',
+                cancelButtonText: 'No'
+            }).then((response) => { if (response.value && options.actionConfirm) options.actionConfirm(); else if (options.actionCancel) options.actionCancel(); });
 
         };
 
@@ -55,17 +83,15 @@
 
 
 
-(function(){
+(function () {
     'use strict';
 
     angular.module('entifix-js').factory('EntifixNotifier', factory);
 
     factory.$inject = ['EntifixNotification'];
 
-    function factory (EntifixNotification)
-    {
-        return function(resource)
-        {
+    function factory(EntifixNotification) {
+        return function (resource, isToast) {
             var vm = this;
 
             // Properties and fields
@@ -81,34 +107,34 @@
 
             // Properties
             vm.savedMessage =
-            {
-                get: () => { return _savedMessage; },
-                set: (value) => { _savedMessage = value; }
-            };
+                {
+                    get: () => { return _savedMessage; },
+                    set: (value) => { _savedMessage = value; }
+                };
 
             vm.deletedMessage =
-            {
-                get: () => { return _deletedMessage; },
-                set: (value) => { _deletedMessage = value; }
-            };
+                {
+                    get: () => { return _deletedMessage; },
+                    set: (value) => { _deletedMessage = value; }
+                };
 
             vm.errorSaveMessage =
-            {
-                get: () => { return _errorSaveMessage; },
-                set: (value) => { _savedMessage = value; }
-            };
+                {
+                    get: () => { return _errorSaveMessage; },
+                    set: (value) => { _savedMessage = value; }
+                };
 
             vm.errorDeleteMessage =
-            {
-                get: () => { return errorDeleteMessage; },
-                set: (value) => { errorDeleteMessage = value; }
-            };
+                {
+                    get: () => { return errorDeleteMessage; },
+                    set: (value) => { errorDeleteMessage = value; }
+                };
 
             vm.errorValidationMessage =
-            {
-                get: () => { return _errorValidationMessage; },
-                set: (value) => { errorValidationMessage = value; }
-            };
+                {
+                    get: () => { return _errorValidationMessage; },
+                    set: (value) => { errorValidationMessage = value; }
+                };
 
 
             // =========================================================================================================================
@@ -117,8 +143,7 @@
             // Methods
             // =========================================================================================================================
 
-            function activate()
-            {
+            function activate() {
                 resource.listenSaved(saved);
                 resource.listenDeleted(deleted);
                 resource.listenErrorSave(errorSave);
@@ -126,49 +151,44 @@
                 resource.listenNonValidSave(nonValidSave);
             };
 
-            function saved(args)
-            {
+            function saved(args) {
                 var message = _savedMessage;
                 if (args.message)
                     message = args.message;
 
-                EntifixNotification.success(message);
+                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast});
             };
 
-            function deleted(args)
-            {
+            function deleted(args) {
                 var message = _deletedMessage;
                 if (args.message)
                     message = args.message;
 
-                EntifixNotification.success(message);
+                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast});
             };
 
-            function errorSave(args)
-            {
+            function errorSave(args) {
                 var message = _errorSaveMessage;
                 if (args.message)
                     message = args.message;
 
-                EntifixNotification.error(message);
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
             };
 
-            function errorDelete(args)
-            {
+            function errorDelete(args) {
                 var message = _errorDeleteMessage;
                 if (args.message)
                     message = args.message;
 
-                EntifixNotification.error(message);
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
             };
 
-            function nonValidSave(args)
-            {
+            function nonValidSave(args) {
                 var message = _errorValidationMessage;
                 if (args.message)
                     message = args.message;
 
-                EntifixNotification.error(message);
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
             };
 
             // =========================================================================================================================

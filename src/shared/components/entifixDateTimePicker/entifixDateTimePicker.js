@@ -433,12 +433,12 @@
 
         vm.$onInit = function()
         {
-            SetDefaultsValues();
+            setDefauts();
             init();
         };
 
         //Default values
-        function SetDefaultsValues() 
+        function setDefauts() 
         {
             
         };
@@ -470,15 +470,14 @@
         {
             if (vm.valueModel)
             {
-                if (!(vm.valueModel instanceof Date)) {
-                    var dateValueModel = transformStringToDate(vm.valueModel);
-                    vm.valueModel = dateValueModel;
-                }
-                else
-                    var dateValueModel = vm.valueModel;
-
-                if (dateValueModel instanceof Date)
-                {
+                if (!vm.dateString) {
+                    if (!(vm.valueModel instanceof Date)) {
+                        var dateValueModel = transformStringToDate(vm.valueModel);
+                        vm.valueModel = dateValueModel;
+                    }
+                    else
+                        var dateValueModel = vm.valueModel;
+    
                     var date = dateValueModel;
                     var meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
                     var diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
@@ -503,11 +502,11 @@
                             else
                                 hours = hours.toString() + ':' + minutes + ' ' + 'am';
                     }
-
-                    return date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+                    vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+                    return vm.dateString;
+                } else {
+                    return vm.dateString;
                 }
-                else
-                    return vm.valueModel;            
             }
             else if (!skip) return vm.nullValueLabel.get();
         }

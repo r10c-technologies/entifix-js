@@ -70,7 +70,7 @@
 
         vm.getPaginableProperties = function(resourceName)
         {
-            return vm.getDefinedMembers(resourceName).filter( (p) => { return p.paginable; });
+            return vm.getDefinedMembers(resourceName).filter( (p) => { return p.paginable == 'true' || p.paginable == true; });
         };
 
         vm.getJoinProperties = function(resourceName)

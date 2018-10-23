@@ -411,7 +411,7 @@
         
         vm.getConstantFilters = function()
         {
-            var constantFilters = null;
+            var constantFilters = [];
             if (vm.queryDetails && vm.queryDetails.constantFilters)
             {
                 if (vm.queryDetails.constantFilters.getter)
@@ -580,8 +580,8 @@
                                             if (data.reject)
                                                 data.reject();
                                         },
-                                        vm.getConstantFilters(),
-                                        { skp: 0, take: maxItems }
+                                        vm.getConstantFilters().concat([{ property: 'skip', value: 0, type: 'fixed_filter' }, { property: 'take', value: maxItems, type: 'fixed_filter' }])
+                                        //,{ skip: 0, take: maxItems }
                                     );
                      
         }

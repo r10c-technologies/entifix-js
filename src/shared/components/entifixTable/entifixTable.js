@@ -840,7 +840,6 @@
         {
             if (type == 'date' || type == 'datetime' && value)
             {
-
                 if (!(value instanceof Date))
                     var value = transformStringToDate(value);
                 var year = value.getFullYear().toString();
@@ -980,8 +979,10 @@
             if ( vm.connectionComponent.elementsSelection() > 1 )
                 message = '¿Está seguro de eliminar todos los registros seleccionados?';
  
-            EntifixNotification.confirm(message, 'Confirmación requerida',
-                                    ()=>    
+            EntifixNotification.confirm({
+                                    "body": message, 
+                                    "header": 'Confirmación requerida',
+                                    "actionConfirm": ()=>    
                                     {
                                         var elementsToDelete = vm.connectionComponent.getSelectedElements();
 
@@ -999,9 +1000,9 @@
                                             if ( e + ok >= requests )
                                             {
                                                 if (e == 0)
-                                                    EntifixNotification.success('Todos los registros fueron eliminados exitosamente');
+                                                    EntifixNotification.success({"body": 'Todos los registros fueron eliminados exitosamente'});
                                                 else
-                                                    EntifixNotification.error('Algunos registros no pudieron ser eliminados');
+                                                    EntifixNotification.error({"body": 'Algunos registros no pudieron ser eliminados'});
 
                                                 vm.connectionComponent.pager.reload();
                                                 vm.queryDetails.resource.onMultipleDeletion.set(false);
@@ -1017,7 +1018,7 @@
                                                                         .resource
                                                                         .deleteEntity(element,  () => { checkCompleted(false) }, () => { checkCompleted(true)} );
                                                                 });
-                                    });
+                                    }});
         };
 
         function defaultProcess()
@@ -1083,7 +1084,7 @@
             vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
             vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.type || 'text' , property: property }); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
-            vm.tablePropertiesNavigation = vm.tableProperties.filter((p) => { return p.property.paginable });
+            vm.tablePropertiesNavigation = vm.tableProperties.filter((p) => { return p.property.paginable == 'true' || p.property.paginable == true; });
             setClassColumn();
             vm.operators = vm.propertiesOperators.defaults();
         }
@@ -1467,7 +1468,7 @@
                                     </div> \
                                     <div layout-xs="column" layout-gt-xs="row" flex> \
                                         <div flex layout layout-align="center center"> \
-                                            <md-button class="md-primary btn-success" ng-click="bindCtrl.searchItemsDate()" ng-disabled="!bindCtrl.startDate || !bindCtrl.endDate"> \
+                                            <md-button class="md-primary text-success" ng-click="bindCtrl.searchItemsDate()" ng-disabled="!bindCtrl.startDate || !bindCtrl.endDate"> \
                                                 <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> &nbsp;{{bindCtrl.searchText.get()}} \
                                             </md-button> \
                                         </div> \
@@ -1517,7 +1518,7 @@
                                         </div> \
                                     </div> \
                                     <div flex layout layout-align="center center"> \
-                                        <md-button class="md-primary btn-success" ng-click="bindCtrl.addChip()" ng-disabled="!bindCtrl.columnToSearch || !bindCtrl.operator || !bindCtrl.valueToSearch"> \
+                                        <md-button class="md-primary text-success" ng-click="bindCtrl.addChip()" ng-disabled="!bindCtrl.columnToSearch || !bindCtrl.operator || !bindCtrl.valueToSearch"> \
                                             <md-icon class="material-icons">{{bindCtrl.searchIcon.get()}}</md-icon> &nbsp;{{bindCtrl.addFilterText.get()}} \
                                         </md-button> \
                                     </div> \
@@ -1551,17 +1552,17 @@
                                         <div flex layout-align="end center"> \
                                             <section layout-xs="column" layout="row" layout-align="end center"> \
                                                 <div> \
-                                                    <md-button class="md-primary btn-success" ng-click="bindCtrl.addElement()" ng-disabled="!(bindCtrl.canAdd.get() && !bindCtrl.multipleAddOptions.get())" ng-if="bindCtrl.componentConstruction.add"> \
+                                                    <md-button class="md-primary text-success" ng-click="bindCtrl.addElement()" ng-disabled="!(bindCtrl.canAdd.get() && !bindCtrl.multipleAddOptions.get())" ng-if="bindCtrl.componentConstruction.add"> \
                                                         <md-icon class="material-icons">{{bindCtrl.addIcon.get()}}</md-icon> &nbsp;{{bindCtrl.addText.get()}} \
                                                     </md-button> \
-                                                    <md-button class="md-warn btn-danger" ng-click="bindCtrl.removeElement()" ng-disabled="!(bindCtrl.canRemove.get() && !bindCtrl.multipleRemoveOptions.get())"  ng-if="bindCtrl.componentConstruction.remove"> \
+                                                    <md-button class="md-warn text-danger" ng-click="bindCtrl.removeElement()" ng-disabled="!(bindCtrl.canRemove.get() && !bindCtrl.multipleRemoveOptions.get())"  ng-if="bindCtrl.componentConstruction.remove"> \
                                                         <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon> &nbsp;{{bindCtrl.removeText.get()}} \
                                                     </md-button> \
-                                                    <md-button class="md-accent btn-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
+                                                    <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
                                                         <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                                     </md-button> \
                                                     <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()"> \
-                                                        <md-button class="md-primary btn-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
+                                                        <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
                                                             <md-tooltip>{{bindCtrl.sheetText.get()}}</md-tooltip> \
                                                             <md-icon class="material-icons">{{bindCtrl.sheetIcon.get()}}</md-icon> \
                                                         </md-button> \

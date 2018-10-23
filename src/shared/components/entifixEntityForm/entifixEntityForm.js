@@ -663,15 +663,17 @@
 
         function defaultRemove()
         {
-            EntifixNotification.confirm('Está seguro de eliminar el registro', 'Confirmación requerida', 
-                                    () => 
+            EntifixNotification.confirm({
+                                    "body": "Está seguro de eliminar el registro", 
+                                    "header": "Confirmación requerida", 
+                                    "actionConfirm": () => 
                                     {
                                         vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { _state = _statesForm.view; });
                                     },
-                                    () =>
+                                    "actionCancel": () =>
                                     {
                                         
-                                    });
+                                    }});
         };
 
         vm.submit = function()

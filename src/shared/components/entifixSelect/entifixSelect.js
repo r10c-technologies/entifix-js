@@ -203,6 +203,20 @@
                 return 'SIN REGISTROS';
             }
         }
+            
+        vm.getConstantFilters = function()
+        {
+            var constantFilters = null;
+            if (vm.queryDetails && vm.queryDetails.constantFilters)
+            {
+                if (vm.queryDetails.constantFilters.getter)
+                    constantFilters = vm.queryDetails.constantFilters.getter();
+                else
+                    constantFilters = vm.queryDetails.constantFilters;                    
+            }
+
+            return constantFilters;                
+        };
         //=======================================================================================================================================================================
 
 
@@ -232,7 +246,9 @@
                                                 (enumResult) => 
                                                 { 
                                                     vm.items = enumResult; 
-                                                });
+                                                },
+                                                undefined,
+                                                vm.getConstantFilters());
                 }
                 else
                 {
@@ -252,7 +268,7 @@
                 displayProperties: vm.componentConstruction.displayProperties,
                 actionSuccess: actionSuccess,
                 actionError: vm.queryDetails.actionError,
-                filters: vm.queryDetails.filters
+                filters: vm.getConstantFilters()
             };
         }
 

@@ -63,16 +63,16 @@
 /*********************************************************/
 /******************** Buttons Styling ********************/
 /*********************************************************/
-.btn-success, .text-success{
+.text-success{
   color: #4caf50;
 }
-.btn-warning, .text-warning{
+.text-warning{
   color: #ff5722;
 }
-.btn-danger, .text-danger{
+.text-danger{
   color: #f44336;
 }
-.btn-none, .text-black{
+.text-black{
   color: black;
 }
 .text-white{
@@ -497,3 +497,18 @@ md-switch.md-checked .md-thumb {
 }
 
 /*009688*/
+
+md-toast.md-error-toast-theme div.md-toast-content{
+  color: white !important;
+  background-color: #F27474 !important;
+}
+
+md-toast.md-success-toast-theme div.md-toast-content{
+  color: white !important;
+  background-color: #A5DC86 !important;
+}
+
+md-toast.md-info-toast-theme div.md-toast-content{
+  color: white !important;
+  background-color: #C9DAE1 !important;
+}
