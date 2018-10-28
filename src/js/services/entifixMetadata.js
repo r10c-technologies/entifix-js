@@ -127,7 +127,7 @@
         {
             var resource = getResource(resourceName);
 
-            var path = resource.url + resource.name;
+            var path = resource.url;
 
             var base = getBase(resourceName);
 
@@ -178,6 +178,24 @@
             }
             
             return allowPrefix || false;
+        };
+
+        vm.allowUrlPostfix = function(resourceName)
+        {
+            var resource = getResource(resourceName);
+            var allowPostfix = resource.allowUrlPostfix;
+
+            if (!allowPostfix)
+            {
+                var base = getBase(resourceName);
+                while (base && !allowPostfix) 
+                {
+                    allowPostfix = base.allowPostfix;
+                    base = getBase(base.name);
+                }
+            }
+            
+            return allowPostfix || false;
         };
 
         vm.denyBarPrefix = function(resourceName)

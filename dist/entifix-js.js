@@ -1077,7 +1077,7 @@
         vm.getResourceURL = function (resourceName) {
             var resource = getResource(resourceName);
 
-            var path = resource.url + resource.name;
+            var path = resource.url;
 
             var base = getBase(resourceName);
 
@@ -1119,6 +1119,21 @@
             }
 
             return allowPrefix || false;
+        };
+
+        vm.allowUrlPostfix = function (resourceName) {
+            var resource = getResource(resourceName);
+            var allowPostfix = resource.allowUrlPostfix;
+
+            if (!allowPostfix) {
+                var base = getBase(resourceName);
+                while (base && !allowPostfix) {
+                    allowPostfix = base.allowPostfix;
+                    base = getBase(base.name);
+                }
+            }
+
+            return allowPostfix || false;
         };
 
         vm.denyBarPrefix = function (resourceName) {
@@ -1804,19 +1819,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             //Format functions ===>>>>:
 
             function getBaseUrl() {
-                // var tempUrl = AppResources.baseUrl + AppResources.api;
+                var tempUrl = _resourceUrl;
 
-                // var prefix = vm.urlPrefix.get();
+                var postfix = vm.urlPostfix.get();
 
-                // if (prefix)
-                // {
-                //     tempUrl += prefix;
-                //     if (!_denyBarPrefix)
-                //         tempUrl += '/';                    
-                // }
+                if (postfix) {
+                    if (!_denyBarPrefix) tempUrl += '/';
+                    tempUrl += postfix;
+                }
 
-                //return tempUrl + _resourceUrl;
-                return _resourceUrl;
+                return tempUrl;
             };
 
             function transformDataToRequest(data) {
@@ -1929,11 +1941,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var _onMultipleDeletion = false;
             var _onMultipleStorage = false;
             var _urlPrefix;
+            var _urlPostfix;
 
             var _resourceUrl = EntifixMetadata.getResourceURL(resourceName);
             var _keyProperty = EntifixMetadata.getKeyProperty(resourceName);
             var _opProperty = EntifixMetadata.getOpProperty(resourceName);
             var _allowUrlPrefix = EntifixMetadata.allowUrlPrefix(resourceName);
+            var _allowUrlPostfix = EntifixMetadata.allowUrlPostfix(resourceName);
             var _denyBarPrefix = EntifixMetadata.denyBarPrefix(resourceName);
 
             var _defaultActionError = function _defaultActionError(error) {
@@ -2025,6 +2039,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 },
                 set: function set(value) {
                     if (_allowUrlPrefix) _urlPrefix = value;
+                }
+            };
+
+            vm.urlPostfix = {
+                get: function get() {
+                    if (_allowUrlPostfix && _urlPostfix) {
+                        if (_urlPostfix instanceof Object && _urlPostfix.getter) return _urlPostfix.getter();
+
+                        if (_urlPostfix) return _urlPostfix;
+                    }
+
+                    return null;
+                },
+                set: function set(value) {
+                    if (_allowUrlPostfix) _urlPostfix = value;
                 }
             };
 

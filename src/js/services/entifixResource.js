@@ -140,19 +140,18 @@
 
             function getBaseUrl()
             {
-                // var tempUrl = AppResources.baseUrl + AppResources.api;
+                var tempUrl = _resourceUrl;
 
-                // var prefix = vm.urlPrefix.get();
+                var postfix = vm.urlPostfix.get();
 
-                // if (prefix)
-                // {
-                //     tempUrl += prefix;
-                //     if (!_denyBarPrefix)
-                //         tempUrl += '/';                    
-                // }
+                if (postfix)
+                {
+                    if (!_denyBarPrefix)
+                        tempUrl += '/';  
+                    tempUrl += postfix;                  
+                }
 
-                //return tempUrl + _resourceUrl;
-                return _resourceUrl;
+                return tempUrl;
             };
 
             function transformDataToRequest (data)
@@ -300,11 +299,13 @@
             var _onMultipleDeletion = false;
             var _onMultipleStorage = false;
             var _urlPrefix;
+            var _urlPostfix;
 
             var _resourceUrl = EntifixMetadata.getResourceURL(resourceName);
             var _keyProperty = EntifixMetadata.getKeyProperty(resourceName);
             var _opProperty = EntifixMetadata.getOpProperty(resourceName);
             var _allowUrlPrefix = EntifixMetadata.allowUrlPrefix(resourceName);
+            var _allowUrlPostfix = EntifixMetadata.allowUrlPostfix(resourceName);
             var _denyBarPrefix = EntifixMetadata.denyBarPrefix(resourceName);
             
             var _defaultActionError = (error) => 
@@ -395,6 +396,28 @@
                 { 
                     if (_allowUrlPrefix)
                         _urlPrefix = value;
+                }
+            }
+            
+            vm.urlPostfix = 
+            {
+                get: () => 
+                { 
+                    if (_allowUrlPostfix && _urlPostfix)
+                    {
+                        if (_urlPostfix instanceof Object && _urlPostfix.getter)
+                            return _urlPostfix.getter();
+                        
+                        if (_urlPostfix)
+                            return _urlPostfix;
+                    }
+
+                    return null; 
+                },
+                set: (value) => 
+                { 
+                    if (_allowUrlPostfix)
+                        _urlPostfix = value;
                 }
             }
 
