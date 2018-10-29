@@ -16,6 +16,8 @@
                 step="any"
                 number-validation="{{vm.numberValidation.get()}}"
                 number-block
+                ng-max="vm.max.get()"
+                ng-min="vm.min.get()"
                 autocomplete="off"/>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.get()}}</div>
@@ -24,6 +26,8 @@
                     <div ng-message="email">{{vm.emailMessage.get()}}</div>
                     <div ng-message="url">{{vm.urlMessage.get()}}</div>
                     <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                    <div ng-message="max">{{vm.maxMessage.get()}}</div>
+                    <div ng-message="min">{{vm.minMessage.get()}}</div>
                 </div>
         </md-input-container>
         <div ng-hide="vm.canShowEditableFields.get()">
@@ -47,6 +51,8 @@
                 step="any"
                 number-validation="{{vm.numberValidation.get()}}"
                 number-block
+                ng-max="vm.max.get()"
+                ng-min="vm.min.get()"
                 autocomplete="off"/>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.get()}}</div>
@@ -55,6 +61,8 @@
                     <div ng-message="email">{{vm.emailMessage.get()}}</div>
                     <div ng-message="url">{{vm.urlMessage.get()}}</div>
                     <div ng-message="number">{{vm.numberMessage.get()}}</div>
+                    <div ng-message="max">{{vm.maxMessage.get()}}</div>
+                    <div ng-message="min">{{vm.minMessage.get()}}</div>
                 </div>
         </md-input-container>
     </div>
@@ -77,6 +85,8 @@
                 ng-model-options="vm.modelOptions.get()"
                 step="any"
                 number-validation="{{vm.numberValidation.get()}}"
+                ng-max="vm.max.get()"
+                ng-min="vm.min.get()"
                 number-block></textarea>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.get()}}</div>
@@ -107,6 +117,8 @@
                 ng-model-options="vm.modelOptions.get()"
                 step="any"
                 number-validation="{{vm.numberValidation.get()}}"
+                ng-max="vm.max.get()"
+                ng-min="vm.min.get()"
                 number-block></textarea>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.get()}}</div>

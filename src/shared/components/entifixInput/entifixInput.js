@@ -123,6 +123,66 @@
             }
         };
         
+        vm.max =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.max)
+                    return vm.componentConstruction.max;
+
+                //Default value
+                return null;
+            }
+        };
+        
+        vm.maxMessage =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.maxMessage)
+                {
+                    if (vm.componentConstruction.maxMessage.getter)
+                        return vm.componentConstruction.maxMessage.getter();
+                    
+                    if (vm.componentConstruction.maxMessage.text)
+                        return vm.componentConstruction.maxMessage.text;
+                }
+
+                //Default value
+                return 'El número es demasiado largo';
+            }
+        };
+        
+        vm.min =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.min)
+                    return vm.componentConstruction.min;
+
+                //Default value
+                return null;
+            }
+        };
+        
+        vm.minMessage =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.minMessage)
+                {
+                    if (vm.componentConstruction.minMessage.getter)
+                        return vm.componentConstruction.minMessage.getter();
+                    
+                    if (vm.componentConstruction.minMessage.text)
+                        return vm.componentConstruction.minMessage.text;
+                }
+
+                //Default value
+                return 'El número es demasiado corto';
+            }
+        };
+        
         vm.emailMessage =
         {
             get: () =>
@@ -410,6 +470,8 @@
                                 step="any" \
                                 number-validation="{{vm.numberValidation.get()}}" \
                                 number-block \
+                                ng-max="vm.max.get()" \
+                                ng-min="vm.min.get()" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                                     <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
@@ -418,6 +480,8 @@
                                     <div ng-message="email">{{vm.emailMessage.get()}}</div> \
                                     <div ng-message="url">{{vm.urlMessage.get()}}</div> \
                                     <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
@@ -441,6 +505,8 @@
                                 step="any" \
                                 number-validation="{{vm.numberValidation.get()}}" \
                                 number-block \
+                                ng-max="vm.max.get()" \
+                                ng-min="vm.min.get()" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                                     <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
@@ -449,6 +515,8 @@
                                     <div ng-message="email">{{vm.emailMessage.get()}}</div> \
                                     <div ng-message="url">{{vm.urlMessage.get()}}</div> \
                                     <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \
@@ -469,6 +537,8 @@
                                 ng-change="vm.runOnChangeTrigger()" \
                                 ng-model-options="vm.modelOptions.get()" \
                                 step="any" \
+                                ng-max="vm.max.get()" \
+                                ng-min="vm.min.get()" \
                                 number-validation="{{vm.numberValidation.get()}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
@@ -478,6 +548,8 @@
                                     <div ng-message="email">{{vm.emailMessage.get()}}</div> \
                                     <div ng-message="url">{{vm.urlMessage.get()}}</div> \
                                     <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
@@ -499,6 +571,8 @@
                                 ng-change="vm.runOnChangeTrigger()" \
                                 ng-model-options="vm.modelOptions.get()" \
                                 step="any" \
+                                ng-max="vm.max.get()" \
+                                ng-min="vm.min.get()" \
                                 number-validation="{{vm.numberValidation.get()}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
@@ -508,6 +582,8 @@
                                     <div ng-message="email">{{vm.emailMessage.get()}}</div> \
                                     <div ng-message="url">{{vm.urlMessage.get()}}</div> \
                                     <div ng-message="number">{{vm.numberMessage.get()}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \
