@@ -212,7 +212,7 @@
                             </md-checkbox> \
                         </div> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}<label><br/> \
+                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
                             <strong>{{vm.getValue()}}</strong> \
                         </div> \
                     </div> \
@@ -243,7 +243,7 @@
                             </md-switch> \
                         </div> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}<label><br/> \
+                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
                             <strong>{{vm.getValue()}}</strong> \
                         </div> \
                     </div> \
