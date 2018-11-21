@@ -257,7 +257,8 @@
             onChange: '&'
         },
         //templateUrl: 'src/shared/components/entifixFile/entifixFile.html',
-        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+        template: '<div ng-show="vm.canShowEditableFields.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
                     <div ng-if="!vm.isMultiple.get()"> \
                         <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
                             <input type="file" \
@@ -293,7 +294,8 @@
                             <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
                         </h4> \
                     </div> \
-                    <br hide-gt-sm><br hide-gt-sm>',
+                    <br hide-gt-sm><br hide-gt-sm> \
+                   </div>',
         controller: componentcontroller,
         controllerAs: 'vm'
     };

@@ -1,37 +1,39 @@
-<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip>
-<div ng-if="!vm.isMultiple.get()">
-    <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}}
-        <input type="file"
-            ng-model="vm.valueModel"
-            ng-required="vm.isRequired.get()"
-            entifix-file-read
-            ng-change="vm.runOnChangeTrigger()"/>
-    </label>
-    <div ng-messages="vm.canEvaluateErrors.get()" multiple>
-        <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+<div ng-show="vm.canShowEditableFields.get()">
+    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip>
+    <div ng-if="!vm.isMultiple.get()">
+        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}}
+            <input type="file"
+                ng-model="vm.valueModel"
+                ng-required="vm.isRequired.get()"
+                entifix-file-read
+                ng-change="vm.runOnChangeTrigger()"/>
+        </label>
+        <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+            <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+        </div>
+        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button>
+        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()">
+            <strong>{{vm.fileNameLabel.get()}}</strong>
+            {{vm.valueModel.name + " "}}
+        </h4>
     </div>
-    <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button>
-    <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()">
-        <strong>{{vm.fileNameLabel.get()}}</strong>
-        {{vm.valueModel.name + " "}}
-    </h4>
-</div>
-<div ng-if="vm.isMultiple.get()">
-    <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}}
-        <input type="file"
-            ng-model="vm.valueModel"
-            multiple
-            ng-required="vm.isRequired.get()"
-            entifix-file-read
-            ng-change="vm.runOnChangeTrigger()"/>
-    </label>
-    <div ng-messages="vm.canEvaluateErrors.get()" multiple>
-        <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+    <div ng-if="vm.isMultiple.get()">
+        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}}
+            <input type="file"
+                ng-model="vm.valueModel"
+                multiple
+                ng-required="vm.isRequired.get()"
+                entifix-file-read
+                ng-change="vm.runOnChangeTrigger()"/>
+        </label>
+        <div ng-messages="vm.canEvaluateErrors.get()" multiple>
+            <div ng-message="required">{{vm.requiredMessage.get()}}</div>
+        </div>
+        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button>
+        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()">
+            <strong>{{vm.fileNameLabel.get()}}</strong>
+            <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p>
+        </h4>
     </div>
-    <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button>
-    <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()">
-        <strong>{{vm.fileNameLabel.get()}}</strong>
-        <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p>
-    </h4>
+    <br hide-gt-sm><br hide-gt-sm>
 </div>
-<br hide-gt-sm><br hide-gt-sm>
