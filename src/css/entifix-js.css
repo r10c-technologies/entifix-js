@@ -512,3 +512,20 @@ md-toast.md-info-toast-theme div.md-toast-content{
   color: white !important;
   background-color: #C9DAE1 !important;
 }
+
+/*********************************************************/
+/************ Entifix File Component Styling *************/
+/*********************************************************/
+.btn-file {
+  padding: 20px;
+  cursor: inherit;
+}
+.btn-file input[type=file] {
+display: none;
+}
+.btn-file:hover {
+background-color: lightgray;
+}
+.btn-delete-file {
+padding: 10px;
+}
