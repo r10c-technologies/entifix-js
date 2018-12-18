@@ -96,6 +96,8 @@
 })();
 'use strict';
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 // SESSION PROVIDER ******************************************************************************************
 // ============================================================================================================
 // ============================================================================================================ 
@@ -105,73 +107,14 @@
 
     var module = angular.module('entifix-js');
 
-    module.provider("message", [function () {
-        var text = null;
-
-        this.setText = function (textString) {
-            text = textString;
-        };
-
-        this.$get = [function () {
-            return new Message(text);
-        }];
-    }]);
-
     module.provider("EntifixSession", [function () {
 
         var prov = this;
 
-        var $authUrl,
-            $unauthorizedStateName,
-            $authTokenName,
-            $redirectName,
-            $authAppName,
-            $thisApplication,
-            $authApplication,
-            $devMode = false,
-            $devUser;
-
-        prov.setAuthUrl = function (value) {
-            $authUrl = value;
-        };
-
-        prov.setUnauthorizedStateName = function (value) {
-            $unauthorizedStateName = value;
-        };
-
-        prov.setAuthTokenName = function (value) {
-            $authTokenName = value;
-        };
-
-        prov.setRedirectName = function (value) {
-            $redirectName = value;
-        };
-
-        prov.setAuthName = function (value) {
-            $authAppName = value;
-        };
-
-        prov.setThisApplication = function (value) {
-            $thisApplication = value;
-        };
-
-        prov.setAuthApplication = function (value) {
-            $authApplication = value;
-        };
-
-        prov.setDevMode = function (value) {
-            $devMode = value;
-        };
-
-        prov.setDevUser = function (value) {
-            $devUser = value;
-        };
-
-        // SERVICE INSTANCE ___________________________________________________________________________________________________________________________________________________________________________________________________________
-        // ============================================================================================================================================================================================================================
-        // ============================================================================================================================================================================================================================
-        //$inject = ['$state', '$http', 'AppResources', 'jwtHelper', 'md5', '$window', 'AppRedirects'];
-        prov.$get = ['$state', '$http', 'jwtHelper', 'md5', '$window', function ($state, $http, jwtHelper, md5, $window) {
+        // SERVICE INSTANCE __________________________________________________________________________________________________________________________________________________________________________
+        // ===========================================================================================================================================================================================
+        // ===========================================================================================================================================================================================
+        prov.$get = ['EntifixConfig', '$state', '$injector', 'jwtHelper', 'md5', '$window', function (EntifixConfig, $state, $injector, jwtHelper, md5, $window) {
 
             var sv = {};
 
@@ -181,7 +124,9 @@
             //Fields
             var _inLoginProcess = false;
             var _currentUser = null;
-            var _currentWorkGroup = null;
+            var _currentUsername = null;
+            var _currentUser = null;
+            var _isRefreshingToken = false;
 
             //Properties
             sv.isInLoginProcess = {
@@ -190,66 +135,60 @@
                 }
             };
 
-            sv.redirectName = {
+            sv.isRefreshingToken = {
                 get: function get() {
-                    return $redirectName;
-                }
-            };
-
-            sv.authAppName = {
-                get: function get() {
-                    return $authAppName;
-                }
-            };
-
-            sv.thisApplication = {
-                get: function get() {
-                    return $thisApplication;
-                }
-            };
-
-            sv.authApplication = {
-                get: function get() {
-                    return $authApplication;
-                }
-            };
-
-            sv.authUrl = {
-                get: function get() {
-                    return $authUrl;
-                }
-            };
-
-            sv.devMode = {
-                get: function get() {
-                    return $devMode;
-                }
-            };
-
-            sv.authTokenName = {
-                get: function get() {
-                    return $authTokenName;
+                    return _isRefreshingToken;
+                },
+                set: function set(value) {
+                    _isRefreshingToken = value;
                 }
             };
 
             sv.redirect = {
+                get: function get() {
+                    return localStorage.getItem(EntifixConfig.redirectName);
+                },
                 set: function set(value) {
-                    localStorage.setItem($redirectName, value);
+                    localStorage.setItem(EntifixConfig.redirectName.get(), value);
+                },
+                remove: function remove() {
+                    localStorage.removeItem(EntifixConfig.redirectName.get());
                 }
             };
 
             sv.authApp = {
+                get: function get() {
+                    return localStorage.getItem(EntifixConfig.authAppName);
+                },
                 set: function set(value) {
-                    localStorage.setItem($authAppName, value);
+                    localStorage.setItem(EntifixConfig.authAppName.get(), value);
+                },
+                remove: function remove() {
+                    localStorage.removeItem(EntifixConfig.authAppName.get());
                 }
             };
 
             sv.authToken = {
-                set: function set(value) {
-                    localStorage.setItem($authTokenName, value);
+                get: function get() {
+                    return localStorage.getItem(EntifixConfig.authTokenName.get());
                 },
-                remove: function remove(value) {
-                    localStorage.removeItem($authTokenName);
+                set: function set(value) {
+                    localStorage.setItem(EntifixConfig.authTokenName.get(), value);
+                },
+                remove: function remove() {
+                    localStorage.removeItem(EntifixConfig.authTokenName.get());
+                }
+            };
+
+            sv.refreshTokenLS = {
+                get: function get() {
+                    return localStorage.getItem(EntifixConfig.refreshTokenName.get());
+                },
+                set: function set(value) {
+                    localStorage.setItem(EntifixConfig.refreshTokenName.get(), value);
+                },
+                remove: function remove() {
+                    localStorage.removeItem(EntifixConfig.refreshTokenName.get());
                 }
             };
 
@@ -257,25 +196,32 @@
                 get: function get() {
                     if (_currentUser == null) ;
                     {
-                        var tmptoken = localStorage.getItem($authTokenName);
-                        if (tmptoken) {
-                            var sub = jwtHelper.decodeToken(tmptoken).sub;
-                            _currentUser = JSON.parse(sub);
-                        }
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken) _currentUser = jwtHelper.decodeToken(tmptoken).name;
                     }
                     return _currentUser;
                 }
             };
 
-            sv.currentWorkgroup = {
+            sv.currentUsername = {
                 get: function get() {
-                    if (_currentWorkGroup == null) ;
+                    if (_currentUsername == null) ;
                     {
-                        var tmptoken = localStorage.getItem($authTokenName);
-                        var workgroup = jwtHelper.decodeToken(tmptoken).workgroup;
-                        if (tmptoken && workgroup) _currentWorkGroup = JSON.parse(workgroup);
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken) _currentUsername = jwtHelper.decodeToken(tmptoken).username;
                     }
-                    return _currentWorkGroup;
+                    return _currentUsername;
+                }
+            };
+
+            sv.currentIdUser = {
+                get: function get() {
+                    if (_currentIdUser == null) ;
+                    {
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken) _currentIdUser = jwtHelper.decodeToken(tmptoken).idUser;
+                    }
+                    return _currentIdUser;
                 }
             };
 
@@ -286,42 +232,97 @@
 
             // Public section _____________________________________________________________________
 
-            sv.TryLogIn = function (user, password, idSistema, actionAccept, actionReject, actionError) {
+            sv.TryLogIn = function (user, password, actionAccept, actionReject, actionError) {
                 _inLoginProcess = true;
 
                 //Resouce to login
                 var hashPass = md5.createHash(password);
 
+                var $http = $injector.get('$http');
                 $http({
                     method: 'POST',
-                    url: $authUrl,
-                    data: { user: user, password: hashPass, idSistema: idSistema }
+                    url: EntifixConfig.authUrl.get(),
+                    data: { user: user, password: hashPass }
                 }).then(function (response) {
                     if (!response.data.isLogicError) {
-                        if ($devMode) console.info('DevMode: Login success');
+                        if (EntifixConfig.devMode.get()) console.info('DevMode: Login success');
 
                         //Save token from response
-                        localStorage.setItem($authTokenName, response.data.data[0].authToken);
+                        sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
+                        sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
 
                         if (actionAccept) actionAccept();
 
                         _inLoginProcess = false;
 
-                        if (!$devMode) manageAuthRedirectAction();
+                        if (!EntifixConfig.devMode.get()) manageAuthRedirectAction();
                     } else {
-                        if ($devMode) console.info('DevMode: Login reject with message - ' + response.data.message);
+                        if (EntifixConfig.devMode.get()) console.info('DevMode: Login reject with message - ' + response.data.message);
 
                         if (actionReject) actionReject(response.data.message);
 
                         _inLoginProcess = false;
                     }
                 }, function (error) {
-                    if ($devMode) console.warn('DevMode: Login error');
+                    if (EntifixConfig.devMode.get()) console.warn('DevMode: Login error');
 
                     if (actionError) actionError(error);
 
                     _inLoginProcess = false;
                 });
+            };
+
+            sv.refreshToken = function (actionAccept, actionReject, actionError) {
+                if (sv.refreshTokenLS.get() && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get()) && !sv.isRefreshingToken.get()) {
+                    _inLoginProcess = true;
+                    sv.isRefreshingToken.set(true);
+                    var $http = $injector.get('$http');
+                    $http({
+                        method: 'POST',
+                        url: EntifixConfig.refreshUrl.get(),
+                        data: _defineProperty({}, EntifixConfig.refreshTokenName.get(), sv.refreshTokenLS.get())
+                    }).then(function (response) {
+
+                        if (!response.data.isLogicError) {
+                            if (EntifixConfig.devMode.get()) console.info('DevMode: Refresh success');
+
+                            //Save token from response
+                            sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
+                            sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
+
+                            if (actionAccept) actionAccept(response.data);
+                        } else {
+                            if (actionReject) actionReject(response.data.message);
+
+                            if (EntifixConfig.devMode.get()) {
+                                console.info('DevMode: Refresh token reject with message - ' + response.data.message);
+                                sv.tryLoginAsDeveloper();
+                            } else manageRedirectAction();
+                        }
+
+                        _inLoginProcess = false;
+                        sv.isRefreshingToken.set(false);
+                    }, function (error) {
+                        _inLoginProcess = false;
+                        sv.isRefreshingToken.set(false);
+
+                        if (actionError) actionError(error);
+
+                        if (EntifixConfig.devMode.get()) {
+                            console.warn('DevMode: Refresh token error');
+                            sv.tryLoginAsDeveloper();
+                        } else manageRedirectAction();
+                    });
+                } else {
+                    if (EntifixConfig.devMode.get()) {
+                        console.warn('DevMode: There is no refresh token');
+                        sv.tryLoginAsDeveloper().then(function () {
+                            $window.location.reload();
+                        }).catch(function (error) {
+                            console.error('Error when trying login as developer ' + error);
+                        });
+                    } else manageRedirectAction();
+                }
             };
 
             sv.checkNavigation = function (e, to) {
@@ -331,45 +332,46 @@
 
             sv.tryLoginAsDeveloper = function () {
                 return new Promise(function (resolve, reject) {
-                    if (!$devMode) {
-                        console.error('DEVELOPER LOGIN TRIED IN NO DEV-MODE');
+                    if (!EntifixConfig.devMode.get()) {
+                        console.error('Developer login tried in without DevMode');
                         reject();
                     }
 
-                    if (!$devUser) {
+                    if (!EntifixConfig.devUser.get()) {
                         console.warn('DevMode: No developer user configuration');
                         reject();
                     }
 
-                    sv.TryLogIn($devUser.user, $devUser.password, $devUser.idSistema, resolve, null, reject);
+                    sv.TryLogIn(EntifixConfig.devUser.get().user, EntifixConfig.devUser.get().password, resolve, null, reject);
                 });
             };
 
             // Private section _____________________________________________________________________
             function manageAuthRedirectAction() {
-                var redirectTo = localStorage.getItem($redirectName);
+                var redirectTo = sv.redirect.get();
                 if (redirectTo != null) {
-                    localStorage.removeItem($redirectName);
-                    localStorage.removeItem($authAppName);
+                    sv.redirect.remove();
+                    sv.authApp.remove();
                     $window.location.href = redirectTo;
-                } else if ($thisApplication) $window.location.href = $thisApplication;
+                } else if (EntifixConfig.thisApplication.get()) $window.location.href = EntifixConfig.thisApplication.get();
             };
+
+            function manageRedirectAction() {
+                sv.redirect.set(EntifixConfig.thisApplication.get());
+                sv.authApp.set(EntifixConfig.authUrl.get());
+                $window.location.href = EntifixConfig.authApplication.get();
+            }
 
             function checkAuthentication(e, toState) {
                 var authSkipped = toState.skipAuthorization || false;
-                var authenticated = localStorage.getItem($authTokenName) != null;
+                var authenticated = sv.authToken.get() != null;
                 var requiresLogin = toState.data && (toState.data.requiresLogin || toState.data.requiresLoginDev) && !authSkipped;
 
                 if (requiresLogin && !authenticated) {
-                    if ($devMode) {
+                    if (EntifixConfig.devMode.get()) {
                         console.info('DevMode: No active session');
-                        if ($authApplication) console.warn('DevMode: Redirect to ' + $authApplication);else console.warn('DevMode: No auth application registered');
-                    } else {
-                        e.preventDefault();
-                        localStorage.setItem($redirectName, $thisApplication);
-                        localStorage.setItem($authAppName, $authUrl);
-                        $window.location.href = $authApplication;
-                    }
+                        if (EntifixConfig.authApplication.get()) console.warn('DevMode: Redirect to ' + EntifixConfig.authApplication.get());else console.warn('DevMode: No auth application registered');
+                    } else e.preventDefault();
                 }
             };
 
@@ -378,11 +380,11 @@
                     if (!sv.checkPermissions(toState.data.securityContext)) {
                         var m = 'There is no unauthorized state defined';
 
-                        if (!$devMode) {
-                            if ($unauthorizedStateName) {
-                                console.warn('Permission required: ' + toState.data.securityContext + ' - Redirect to no authorization state: ' + $unauthorizedStateName);
+                        if (!EntifixConfig.devMode.get()) {
+                            if (EntifixConfig.unauthorizedStateName.get()) {
+                                console.warn('Permission required: ' + toState.data.securityContext + ' - Redirect to no authorization state: ' + EntifixConfig.unauthorizedStateName.get());
                                 e.preventDefault();
-                                $state.go($unauthorizedStateName);
+                                $state.go(EntifixConfig.unauthorizedStateName.get());
                             } else console.error(m);
                         } else {
                             console.info('DevMode: Not allowed acces to this state => ' + toState.name);
@@ -775,6 +777,156 @@
 })();
 'use strict';
 
+// ENTIFIX GLOBAL CONFIGURATION *******************************************************************************
+// ============================================================================================================
+
+(function () {
+    'use strict';
+
+    var module = angular.module('entifix-js');
+
+    module.provider("EntifixConfig", [function () {
+
+        var prov = this;
+        var $authUrl,
+            $refreshUrl,
+            $unauthorizedStateName,
+            $authTokenName,
+            $refreshTokenName,
+            $redirectName,
+            $authAppName,
+            $thisApplication,
+            $authApplication,
+            $devMode = false,
+            $devUser;
+
+        prov.setAuthUrl = function (value) {
+            $authUrl = value;
+        };
+
+        prov.setRefreshUrl = function (value) {
+            $refreshUrl = value;
+        };
+
+        prov.setUnauthorizedStateName = function (value) {
+            $unauthorizedStateName = value;
+        };
+
+        prov.setAuthTokenName = function (value) {
+            $authTokenName = value;
+        };
+
+        prov.setRefreshTokenName = function (value) {
+            $refreshTokenName = value;
+        };
+
+        prov.setRedirectName = function (value) {
+            $redirectName = value;
+        };
+
+        prov.setAuthName = function (value) {
+            $authAppName = value;
+        };
+
+        prov.setThisApplication = function (value) {
+            $thisApplication = value;
+        };
+
+        prov.setAuthApplication = function (value) {
+            $authApplication = value;
+        };
+
+        prov.setDevMode = function (value) {
+            $devMode = value;
+        };
+
+        prov.setDevUser = function (value) {
+            $devUser = value;
+        };
+
+        // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
+        // ===================================================================================================================================================
+        prov.$get = [function () {
+
+            var sv = {};
+
+            //Properties and Fields___________________________________________________________________________________________________________________________
+            //================================================================================================================================================
+
+            //Fields
+
+            sv.redirectName = {
+                get: function get() {
+                    return $redirectName;
+                }
+            };
+
+            sv.authAppName = {
+                get: function get() {
+                    return $authAppName;
+                }
+            };
+
+            sv.thisApplication = {
+                get: function get() {
+                    return $thisApplication;
+                }
+            };
+
+            sv.authApplication = {
+                get: function get() {
+                    return $authApplication;
+                }
+            };
+
+            sv.authUrl = {
+                get: function get() {
+                    return $authUrl;
+                }
+            };
+
+            sv.refreshUrl = {
+                get: function get() {
+                    return $refreshUrl;
+                }
+            };
+
+            sv.devMode = {
+                get: function get() {
+                    return $devMode;
+                }
+            };
+
+            sv.authTokenName = {
+                get: function get() {
+                    return $authTokenName;
+                }
+            };
+
+            sv.refreshTokenName = {
+                get: function get() {
+                    return $refreshTokenName;
+                }
+            };
+
+            sv.devUser = {
+                get: function get() {
+                    return $devUser;
+                }
+            };
+
+            sv.unauthorizedStateName = {
+                get: function get() {
+                    return $unauthorizedStateName;
+                }
+            };
+
+            return sv;
+        }];
+    }]);
+})();
+'use strict';
+
 (function () {
     'use strict';
 
@@ -889,9 +1041,9 @@
 
     angular.module('entifix-js').service('EntifixErrorManager', service);
 
-    service.$inject = ['EntifixSession', '$window', 'AppRedirects', '$mdDialog', '$mdToast'];
+    service.$inject = ['EntifixSession', '$mdDialog', '$mdToast'];
 
-    function service(EntifixSession, $window, AppRedirects, $mdDialog, $mdToast) {
+    function service(EntifixSession, $mdDialog, $mdToast) {
         var vm = this;
 
         // Properties and Fields========================================================================================================================================================
@@ -906,11 +1058,7 @@
 
         // ERROR 401
         vm.unauthorizedError = function (error) {
-            if (!EntifixSession.devMode.get()) {
-                EntifixSession.redirect.set(EntifixSession.thisApplication.get());
-                EntifixSession.authApp.set(EntifixSession.authUrl.get());
-                $window.location.href = EntifixSession.authApplication.get();
-            } else console.warn("DevMode: No auth application registered");
+            EntifixSession.refreshToken();
         };
 
         // ERROR 404
@@ -1703,6 +1851,110 @@
         };
     };
 })();
+// // REFRESH TOKEN PROVIDER *************************************************************************************
+// // ============================================================================================================
+
+// (function(){
+//     'use strict';
+
+//     var module = angular.module('entifix-js');
+
+//     module.provider("EntifixRefreshToken", [function () {
+
+//         var prov = this;
+
+//         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
+//         // ===================================================================================================================================================
+//         prov.$get = ['EntifixConfig', '$injector', '$window', function (EntifixConfig, $injector, $window) {
+
+//             var sv = {}
+
+//             //Properties and Fields___________________________________________________________________________________________________________________________
+//             //================================================================================================================================================
+
+//             //Fields
+//             var _isRefreshingToken = false;
+//             var $http = $injector.get('$http');
+
+//             sv.isRefreshingToken =
+//             {
+//                 get: () => { return _isRefreshingToken; },
+//                 set: (value) => { _isRefreshingToken = value; }
+//             }
+
+//             sv.refreshToken = function(actionAccept, actionReject, actionError)
+//             {
+//                 if (localStorage.getItem()) {
+//                     _inLoginProcess = true;
+//                     sv.isRefreshingToken.set(true);
+//                     $http({
+//                                 method: 'POST',
+//                                 url: EntifixConfig.refreshUrl.get(),
+//                                 data: { [EntifixConfig.refreshTokenName.get()]: localStorage.getItem(Entifix.refreshTokenName.get()) }
+//                             }).then(    (response) => 
+//                                         {
+//                                             sv.isRefreshingToken.set(false);
+
+//                                             if (!response.data.isLogicError)
+//                                             {
+//                                                 if (EntifixConfig.devMode.get())
+//                                                     console.info('DevMode: Refresh token success');
+
+//                                                 //Save token from response
+//                                                 localStorage.setItem(EntifixConfig.authTokenName.get(), response.data.data[EntifixConfig.authTokenName.get()]);
+//                                                 localStorage.setItem(EntifixConfig.refreshTokenName.get(), response.data.data[EntifixConfig.refreshTokenName.get()]);
+
+//                                                 if (actionAccept)
+//                                                     actionAccept();
+//                                             }
+//                                             else
+//                                             {
+//                                                 if (actionReject)
+//                                                     actionReject(response.data.message);
+
+//                                                 if (EntifixConfig.devMode.get()) {
+//                                                     console.info('DevMode: Refresh token reject with message - ' + response.data.message);
+//                                                     sv.tryLoginAsDeveloper();
+//                                                 }
+//                                                 else
+//                                                     manageRedirectAction();
+//                                             }                                    
+//                                         },
+//                                         (error) => 
+//                                         {
+//                                             _inLoginProcess = false;
+//                                             EntifixRefreshToken.isRefreshingToken.set(false);
+
+//                                             if (actionError)
+//                                                 actionError(error);
+
+//                                             if (EntifixConfig.devMode.get()) {
+//                                                 console.warn('DevMode: Refresh token error');
+//                                                 sv.tryLoginAsDeveloper();
+//                                             }
+//                                             else
+//                                                 manageRedirectAction();
+//                                         });
+//                     } else {
+//                         if (EntifixConfig.devMode.get()) {
+//                             console.warn('DevMode: Refresh token error');
+//                             sv.tryLoginAsDeveloper()
+//                                 .then(
+//                                     () => { $window.location.reload(); })
+//                                 .catch(
+//                                     (error) => { console.error('Error when trying login as developer ' + error); });                            
+//                         }
+//                         else
+//                             manageRedirectAction();
+//                     }
+//             };
+
+//             return sv;
+//         }];
+//     }]);
+
+// })();
+"use strict";
 'use strict';
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -2640,6 +2892,57 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // ============================================================================================================================================================================================================================
         // ============================================================================================================================================================================================================================
     }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').factory('EntifixTokenInterceptor', factory);
+
+    factory.$inject = ['$q', '$timeout', 'EntifixSession', 'jwtHelper', 'EntifixConfig'];
+
+    function factory($q, $timeout, EntifixSession, jwtHelper, EntifixConfig) {
+        var request = function request(config) {
+            if (config && config.url.substr(config.url.length - 5) == '.html' || config.url && (config.url == EntifixConfig.authUrl.get() || config.url == EntifixConfig.refreshUrl.get())) return config;
+            return evaluateToken(config);
+        };
+
+        function evaluateToken(config) {
+            var token = EntifixSession.authToken.get();
+            if (token) {
+                if (jwtHelper.isTokenExpired(token) && !EntifixSession.isRefreshingToken.get()) {
+                    EntifixSession.refreshToken();
+                }
+                if (!EntifixSession.isRefreshingToken.get()) {
+                    return config;
+                } else {
+                    var deferred = $q.defer();
+                    evaluateRequestToSend(deferred, config);
+                    return deferred.promise;
+                }
+            } else {
+                return config;
+            }
+        }
+
+        function evaluateRequestToSend(deferred, config) {
+            if (!EntifixSession.isRefreshingToken.get()) {
+                setLastAutorizationHeader(config);
+                deferred.resolve(config);
+            } else {
+                $timeout(evaluateRequestToSend, 1000, true, deferred, config);
+            }
+        }
+
+        function setLastAutorizationHeader(config) {
+            config.headers.Authorization = 'Bearer ' + EntifixSession.authToken.get();
+        }
+
+        return {
+            request: request
+        };
+    };
 })();
 'use strict';
 
@@ -5785,7 +6088,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             onChange: '&'
         },
         //templateUrl: 'dist/shared/components/entifixFile/entifixFile.html',
-        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+        template: '<div ng-show="vm.canShowEditableFields.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
                     <div ng-if="!vm.isMultiple.get()"> \
                         <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
                             <input type="file" \
@@ -5821,7 +6125,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                             <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
                         </h4> \
                     </div> \
-                    <br hide-gt-sm><br hide-gt-sm>',
+                    <br hide-gt-sm><br hide-gt-sm> \
+                   </div>',
         controller: componentcontroller,
         controllerAs: 'vm'
     };
@@ -7057,805 +7362,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixSelect', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    var entifixEnvironmentModule = angular.module('entifix-js');
-
-    // CONTROLLER ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
-
-    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
-
-    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
-        var vm = this;
-
-        vm.componentConstruction = componentConstruction();
-        vm.componentBehavior = componentBehavior();
-        vm.componentBindingOut = componentBindingOut();
-        vm.queryDetails = queryDetails();
-
-        // Properties & Fields ===================================================================================================================================================
-
-        //Fields
-        var _isloading = false;
-        var _notifier = null;
-
-        var _statesForm = {
-            edit: 1,
-            view: 2
-        };
-
-        var _state = _statesForm.edit;
-
-        // Main
-
-        vm.entity = {
-            get: function get() {
-                if (vm.connectionComponent) return vm.connectionComponent.entity;
-                return null;
-            },
-            set: function set(value) {
-                if (vm.connectionComponent) {
-                    var oldValue = vm.connectionComponent.entity;
-                    vm.connectionComponent.entity = value;
-
-                    if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onChangeEntity) vm.componentBehavior.events.onChangeEntity(oldValue, value);
-                }
-            }
-        };
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isLoading.get();
-                return false;
-            }
-        };
-
-        vm.isSaving = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isSaving.get();
-                return false;
-            }
-        };
-
-        vm.isDeleting = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isDeleting.get();
-                return false;
-            }
-        };
-
-        vm.onTask = {
-            get: function get() {
-                var response = vm.isLoading.get() || vm.isSaving.get() || vm.isDeleting.get();
-
-                return response;
-            }
-        };
-
-        vm.size = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.size) return vm.componentConstruction.size;
-
-                //Default value
-                return 'md-md';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.entityName) {
-                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.componentConstruction.title.entityName;else return 'Agregar ' + vm.componentConstruction.title.entityName;
-                    }
-
-                    if (vm.componentConstruction.title.entityProperty && vm.entity.get()) {
-                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];else return 'Agregar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];
-                    }
-
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                if (!vm.connectionComponent.showEditableFields.get()) return 'Editar Registro';
-                return 'Agregar Registro';
-            }
-        };
-
-        vm.icon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.icon) {
-                    if (vm.componentConstruction.icon.text) return vm.componentConstruction.icon.text;
-                }
-
-                //Default value
-                return 'menu';
-            }
-        };
-
-        // cancel button
-        vm.canCancel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && _state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.cancelIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.icon) return vm.componentConstruction.cancel.icon;
-
-                //Default value
-                return 'clear';
-            }
-        };
-
-        vm.cancelText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.text) {
-                    if (vm.componentConstruction.cancel.text.getter) return vm.componentConstruction.cancel.text.getter();else if (vm.componentConstruction.cancel.text) return vm.componentConstruction.cancel.text;
-                };
-
-                //Default value
-                return 'Cancelar';
-            }
-        };
-
-        vm.cancelHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.href) {
-                    if (vm.componentConstruction.cancel.href instanceof Object && vm.componentConstruction.cancel.href.getter) return vm.componentConstruction.cancel.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.cancel.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // ok button
-        vm.canOk = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && _state == _statesForm.view) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.okIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.icon) return vm.componentConstruction.ok.icon;
-
-                //Default value
-                return 'done';
-            }
-        };
-
-        vm.okText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.text) return '' + vm.componentConstruction.ok.text;
-
-                //Default value
-                return 'Aceptar';
-            }
-        };
-
-        // edit button
-        vm.canEdit = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.view) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.editIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.icon) return vm.componentConstruction.edit.icon;
-
-                //Default value
-                return 'create';
-            }
-        };
-
-        vm.editText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit) {
-                    if (vm.componentConstruction.edit.text instanceof Object && vm.componentConstruction.edit.text.getter) return vm.componentConstruction.edit.text.getter();else if (vm.componentConstruction.edit.text) return vm.componentConstruction.edit.text;
-                };
-
-                //Default value
-                return 'Editar';
-            }
-        };
-
-        vm.editHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.href) {
-                    if (vm.componentConstruction.edit.href instanceof Object && vm.componentConstruction.edit.href.getter) return vm.componentConstruction.edit.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.edit.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // save button
-        vm.canSave = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && _state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.saveIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.icon) return '' + vm.componentConstruction.save.icon;
-
-                //Default value
-                return 'save';
-            }
-        };
-
-        vm.saveText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save) {
-                    if (vm.componentConstruction.save.text instanceof Object && vm.componentConstruction.save.text.getter) return vm.componentConstruction.save.text.getter();else if (vm.componentConstruction.save.text) return vm.componentConstruction.save.text;
-                };
-
-                //Default value
-                return 'Guardar';
-            }
-        };
-
-        vm.saveHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.href) {
-                    if (vm.componentConstruction.save.href instanceof Object && vm.componentConstruction.save.href.getter) return vm.componentConstruction.save.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.save.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // remove button
-        vm.canRemove = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.removeIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.icon) return vm.componentConstruction.remove.icon;
-
-                //Default value
-                return 'delete';
-            }
-        };
-
-        vm.removeText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove) {
-                    if (vm.componentConstruction.remove.text instanceof Object && vm.componentConstruction.remove.text.getter) return vm.componentConstruction.remove.text.getter();else if (vm.componentConstruction.remove.text) return vm.componentConstruction.remove.text;
-                };
-
-                //Default value
-                return 'Eliminar';
-            }
-        };
-
-        vm.removeHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.href) {
-                    if (vm.componentConstruction.remove.href instanceof Object && vm.componentConstruction.remove.href.getter) return vm.componentConstruction.remove.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.remove.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        //process button
-        vm.canProcess = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && _state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.processIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.icon) return vm.componentConstruction.process.icon;
-
-                //Default value
-                return 'done_all';
-            }
-        };
-
-        vm.processText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.text) return '' + vm.componentConstruction.process.text;
-
-                //Default value
-                return 'Procesar';
-            }
-        };
-
-        vm.allowActions = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.allowActions != null) return vm.componentConstruction.allowActions;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.saveTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.saveTooltip) return vm.componentConstruction.saveTooltip;
-
-                //Default value
-                return 'Todos los campos obligatorios deben estar correctos';
-            }
-        };
-
-        vm.historyTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
-
-                //Default value
-                return 'Mostrar Bitácora';
-            }
-        };
-
-        var _canViewHistory = true;
-        vm.canViewHistory = {
-            get: function get() {
-                if (_canViewHistory) return true;
-                return false;
-            },
-
-            set: function set(value) {
-                _canViewHistory = value;
-            }
-        };
-
-        vm.history = {
-            get: function get() {
-                return $rootScope.showHistory;
-            },
-            set: function set() {
-                $rootScope.showHistory = !$rootScope.showHistory;
-            }
-        };
-
-        // =======================================================================================================================================================================
-
-        // Methods ===============================================================================================================================================================
-
-        function activate() {
-            setdefaults();
-            createconnectioncomponent();
-
-            if (vm.componentConstruction) createDynamicComponent();
-
-            checkoutputs();
-        };
-
-        function setdefaults() {
-            _notifier = new EntifixNotifier(vm.queryDetails.resource);
-        };
-
-        function createconnectioncomponent() {
-            vm.connectionComponent = {};
-
-            // Connection Component Properties __________________________________________________________________________________________
-            // ==========================================================================================================================
-
-            vm.connectionComponent.IsCreating = true;
-
-            if (vm.componentBindingOut.object) {
-                _state = _statesForm.view;
-                vm.entity.set(vm.componentBindingOut.object);
-            } else vm.entity.set({});
-
-            vm.connectionComponent.entity = vm.entity.get();
-            if (vm.queryDetails.resource) {
-                vm.connectionComponent.resource = vm.queryDetails.resource;
-            }
-
-            vm.connectionComponent.showEditableFields = {
-                get: function get() {
-                    return _state == _statesForm.edit;
-                },
-                set: function set(value) {
-                    if (value == true) _state = _statesForm.edit;
-                    if (value == false) _state = _statesForm.view;
-                }
-            };
-
-            vm.connectionComponent.isSaving = vm.isSaving;
-            vm.connectionComponent.history = vm.history;
-            vm.connectionComponent.canViewHistory = vm.canViewHistory;
-
-            vm.connectionComponent.canCancel = { get: function get() {
-                    return vm.canCancel.get();
-                } };
-            vm.connectionComponent.canRemove = { get: function get() {
-                    return vm.canRemove.get();
-                } };
-            vm.connectionComponent.canSave = { get: function get() {
-                    return vm.canSave.get();
-                } };
-            vm.connectionComponent.canEdit = { get: function get() {
-                    return vm.canEdit.get();
-                } };
-            vm.connectionComponent.canOk = { get: function get() {
-                    return vm.canOk.get();
-                } };
-            vm.connectionComponent.canProcess = { get: function get() {
-                    return vm.canProcess.get();
-                } };
-
-            vm.connectionComponent.cancelText = { get: function get() {
-                    return vm.cancelText.get();
-                } };
-            vm.connectionComponent.removeText = { get: function get() {
-                    return vm.removeText.get();
-                } };
-            vm.connectionComponent.saveText = { get: function get() {
-                    return vm.saveText.get();
-                } };
-            vm.connectionComponent.editText = { get: function get() {
-                    return vm.editText.get();
-                } };
-            vm.connectionComponent.okText = { get: function get() {
-                    return vm.okText.get();
-                } };
-            vm.connectionComponent.processText = { get: function get() {
-                    return vm.processText.get();
-                } };
-
-            vm.connectionComponent.cancelIcon = { get: function get() {
-                    return vm.cancelIcon.get();
-                } };
-            vm.connectionComponent.removeIcon = { get: function get() {
-                    return vm.removeIcon.get();
-                } };
-            vm.connectionComponent.saveIcon = { get: function get() {
-                    return vm.saveIcon.get();
-                } };
-            vm.connectionComponent.editIcon = { get: function get() {
-                    return vm.editIcon.get();
-                } };
-            vm.connectionComponent.okIcon = { get: function get() {
-                    return vm.okIcon.get();
-                } };
-            vm.connectionComponent.processIcon = { get: function get() {
-                    return vm.processIcon.get();
-                } };
-
-            vm.connectionComponent.cancel = { invoke: function invoke() {
-                    vm.cancel();
-                } };
-            vm.connectionComponent.remove = { invoke: function invoke() {
-                    vm.remove();
-                } };
-            vm.connectionComponent.edit = { invoke: function invoke() {
-                    vm.edit();
-                } };
-            vm.connectionComponent.ok = { invoke: function invoke() {
-                    vm.ok();
-                } };
-            vm.connectionComponent.save = { invoke: function invoke() {
-                    vm.save();
-                } };
-            vm.connectionComponent.process = { invoke: function invoke() {
-                    vm.process();
-                } };
-
-            vm.connectionComponent.onTask = { get: function get() {
-                    return vm.onTask.get();
-                } };
-            vm.connectionComponent.saveTooltip = { get: function get() {
-                    return vm.saveTooltip.get();
-                } };
-            vm.connectionComponent.entityForm = { valid: function valid() {
-                    return vm.entityForm.$valid;
-                } };
-
-            vm.connectionComponent.evaluateErrors = {
-                get: function get(name) {
-                    return evaluateErrors(name);
-                }
-            };
-
-            function evaluateErrors(property) {
-                var errors = {};
-                for (var error in vm.entityForm.$error) {
-                    var propertyValue = vm.entityForm.$error[error];
-
-                    if (propertyValue instanceof Array) propertyValue.forEach(function (element) {
-                        if (element.$name == property) errors[error] = true;
-                    });
-                }
-
-                return errors;
-            }
-
-            // ==========================================================================================================================
-
-
-            // Connection Component Methods _____________________________________________________________________________________________
-            // ==========================================================================================================================
-
-            var searchForm = function searchForm() {
-                if (vm.entityForm) vm.connectionComponent.entityForm = vm.entityForm;else $timeout(searchForm, 200);
-            };
-
-            searchForm();
-        };
-
-        function createDynamicComponent() {
-            var res = BaseComponentFunctions.CreateStringHtmlComponentAndBindings(vm.componentConstruction, 'bindCtrl.connectionComponent.objectBindings');
-            vm.stringhtmlcomponent = res.stringhtml;
-            vm.connectionComponent.objectBindings = res.objectbindings;
-        };
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                showEditableFields: vm.connectionComponent.showEditableFields,
-                entity: vm.entity,
-                recreateDynamicComponent: createDynamicComponent
-            };
-
-            if (vm.componentBehavior && vm.componentBehavior.afterConstruction) vm.componentBehavior.afterConstruction();
-        };
-
-        vm.cancel = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCancel) vm.componentBehavior.events.onCancel();
-
-            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction();else defaultCancel();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCanceled) vm.componentBehavior.events.onCanceled();
-        };
-
-        vm.ok = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onOk) vm.componentBehavior.events.onOk();
-
-            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk);else defaultOk();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAfterOk) vm.componentBehavior.events.onAfterOk();
-        };
-
-        vm.edit = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdit) vm.componentBehavior.events.onEdit();
-
-            if (vm.componentConstruction.edit.customAction) vm.componentConstruction.edit.customAction(vm.entity.get(), defaultOk);else defaultEdit();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdited) vm.componentBehavior.events.onEdited();
-        };
-
-        vm.save = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSave) vm.componentBehavior.events.onSave(vm.entity.get());
-
-            if (vm.componentConstruction.save.customAction) vm.componentConstruction.save.customAction(vm.entity.get(), defaultOk, setViewState);else defaultSave();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSaved) vm.componentBehavior.events.onSaved();
-        };
-
-        vm.remove = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemove) vm.componentBehavior.events.onRemove();
-
-            if (vm.componentConstruction.remove.customAction) vm.componentConstruction.remove.customAction(vm.entity.get(), defaultOk);else defaultRemove();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemoved) vm.componentBehavior.events.onRemoved();
-        };
-
-        vm.process = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcess) vm.componentBehavior.events.onProcess();
-
-            if (vm.componentConstruction.process.customAction) vm.componentConstruction.process.customAction(vm.entity.get(), defaultOk, setViewState);else defaultProcess();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcessed) vm.componentBehavior.events.onProcessed();
-        };
-
-        function defaultCancel() {
-            if (vm.queryDetails.resource.isNewEntity(vm.connectionComponent.entity)) $mdDialog.cancel();else {
-                _state = _statesForm.view;
-                reloadEntity();
-            }
-        };
-
-        function defaultOk() {
-            $mdDialog.hide();
-        };
-
-        function defaultEdit() {
-            _state = _statesForm.edit;
-        };
-
-        function defaultSave() {
-            vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity, function (response, saveSuccess) {
-                if (saveSuccess) {
-                    if (response && response.data.data) vm.entity.set(response.data.data);
-                    defaultOk();
-                }
-            });
-        };
-
-        function defaultProcess() {
-            vm.connectionComponent.entity[vm.queryDetails.resource.getOpProperty.get()] = 'PROCESAR';
-            defaultSave();
-        };
-
-        function defaultRemove() {
-            EntifixNotification.confirm({
-                "body": "Está seguro de eliminar el registro",
-                "header": "Confirmación requerida",
-                "actionConfirm": function actionConfirm() {
-                    vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
-                        defaultOk();
-                    });
-                },
-                "actionCancel": function actionCancel() {} });
-        };
-
-        vm.submit = function () {
-            vm.save();
-        };
-
-        function reloadEntity() {
-            if (vm.entity.get()) vm.queryDetails.resource.loadAsResource(vm.entity.get(), function (entityReloaded) {
-                vm.entity.set(entityReloaded);
-            });
-        };
-
-        // =======================================================================================================================================================================
-
-        function setViewState(view, entity) {
-            if (view) _state = _statesForm.view;else _state = _statesForm.edit;
-
-            vm.entity.set(entity);
-        }
-
-        activate();
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    entifixEnvironmentModule.factory('EntifixEntityModal', entityModal);
-    entityModal.$inject = ['$mdDialog'];
-
-    function entityModal($mdDialog) {
-        var entityModal = function entityModal(_componentConstruction, _componentBehavior, _componentBindingOut, _queryDetails) {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.openModal = function () {
-                if (_componentConstruction && _componentConstruction.event) var event = _componentConstruction.event;
-
-                if (_componentConstruction && _componentConstruction.clickOutsideToClose != null) var clickOutsideToClose = _componentConstruction.clickOutsideToClose;else var clickOutsideToClose = false;
-
-                if (_componentConstruction && _componentConstruction.escapeToClose != null) var escapeToClose = _componentConstruction.escapeToClose;else var escapeToClose = true;
-
-                if (_componentConstruction && _componentConstruction.fullscreen != null) var fullscreen = _componentConstruction.fullscreen;else var fullscreen = true;
-
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixEntityModal/entifixEntityModal.html',
-                    template: '<md-dialog aria-label="{{bindCtrl.title.get()}}" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }" class="{{bindCtrl.size.get()}}"> \
-                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></div> \
-                                                                <h2>&nbsp{{bindCtrl.title.get()}}</h2> \
-                                                            </div> \
-                                                            <div flex layout layout-align="end center" ng-if="bindCtrl.canViewHistory.get()"> \
-                                                                <md-button layout layout-align="end end" class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
-                                                                    <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
-                                                                    <md-icon class="material-icons">history</md-icon> \
-                                                                </md-button> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off"> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row" ng-if="bindCtrl.allowActions.get()"> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon>&nbsp;{{bindCtrl.cancelText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.removeHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon>&nbsp;{{bindCtrl.removeText.get()}} \
-                                                            </md-button> \
-                                                            <md-button type="submit" class="md-primary" ng-show="bindCtrl.canSave.get()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
-                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
-                                                                <md-icon class="material-icons">{{bindCtrl.saveIcon.get()}}</md-icon>&nbsp;{{bindCtrl.saveText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.editHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon>&nbsp;{{bindCtrl.editText.get()}} \
-                                                            </md-button> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon>&nbsp;{{bindCtrl.okText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
-                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
-                                                                <md-icon class="material-icons">{{bindCtrl.processIcon.get()}}</md-icon>&nbsp;{{bindCtrl.processText.get()}} \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </form> \
-                                                </md-dialog>',
-                    controller: 'EntifixEntityModalController',
-                    parent: angular.element(document.body),
-                    targetEvent: event,
-                    clickOutsideToClose: clickOutsideToClose,
-                    escapeToClose: escapeToClose,
-                    fullscreen: fullscreen,
-                    controllerAs: 'bindCtrl',
-                    multiple: true,
-                    locals: {
-                        componentConstruction: function componentConstruction() {
-                            return _componentConstruction;
-                        },
-                        componentBehavior: function componentBehavior() {
-                            return _componentBehavior;
-                        },
-                        componentBindingOut: function componentBindingOut() {
-                            return _componentBindingOut;
-                        },
-                        queryDetails: function queryDetails() {
-                            return _queryDetails;
-                        }
-                    }
-                }).then(function (results) {}, function () {});
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return entityModal;
-    };
 })();
 'use strict';
 
@@ -9177,4 +8683,803 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    var entifixEnvironmentModule = angular.module('entifix-js');
+
+    // CONTROLLER ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
+
+    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
+        var vm = this;
+
+        vm.componentConstruction = componentConstruction();
+        vm.componentBehavior = componentBehavior();
+        vm.componentBindingOut = componentBindingOut();
+        vm.queryDetails = queryDetails();
+
+        // Properties & Fields ===================================================================================================================================================
+
+        //Fields
+        var _isloading = false;
+        var _notifier = null;
+
+        var _statesForm = {
+            edit: 1,
+            view: 2
+        };
+
+        var _state = _statesForm.edit;
+
+        // Main
+
+        vm.entity = {
+            get: function get() {
+                if (vm.connectionComponent) return vm.connectionComponent.entity;
+                return null;
+            },
+            set: function set(value) {
+                if (vm.connectionComponent) {
+                    var oldValue = vm.connectionComponent.entity;
+                    vm.connectionComponent.entity = value;
+
+                    if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onChangeEntity) vm.componentBehavior.events.onChangeEntity(oldValue, value);
+                }
+            }
+        };
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isLoading.get();
+                return false;
+            }
+        };
+
+        vm.isSaving = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isSaving.get();
+                return false;
+            }
+        };
+
+        vm.isDeleting = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isDeleting.get();
+                return false;
+            }
+        };
+
+        vm.onTask = {
+            get: function get() {
+                var response = vm.isLoading.get() || vm.isSaving.get() || vm.isDeleting.get();
+
+                return response;
+            }
+        };
+
+        vm.size = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.size) return vm.componentConstruction.size;
+
+                //Default value
+                return 'md-md';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.entityName) {
+                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.componentConstruction.title.entityName;else return 'Agregar ' + vm.componentConstruction.title.entityName;
+                    }
+
+                    if (vm.componentConstruction.title.entityProperty && vm.entity.get()) {
+                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];else return 'Agregar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];
+                    }
+
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                if (!vm.connectionComponent.showEditableFields.get()) return 'Editar Registro';
+                return 'Agregar Registro';
+            }
+        };
+
+        vm.icon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.icon) {
+                    if (vm.componentConstruction.icon.text) return vm.componentConstruction.icon.text;
+                }
+
+                //Default value
+                return 'menu';
+            }
+        };
+
+        // cancel button
+        vm.canCancel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && _state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.cancelIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.icon) return vm.componentConstruction.cancel.icon;
+
+                //Default value
+                return 'clear';
+            }
+        };
+
+        vm.cancelText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.text) {
+                    if (vm.componentConstruction.cancel.text.getter) return vm.componentConstruction.cancel.text.getter();else if (vm.componentConstruction.cancel.text) return vm.componentConstruction.cancel.text;
+                };
+
+                //Default value
+                return 'Cancelar';
+            }
+        };
+
+        vm.cancelHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.href) {
+                    if (vm.componentConstruction.cancel.href instanceof Object && vm.componentConstruction.cancel.href.getter) return vm.componentConstruction.cancel.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.cancel.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // ok button
+        vm.canOk = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && _state == _statesForm.view) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.okIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.icon) return vm.componentConstruction.ok.icon;
+
+                //Default value
+                return 'done';
+            }
+        };
+
+        vm.okText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.text) return '' + vm.componentConstruction.ok.text;
+
+                //Default value
+                return 'Aceptar';
+            }
+        };
+
+        // edit button
+        vm.canEdit = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.view) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.editIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.icon) return vm.componentConstruction.edit.icon;
+
+                //Default value
+                return 'create';
+            }
+        };
+
+        vm.editText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit) {
+                    if (vm.componentConstruction.edit.text instanceof Object && vm.componentConstruction.edit.text.getter) return vm.componentConstruction.edit.text.getter();else if (vm.componentConstruction.edit.text) return vm.componentConstruction.edit.text;
+                };
+
+                //Default value
+                return 'Editar';
+            }
+        };
+
+        vm.editHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.href) {
+                    if (vm.componentConstruction.edit.href instanceof Object && vm.componentConstruction.edit.href.getter) return vm.componentConstruction.edit.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.edit.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // save button
+        vm.canSave = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && _state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.saveIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.icon) return '' + vm.componentConstruction.save.icon;
+
+                //Default value
+                return 'save';
+            }
+        };
+
+        vm.saveText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save) {
+                    if (vm.componentConstruction.save.text instanceof Object && vm.componentConstruction.save.text.getter) return vm.componentConstruction.save.text.getter();else if (vm.componentConstruction.save.text) return vm.componentConstruction.save.text;
+                };
+
+                //Default value
+                return 'Guardar';
+            }
+        };
+
+        vm.saveHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.href) {
+                    if (vm.componentConstruction.save.href instanceof Object && vm.componentConstruction.save.href.getter) return vm.componentConstruction.save.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.save.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // remove button
+        vm.canRemove = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.removeIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.icon) return vm.componentConstruction.remove.icon;
+
+                //Default value
+                return 'delete';
+            }
+        };
+
+        vm.removeText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove) {
+                    if (vm.componentConstruction.remove.text instanceof Object && vm.componentConstruction.remove.text.getter) return vm.componentConstruction.remove.text.getter();else if (vm.componentConstruction.remove.text) return vm.componentConstruction.remove.text;
+                };
+
+                //Default value
+                return 'Eliminar';
+            }
+        };
+
+        vm.removeHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.href) {
+                    if (vm.componentConstruction.remove.href instanceof Object && vm.componentConstruction.remove.href.getter) return vm.componentConstruction.remove.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.remove.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        //process button
+        vm.canProcess = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && _state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.processIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.icon) return vm.componentConstruction.process.icon;
+
+                //Default value
+                return 'done_all';
+            }
+        };
+
+        vm.processText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.text) return '' + vm.componentConstruction.process.text;
+
+                //Default value
+                return 'Procesar';
+            }
+        };
+
+        vm.allowActions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.allowActions != null) return vm.componentConstruction.allowActions;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.saveTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.saveTooltip) return vm.componentConstruction.saveTooltip;
+
+                //Default value
+                return 'Todos los campos obligatorios deben estar correctos';
+            }
+        };
+
+        vm.historyTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
+
+                //Default value
+                return 'Mostrar Bitácora';
+            }
+        };
+
+        var _canViewHistory = true;
+        vm.canViewHistory = {
+            get: function get() {
+                if (_canViewHistory) return true;
+                return false;
+            },
+
+            set: function set(value) {
+                _canViewHistory = value;
+            }
+        };
+
+        vm.history = {
+            get: function get() {
+                return $rootScope.showHistory;
+            },
+            set: function set() {
+                $rootScope.showHistory = !$rootScope.showHistory;
+            }
+        };
+
+        // =======================================================================================================================================================================
+
+        // Methods ===============================================================================================================================================================
+
+        function activate() {
+            setdefaults();
+            createconnectioncomponent();
+
+            if (vm.componentConstruction) createDynamicComponent();
+
+            checkoutputs();
+        };
+
+        function setdefaults() {
+            _notifier = new EntifixNotifier(vm.queryDetails.resource);
+        };
+
+        function createconnectioncomponent() {
+            vm.connectionComponent = {};
+
+            // Connection Component Properties __________________________________________________________________________________________
+            // ==========================================================================================================================
+
+            vm.connectionComponent.IsCreating = true;
+
+            if (vm.componentBindingOut.object) {
+                _state = _statesForm.view;
+                vm.entity.set(vm.componentBindingOut.object);
+            } else vm.entity.set({});
+
+            vm.connectionComponent.entity = vm.entity.get();
+            if (vm.queryDetails.resource) {
+                vm.connectionComponent.resource = vm.queryDetails.resource;
+            }
+
+            vm.connectionComponent.showEditableFields = {
+                get: function get() {
+                    return _state == _statesForm.edit;
+                },
+                set: function set(value) {
+                    if (value == true) _state = _statesForm.edit;
+                    if (value == false) _state = _statesForm.view;
+                }
+            };
+
+            vm.connectionComponent.isSaving = vm.isSaving;
+            vm.connectionComponent.history = vm.history;
+            vm.connectionComponent.canViewHistory = vm.canViewHistory;
+
+            vm.connectionComponent.canCancel = { get: function get() {
+                    return vm.canCancel.get();
+                } };
+            vm.connectionComponent.canRemove = { get: function get() {
+                    return vm.canRemove.get();
+                } };
+            vm.connectionComponent.canSave = { get: function get() {
+                    return vm.canSave.get();
+                } };
+            vm.connectionComponent.canEdit = { get: function get() {
+                    return vm.canEdit.get();
+                } };
+            vm.connectionComponent.canOk = { get: function get() {
+                    return vm.canOk.get();
+                } };
+            vm.connectionComponent.canProcess = { get: function get() {
+                    return vm.canProcess.get();
+                } };
+
+            vm.connectionComponent.cancelText = { get: function get() {
+                    return vm.cancelText.get();
+                } };
+            vm.connectionComponent.removeText = { get: function get() {
+                    return vm.removeText.get();
+                } };
+            vm.connectionComponent.saveText = { get: function get() {
+                    return vm.saveText.get();
+                } };
+            vm.connectionComponent.editText = { get: function get() {
+                    return vm.editText.get();
+                } };
+            vm.connectionComponent.okText = { get: function get() {
+                    return vm.okText.get();
+                } };
+            vm.connectionComponent.processText = { get: function get() {
+                    return vm.processText.get();
+                } };
+
+            vm.connectionComponent.cancelIcon = { get: function get() {
+                    return vm.cancelIcon.get();
+                } };
+            vm.connectionComponent.removeIcon = { get: function get() {
+                    return vm.removeIcon.get();
+                } };
+            vm.connectionComponent.saveIcon = { get: function get() {
+                    return vm.saveIcon.get();
+                } };
+            vm.connectionComponent.editIcon = { get: function get() {
+                    return vm.editIcon.get();
+                } };
+            vm.connectionComponent.okIcon = { get: function get() {
+                    return vm.okIcon.get();
+                } };
+            vm.connectionComponent.processIcon = { get: function get() {
+                    return vm.processIcon.get();
+                } };
+
+            vm.connectionComponent.cancel = { invoke: function invoke() {
+                    vm.cancel();
+                } };
+            vm.connectionComponent.remove = { invoke: function invoke() {
+                    vm.remove();
+                } };
+            vm.connectionComponent.edit = { invoke: function invoke() {
+                    vm.edit();
+                } };
+            vm.connectionComponent.ok = { invoke: function invoke() {
+                    vm.ok();
+                } };
+            vm.connectionComponent.save = { invoke: function invoke() {
+                    vm.save();
+                } };
+            vm.connectionComponent.process = { invoke: function invoke() {
+                    vm.process();
+                } };
+
+            vm.connectionComponent.onTask = { get: function get() {
+                    return vm.onTask.get();
+                } };
+            vm.connectionComponent.saveTooltip = { get: function get() {
+                    return vm.saveTooltip.get();
+                } };
+            vm.connectionComponent.entityForm = { valid: function valid() {
+                    return vm.entityForm.$valid;
+                } };
+
+            vm.connectionComponent.evaluateErrors = {
+                get: function get(name) {
+                    return evaluateErrors(name);
+                }
+            };
+
+            function evaluateErrors(property) {
+                var errors = {};
+                for (var error in vm.entityForm.$error) {
+                    var propertyValue = vm.entityForm.$error[error];
+
+                    if (propertyValue instanceof Array) propertyValue.forEach(function (element) {
+                        if (element.$name == property) errors[error] = true;
+                    });
+                }
+
+                return errors;
+            }
+
+            // ==========================================================================================================================
+
+
+            // Connection Component Methods _____________________________________________________________________________________________
+            // ==========================================================================================================================
+
+            var searchForm = function searchForm() {
+                if (vm.entityForm) vm.connectionComponent.entityForm = vm.entityForm;else $timeout(searchForm, 200);
+            };
+
+            searchForm();
+        };
+
+        function createDynamicComponent() {
+            var res = BaseComponentFunctions.CreateStringHtmlComponentAndBindings(vm.componentConstruction, 'bindCtrl.connectionComponent.objectBindings');
+            vm.stringhtmlcomponent = res.stringhtml;
+            vm.connectionComponent.objectBindings = res.objectbindings;
+        };
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                showEditableFields: vm.connectionComponent.showEditableFields,
+                entity: vm.entity,
+                recreateDynamicComponent: createDynamicComponent
+            };
+
+            if (vm.componentBehavior && vm.componentBehavior.afterConstruction) vm.componentBehavior.afterConstruction();
+        };
+
+        vm.cancel = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCancel) vm.componentBehavior.events.onCancel();
+
+            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction();else defaultCancel();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCanceled) vm.componentBehavior.events.onCanceled();
+        };
+
+        vm.ok = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onOk) vm.componentBehavior.events.onOk();
+
+            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk);else defaultOk();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAfterOk) vm.componentBehavior.events.onAfterOk();
+        };
+
+        vm.edit = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdit) vm.componentBehavior.events.onEdit();
+
+            if (vm.componentConstruction.edit.customAction) vm.componentConstruction.edit.customAction(vm.entity.get(), defaultOk);else defaultEdit();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdited) vm.componentBehavior.events.onEdited();
+        };
+
+        vm.save = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSave) vm.componentBehavior.events.onSave(vm.entity.get());
+
+            if (vm.componentConstruction.save.customAction) vm.componentConstruction.save.customAction(vm.entity.get(), defaultOk, setViewState);else defaultSave();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSaved) vm.componentBehavior.events.onSaved();
+        };
+
+        vm.remove = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemove) vm.componentBehavior.events.onRemove();
+
+            if (vm.componentConstruction.remove.customAction) vm.componentConstruction.remove.customAction(vm.entity.get(), defaultOk);else defaultRemove();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemoved) vm.componentBehavior.events.onRemoved();
+        };
+
+        vm.process = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcess) vm.componentBehavior.events.onProcess();
+
+            if (vm.componentConstruction.process.customAction) vm.componentConstruction.process.customAction(vm.entity.get(), defaultOk, setViewState);else defaultProcess();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcessed) vm.componentBehavior.events.onProcessed();
+        };
+
+        function defaultCancel() {
+            if (vm.queryDetails.resource.isNewEntity(vm.connectionComponent.entity)) $mdDialog.cancel();else {
+                _state = _statesForm.view;
+                reloadEntity();
+            }
+        };
+
+        function defaultOk() {
+            $mdDialog.hide();
+        };
+
+        function defaultEdit() {
+            _state = _statesForm.edit;
+        };
+
+        function defaultSave() {
+            vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity, function (response, saveSuccess) {
+                if (saveSuccess) {
+                    if (response && response.data.data) vm.entity.set(response.data.data);
+                    defaultOk();
+                }
+            });
+        };
+
+        function defaultProcess() {
+            vm.connectionComponent.entity[vm.queryDetails.resource.getOpProperty.get()] = 'PROCESAR';
+            defaultSave();
+        };
+
+        function defaultRemove() {
+            EntifixNotification.confirm({
+                "body": "Está seguro de eliminar el registro",
+                "header": "Confirmación requerida",
+                "actionConfirm": function actionConfirm() {
+                    vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
+                        defaultOk();
+                    });
+                },
+                "actionCancel": function actionCancel() {} });
+        };
+
+        vm.submit = function () {
+            vm.save();
+        };
+
+        function reloadEntity() {
+            if (vm.entity.get()) vm.queryDetails.resource.loadAsResource(vm.entity.get(), function (entityReloaded) {
+                vm.entity.set(entityReloaded);
+            });
+        };
+
+        // =======================================================================================================================================================================
+
+        function setViewState(view, entity) {
+            if (view) _state = _statesForm.view;else _state = _statesForm.edit;
+
+            vm.entity.set(entity);
+        }
+
+        activate();
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    entifixEnvironmentModule.factory('EntifixEntityModal', entityModal);
+    entityModal.$inject = ['$mdDialog'];
+
+    function entityModal($mdDialog) {
+        var entityModal = function entityModal(_componentConstruction, _componentBehavior, _componentBindingOut, _queryDetails) {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.openModal = function () {
+                if (_componentConstruction && _componentConstruction.event) var event = _componentConstruction.event;
+
+                if (_componentConstruction && _componentConstruction.clickOutsideToClose != null) var clickOutsideToClose = _componentConstruction.clickOutsideToClose;else var clickOutsideToClose = false;
+
+                if (_componentConstruction && _componentConstruction.escapeToClose != null) var escapeToClose = _componentConstruction.escapeToClose;else var escapeToClose = true;
+
+                if (_componentConstruction && _componentConstruction.fullscreen != null) var fullscreen = _componentConstruction.fullscreen;else var fullscreen = true;
+
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixEntityModal/entifixEntityModal.html',
+                    template: '<md-dialog aria-label="{{bindCtrl.title.get()}}" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }" class="{{bindCtrl.size.get()}}"> \
+                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></div> \
+                                                                <h2>&nbsp{{bindCtrl.title.get()}}</h2> \
+                                                            </div> \
+                                                            <div flex layout layout-align="end center" ng-if="bindCtrl.canViewHistory.get()"> \
+                                                                <md-button layout layout-align="end end" class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
+                                                                    <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">history</md-icon> \
+                                                                </md-button> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off"> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row" ng-if="bindCtrl.allowActions.get()"> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon>&nbsp;{{bindCtrl.cancelText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.removeHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon>&nbsp;{{bindCtrl.removeText.get()}} \
+                                                            </md-button> \
+                                                            <md-button type="submit" class="md-primary" ng-show="bindCtrl.canSave.get()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
+                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                                                <md-icon class="material-icons">{{bindCtrl.saveIcon.get()}}</md-icon>&nbsp;{{bindCtrl.saveText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.editHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon>&nbsp;{{bindCtrl.editText.get()}} \
+                                                            </md-button> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon>&nbsp;{{bindCtrl.okText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
+                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                                                <md-icon class="material-icons">{{bindCtrl.processIcon.get()}}</md-icon>&nbsp;{{bindCtrl.processText.get()}} \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </form> \
+                                                </md-dialog>',
+                    controller: 'EntifixEntityModalController',
+                    parent: angular.element(document.body),
+                    targetEvent: event,
+                    clickOutsideToClose: clickOutsideToClose,
+                    escapeToClose: escapeToClose,
+                    fullscreen: fullscreen,
+                    controllerAs: 'bindCtrl',
+                    multiple: true,
+                    locals: {
+                        componentConstruction: function componentConstruction() {
+                            return _componentConstruction;
+                        },
+                        componentBehavior: function componentBehavior() {
+                            return _componentBehavior;
+                        },
+                        componentBindingOut: function componentBindingOut() {
+                            return _componentBindingOut;
+                        },
+                        queryDetails: function queryDetails() {
+                            return _queryDetails;
+                        }
+                    }
+                }).then(function (results) {}, function () {});
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return entityModal;
+    };
 })();

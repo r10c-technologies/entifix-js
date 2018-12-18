@@ -7,75 +7,16 @@
 
     var module = angular.module('entifix-js');
 
-    module.provider("message", [function () {
-        var text = null;
-
-        this.setText = function (textString) {
-            text = textString;
-        };
-
-        this.$get = [function () {
-            return new Message(text);
-        }];
-    }]);
-
     module.provider("EntifixSession", [function () {
         
         var prov = this;
 
-        var $authUrl, 
-        $unauthorizedStateName, 
-        $authTokenName,
-        $redirectName,
-        $authAppName,
-        $thisApplication, 
-        $authApplication,
-        $devMode = false,
-        $devUser;
+        // SERVICE INSTANCE __________________________________________________________________________________________________________________________________________________________________________
+        // ===========================================================================================================================================================================================
+        // ===========================================================================================================================================================================================
+        prov.$get = ['EntifixConfig', '$state', '$injector', 'jwtHelper', 'md5', '$window', function (EntifixConfig, $state, $injector, jwtHelper, md5, $window) {
 
-        prov.setAuthUrl = function(value) {
-            $authUrl = value;
-        };
-
-        prov.setUnauthorizedStateName = function(value) {
-            $unauthorizedStateName = value;
-        };
-
-        prov.setAuthTokenName = function(value) {
-             $authTokenName = value;
-        };
-
-        prov.setRedirectName = function(value) {
-             $redirectName = value;
-        };
-
-        prov.setAuthName = function(value) {
-             $authAppName = value;
-        };
-
-        prov.setThisApplication = function(value) {
-             $thisApplication = value;
-        };
-
-        prov.setAuthApplication = function(value) {
-             $authApplication = value;
-        };
-
-        prov.setDevMode = function(value) {
-            $devMode = value;
-        };
-        
-        prov.setDevUser = function(value){
-            $devUser = value;
-        };
-
-        // SERVICE INSTANCE ___________________________________________________________________________________________________________________________________________________________________________________________________________
-        // ============================================================================================================================================================================================================================
-        // ============================================================================================================================================================================================================================
-        //$inject = ['$state', '$http', 'AppResources', 'jwtHelper', 'md5', '$window', 'AppRedirects'];
-        prov.$get = [ '$state', '$http', 'jwtHelper', 'md5', '$window', function ($state, $http, jwtHelper, md5, $window) {
-
-            var sv = {}
+            var sv = {};
 
             //Properties and Fields___________________________________________________________________________________________________________________________
             //================================================================================================================================================
@@ -83,7 +24,9 @@
             //Fields
             var _inLoginProcess = false;
             var _currentUser = null;
-            var _currentWorkGroup = null;
+            var _currentUsername = null;
+            var _currentUser = null;
+            var _isRefreshingToken = false;
 
             //Properties
             sv.isInLoginProcess =
@@ -91,56 +34,39 @@
                 get: () => { return _inLoginProcess; }
             };
 
-            sv.redirectName = 
+            sv.isRefreshingToken =
             {
-                get: () => { return $redirectName; }
-            }
-
-            sv.authAppName = 
-            {
-                get: () => { return $authAppName; }
-            }
-
-            sv.thisApplication = 
-            {
-                get: () => { return $thisApplication; }
-            }
-
-            sv.authApplication = 
-            {
-                get: () => { return $authApplication; }
-            }
-
-            sv.authUrl = 
-            {
-                get: () => { return $authUrl; }
-            }
-
-            sv.devMode = 
-            {
-                get: () => { return $devMode; }
-            }
-
-            sv.authTokenName =
-            {
-                get: () => { return $authTokenName; }
+                get: () => { return _isRefreshingToken; },
+                set: (value) => { _isRefreshingToken = value; }
             }
 
             sv.redirect =
             {
-                set: (value) => { localStorage.setItem($redirectName, value); }
+                get: () => { return localStorage.getItem(EntifixConfig.redirectName); },
+                set: (value) => { localStorage.setItem(EntifixConfig.redirectName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.redirectName.get()); }
             }
 
             sv.authApp =
             {
-                set: (value) => { localStorage.setItem($authAppName, value); }
+                get: () => { return localStorage.getItem(EntifixConfig.authAppName); },
+                set: (value) => { localStorage.setItem(EntifixConfig.authAppName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.authAppName.get()); }
             }
 
             sv.authToken =
             {
-                set: (value) => { localStorage.setItem($authTokenName, value); },
-                remove: (value) => { localStorage.removeItem($authTokenName); }
-            } 
+                get: () => { return localStorage.getItem(EntifixConfig.authTokenName.get()); },
+                set: (value) => { localStorage.setItem(EntifixConfig.authTokenName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.authTokenName.get()); }
+            }
+
+            sv.refreshTokenLS =
+            {
+                get: () => { return localStorage.getItem(EntifixConfig.refreshTokenName.get()); },
+                set: (value) => { localStorage.setItem(EntifixConfig.refreshTokenName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.refreshTokenName.get()); }
+            }
 
             sv.currentUser =
             {
@@ -148,29 +74,39 @@
                 {
                     if (_currentUser == null);
                     {
-                        var tmptoken = localStorage.getItem($authTokenName);
+                        var tmptoken = sv.authToken.get();
                         if (tmptoken)
-                        {
-                            var sub = jwtHelper.decodeToken(tmptoken).sub;
-                            _currentUser = JSON.parse(sub);     
-                        }                        
+                            _currentUser = jwtHelper.decodeToken(tmptoken).name;
                     }
                     return _currentUser;
                 }        
             };
 
-            sv.currentWorkgroup =
+            sv.currentUsername =
             {
                 get: () =>
                 {
-                    if (_currentWorkGroup == null);
+                    if (_currentUsername == null);
                     {
-                        var tmptoken = localStorage.getItem($authTokenName);
-                        var workgroup = jwtHelper.decodeToken(tmptoken).workgroup;
-                        if (tmptoken && workgroup)
-                            _currentWorkGroup = JSON.parse(workgroup);     
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken)
+                            _currentUsername = jwtHelper.decodeToken(tmptoken).username;
                     }
-                    return _currentWorkGroup;
+                    return _currentUsername;
+                }        
+            };
+
+            sv.currentIdUser =
+            {
+                get: () =>
+                {
+                    if (_currentIdUser == null);
+                    {
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken)
+                            _currentIdUser = jwtHelper.decodeToken(tmptoken).idUser;
+                    }
+                    return _currentIdUser;
                 }        
             };
              
@@ -181,38 +117,40 @@
             
             // Public section _____________________________________________________________________
 
-            sv.TryLogIn = function(user, password, idSistema,  actionAccept, actionReject, actionError)
+            sv.TryLogIn = function(user, password, actionAccept, actionReject, actionError)
             {
                 _inLoginProcess = true;
 
                 //Resouce to login
                 var hashPass = md5.createHash(password);
 
+                var $http = $injector.get('$http');
                 $http({
                             method: 'POST',
-                            url: $authUrl,
-                            data: { user: user, password: hashPass, idSistema: idSistema }
+                            url: EntifixConfig.authUrl.get(),
+                            data: { user: user, password: hashPass }
                         }).then(    (response) => 
                                     {                                
                                         if (!response.data.isLogicError)
                                         {
-                                            if ($devMode)
+                                            if (EntifixConfig.devMode.get())
                                                 console.info('DevMode: Login success');
 
                                             //Save token from response
-                                            localStorage.setItem($authTokenName, response.data.data[0].authToken);
+                                            sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
+                                            sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
                                             
                                             if (actionAccept)
                                                 actionAccept();
 
                                             _inLoginProcess = false;
 
-                                            if (!$devMode)
+                                            if (!EntifixConfig.devMode.get())
                                                 manageAuthRedirectAction();
                                         }
                                         else
                                         {
-                                            if ($devMode)
+                                            if (EntifixConfig.devMode.get())
                                                 console.info('DevMode: Login reject with message - ' + response.data.message);
 
                                             if (actionReject)
@@ -223,7 +161,7 @@
                                     },
                                     (error) => 
                                     {
-                                        if ($devMode)
+                                        if (EntifixConfig.devMode.get())
                                                 console.warn('DevMode: Login error');
 
                                         if (actionError)
@@ -231,7 +169,77 @@
                                         
                                         _inLoginProcess = false;
                                     });
-            };        
+            };
+
+            sv.refreshToken = function(actionAccept, actionReject, actionError)
+            {
+                if (sv.refreshTokenLS.get() && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get()) && !sv.isRefreshingToken.get()) {
+                    _inLoginProcess = true;
+                    sv.isRefreshingToken.set(true);
+                    var $http = $injector.get('$http');
+                    $http({
+                                method: 'POST',
+                                url: EntifixConfig.refreshUrl.get(),
+                                data: { [EntifixConfig.refreshTokenName.get()]: sv.refreshTokenLS.get() }
+                            }).then(    (response) => 
+                                        {
+
+                                            if (!response.data.isLogicError)
+                                            {
+                                                if (EntifixConfig.devMode.get())
+                                                    console.info('DevMode: Refresh success');
+
+                                                //Save token from response
+                                                sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
+                                                sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
+                                                
+                                                if (actionAccept)
+                                                    actionAccept(response.data);
+                                            }
+                                            else
+                                            {
+                                                if (actionReject)
+                                                    actionReject(response.data.message);
+                                                
+                                                if (EntifixConfig.devMode.get()) {
+                                                    console.info('DevMode: Refresh token reject with message - ' + response.data.message);
+                                                    sv.tryLoginAsDeveloper();
+                                                }
+                                                else
+                                                    manageRedirectAction();
+                                            }
+                                            
+                                            _inLoginProcess = false;
+                                            sv.isRefreshingToken.set(false);
+                                        },
+                                        (error) => 
+                                        {
+                                            _inLoginProcess = false;
+                                            sv.isRefreshingToken.set(false);
+
+                                            if (actionError)
+                                                actionError(error);
+                                            
+                                            if (EntifixConfig.devMode.get()) {
+                                                console.warn('DevMode: Refresh token error');
+                                                sv.tryLoginAsDeveloper();
+                                            }
+                                            else
+                                                manageRedirectAction();
+                                        });
+                    } else {
+                        if (EntifixConfig.devMode.get()) {
+                            console.warn('DevMode: There is no refresh token');
+                            sv.tryLoginAsDeveloper()
+                                .then(
+                                    () => { $window.location.reload(); })
+                                .catch(
+                                    (error) => { console.error('Error when trying login as developer ' + error); });                            
+                        }
+                        else
+                            manageRedirectAction();
+                    }
+            };
 
             sv.checkNavigation = function(e, to)
             {
@@ -243,59 +251,61 @@
             {
                 return new Promise( (resolve, reject)=> 
                 {
-                    if (!$devMode)
+                    if (!EntifixConfig.devMode.get())
                     {
-                        console.error('DEVELOPER LOGIN TRIED IN NO DEV-MODE');
+                        console.error('Developer login tried in without DevMode');
                         reject();
                     }
 
-                    if (!$devUser)
+                    if (!EntifixConfig.devUser.get())
                     {
                         console.warn('DevMode: No developer user configuration');
                         reject();
                     }
 
-                    sv.TryLogIn( $devUser.user, $devUser.password, $devUser.idSistema, resolve, null, reject);
+                    sv.TryLogIn(EntifixConfig.devUser.get().user, EntifixConfig.devUser.get().password, resolve, null, reject);
                 });                
             };
 
             // Private section _____________________________________________________________________
             function manageAuthRedirectAction()
             {
-                var redirectTo = localStorage.getItem($redirectName);
+                var redirectTo = sv.redirect.get();
                 if (redirectTo != null)
                 {
-                    localStorage.removeItem($redirectName);
-                    localStorage.removeItem($authAppName);
+                    sv.redirect.remove();
+                    sv.authApp.remove();
                     $window.location.href = redirectTo;
                 }
-                else if ($thisApplication)
-                    $window.location.href = $thisApplication;
+                else if (EntifixConfig.thisApplication.get())
+                    $window.location.href = EntifixConfig.thisApplication.get();
             };
+
+            function manageRedirectAction()
+            {
+                sv.redirect.set(EntifixConfig.thisApplication.get());
+                sv.authApp.set(EntifixConfig.authUrl.get());
+                $window.location.href = EntifixConfig.authApplication.get();
+            }
 
             function checkAuthentication(e, toState)
             {
                 var authSkipped = toState.skipAuthorization || false;
-                var authenticated = localStorage.getItem($authTokenName) != null;
+                var authenticated = sv.authToken.get() != null;
                 var requiresLogin = toState.data && (toState.data.requiresLogin || toState.data.requiresLoginDev ) && !authSkipped;
 
                 if (requiresLogin && !authenticated)
                 {
-                    if ($devMode)
+                    if (EntifixConfig.devMode.get())
                     {                        
                         console.info('DevMode: No active session');
-                        if ($authApplication)   
-                            console.warn('DevMode: Redirect to ' + $authApplication);
+                        if (EntifixConfig.authApplication.get())   
+                            console.warn('DevMode: Redirect to ' + EntifixConfig.authApplication.get());
                         else
                             console.warn('DevMode: No auth application registered');
                     }
                     else
-                    {
                         e.preventDefault();
-                        localStorage.setItem( $redirectName, $thisApplication );
-                        localStorage.setItem( $authAppName, $authUrl);
-                        $window.location.href = $authApplication;
-                    }
                 }
             };
 
@@ -307,13 +317,13 @@
                     {
                         var m = 'There is no unauthorized state defined';
 
-                        if (!$devMode)
+                        if (!EntifixConfig.devMode.get())
                         {
-                            if ($unauthorizedStateName)
+                            if (EntifixConfig.unauthorizedStateName.get())
                             {
-                                console.warn('Permission required: ' + toState.data.securityContext +' - Redirect to no authorization state: ' + $unauthorizedStateName);
+                                console.warn('Permission required: ' + toState.data.securityContext +' - Redirect to no authorization state: ' + EntifixConfig.unauthorizedStateName.get());
                                 e.preventDefault();
-                                $state.go($unauthorizedStateName);                            
+                                $state.go(EntifixConfig.unauthorizedStateName.get());                            
                             }                            
                             else
                                 console.error(m);

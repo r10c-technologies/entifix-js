@@ -5,9 +5,9 @@
         .module('entifix-js')
         .service('EntifixErrorManager', service);
 
-    service.$inject = ['EntifixSession', '$window', 'AppRedirects', '$mdDialog', '$mdToast'];
+    service.$inject = ['EntifixSession', '$mdDialog', '$mdToast'];
 
-    function service(EntifixSession, $window, AppRedirects, $mdDialog, $mdToast)
+    function service(EntifixSession, $mdDialog, $mdToast)
     {
         var vm = this;
 
@@ -24,16 +24,9 @@
         // ERROR 401
         vm.unauthorizedError = function(error)
         {
-            if (!EntifixSession.devMode.get())
-            {
-                EntifixSession.redirect.set(EntifixSession.thisApplication.get());
-                EntifixSession.authApp.set(EntifixSession.authUrl.get());
-                $window.location.href = EntifixSession.authApplication.get();
-            }
-            else
-                console.warn("DevMode: No auth application registered");
+            EntifixSession.refreshToken();
         };
-        
+
         // ERROR 404
         vm.notFoundError = function(error)
         {
