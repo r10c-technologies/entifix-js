@@ -14,7 +14,7 @@
             get: () =>
             {
                 if (vm.showEditableFields)
-                    return vm.showEditableFields();
+                    return vm.showEditableFields;
 
                 return false;
             }
@@ -446,7 +446,7 @@
         bindings: 
         {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'

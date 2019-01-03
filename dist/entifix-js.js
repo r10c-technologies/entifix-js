@@ -317,7 +317,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     if (EntifixConfig.devMode.get()) {
                         console.warn('DevMode: There is no refresh token');
                         sv.tryLoginAsDeveloper().then(function () {
-                            $window.location.reload();
+                            console.info('Login successfully');
                         }).catch(function (error) {
                             console.error('Error when trying login as developer ' + error);
                         });
@@ -1851,110 +1851,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
     };
 })();
-// // REFRESH TOKEN PROVIDER *************************************************************************************
-// // ============================================================================================================
-
-// (function(){
-//     'use strict';
-
-//     var module = angular.module('entifix-js');
-
-//     module.provider("EntifixRefreshToken", [function () {
-
-//         var prov = this;
-
-//         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
-//         // ===================================================================================================================================================
-//         prov.$get = ['EntifixConfig', '$injector', '$window', function (EntifixConfig, $injector, $window) {
-
-//             var sv = {}
-
-//             //Properties and Fields___________________________________________________________________________________________________________________________
-//             //================================================================================================================================================
-
-//             //Fields
-//             var _isRefreshingToken = false;
-//             var $http = $injector.get('$http');
-
-//             sv.isRefreshingToken =
-//             {
-//                 get: () => { return _isRefreshingToken; },
-//                 set: (value) => { _isRefreshingToken = value; }
-//             }
-
-//             sv.refreshToken = function(actionAccept, actionReject, actionError)
-//             {
-//                 if (localStorage.getItem()) {
-//                     _inLoginProcess = true;
-//                     sv.isRefreshingToken.set(true);
-//                     $http({
-//                                 method: 'POST',
-//                                 url: EntifixConfig.refreshUrl.get(),
-//                                 data: { [EntifixConfig.refreshTokenName.get()]: localStorage.getItem(Entifix.refreshTokenName.get()) }
-//                             }).then(    (response) => 
-//                                         {
-//                                             sv.isRefreshingToken.set(false);
-
-//                                             if (!response.data.isLogicError)
-//                                             {
-//                                                 if (EntifixConfig.devMode.get())
-//                                                     console.info('DevMode: Refresh token success');
-
-//                                                 //Save token from response
-//                                                 localStorage.setItem(EntifixConfig.authTokenName.get(), response.data.data[EntifixConfig.authTokenName.get()]);
-//                                                 localStorage.setItem(EntifixConfig.refreshTokenName.get(), response.data.data[EntifixConfig.refreshTokenName.get()]);
-
-//                                                 if (actionAccept)
-//                                                     actionAccept();
-//                                             }
-//                                             else
-//                                             {
-//                                                 if (actionReject)
-//                                                     actionReject(response.data.message);
-
-//                                                 if (EntifixConfig.devMode.get()) {
-//                                                     console.info('DevMode: Refresh token reject with message - ' + response.data.message);
-//                                                     sv.tryLoginAsDeveloper();
-//                                                 }
-//                                                 else
-//                                                     manageRedirectAction();
-//                                             }                                    
-//                                         },
-//                                         (error) => 
-//                                         {
-//                                             _inLoginProcess = false;
-//                                             EntifixRefreshToken.isRefreshingToken.set(false);
-
-//                                             if (actionError)
-//                                                 actionError(error);
-
-//                                             if (EntifixConfig.devMode.get()) {
-//                                                 console.warn('DevMode: Refresh token error');
-//                                                 sv.tryLoginAsDeveloper();
-//                                             }
-//                                             else
-//                                                 manageRedirectAction();
-//                                         });
-//                     } else {
-//                         if (EntifixConfig.devMode.get()) {
-//                             console.warn('DevMode: Refresh token error');
-//                             sv.tryLoginAsDeveloper()
-//                                 .then(
-//                                     () => { $window.location.reload(); })
-//                                 .catch(
-//                                     (error) => { console.error('Error when trying login as developer ' + error); });                            
-//                         }
-//                         else
-//                             manageRedirectAction();
-//                     }
-//             };
-
-//             return sv;
-//         }];
-//     }]);
-
-// })();
-"use strict";
 'use strict';
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -2969,7 +2865,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Editable Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -3461,7 +3357,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             queryDetails: '<',
             componentConstruction: '<',
@@ -4175,7 +4071,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -4307,7 +4203,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'
@@ -4396,7 +4292,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -4638,7 +4534,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'
@@ -4722,7 +4618,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //=======================================================================================================================================================================
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -5158,7 +5054,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'
@@ -5277,11 +5173,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var _notifier = null;
 
         var _statesForm = {
-            edit: 1,
-            view: 2
+            edit: true,
+            view: false
         };
 
-        var _state = _statesForm.view;
+        vm.connectionComponent = {};
+        vm.connectionComponent.state = _statesForm.view;
 
         // Main
 
@@ -5356,7 +5253,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // cancel button
         vm.canCancel = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -5384,7 +5281,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // ok button
         vm.canOk = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && _state == _statesForm.view) return true;
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.connectionComponent.state == _statesForm.view) return true;
 
                 //Default value
                 return false;
@@ -5412,7 +5309,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // edit button
         vm.canEdit = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.view) return true;
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.view) return true;
 
                 //Default value
                 return false;
@@ -5442,7 +5339,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // save button
         vm.canSave = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -5470,7 +5367,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // remove button
         vm.canRemove = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -5498,7 +5395,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //process icon
         vm.canProcess = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && _state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.connectionComponent.state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
 
                 //Default value
                 return false;
@@ -5574,21 +5471,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function createconnectioncomponent() {
-            vm.connectionComponent = {};
-
             // Connection Component Properties __________________________________________________________________________________________
             // ==========================================================================================================================
 
             vm.connectionComponent.showEditableFields = {
                 get: function get() {
-                    if (vm.entity.get()) return _state == _statesForm.edit;else return true;
+                    if (vm.entity.get()) return vm.connectionComponent.state == _statesForm.edit;else return true;
                 },
                 set: function set(value) {
-                    if (value == true) _state = _statesForm.edit;
-                    if (value == false) _state = _statesForm.view;
+                    if (value == true) vm.connectionComponent.state = _statesForm.edit;
+                    if (value == false) vm.connectionComponent.state = _statesForm.view;
                 }
             };
 
+            vm.connectionComponent.state = vm.connectionComponent.showEditableFields.get();
             vm.connectionComponent.isSaving = vm.isSaving;
             vm.connectionComponent.history = vm.history;
             vm.connectionComponent.canViewHistory = vm.canViewHistory;
@@ -5789,19 +5685,19 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         function defaultOk() {};
 
         function defaultCancel() {
-            if (_state == _statesForm.edit) {
-                _state = _statesForm.view;
+            if (vm.connectionComponent.state == _statesForm.edit) {
+                vm.connectionComponent.state = _statesForm.view;
                 reloadEntity();
             }
         };
 
         function defaultEdit() {
-            _state = _statesForm.edit;
+            vm.connectionComponent.state = _statesForm.edit;
         };
 
         function defaultSave() {
             vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity, function (response, saveSuccess) {
-                if (saveSuccess) _state = _statesForm.view;
+                if (saveSuccess) vm.connectionComponent.state = _statesForm.view;
                 if (response && response.data.data) vm.entity.set(response.data.data);
             });
         };
@@ -5817,7 +5713,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 "header": "Confirmación requerida",
                 "actionConfirm": function actionConfirm() {
                     vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
-                        _state = _statesForm.view;
+                        vm.connectionComponent.state = _statesForm.view;
                     });
                 },
                 "actionCancel": function actionCancel() {} });
@@ -5834,7 +5730,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function setViewState(view, entity) {
-            if (view) _state = _statesForm.view;else _state = _statesForm.edit;
+            if (view) vm.connectionComponent.state = _statesForm.view;else vm.connectionComponent.state = _statesForm.edit;
 
             vm.entity.set(entity);
         }
@@ -5905,7 +5801,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -6082,7 +5978,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'
@@ -6147,7 +6043,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -6465,7 +6361,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             componentConstruction: '<',
             onChange: '&'
@@ -6706,7 +6602,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Editable Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -6893,7 +6789,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             queryDetails: '<',
             componentConstruction: '<',
@@ -6982,7 +6878,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields();
+                if (vm.showEditableFields) return vm.showEditableFields;
 
                 return false;
             }
@@ -7239,7 +7135,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var component = {
         bindings: {
             valueModel: '=',
-            showEditableFields: '&',
+            showEditableFields: '=',
             evaluateErrors: '&',
             queryDetails: '<',
             componentConstruction: '<',
@@ -8717,7 +8613,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             view: 2
         };
 
-        var _state = _statesForm.edit;
+        vm.connectionComponent = {};
+        vm.connectionComponent.state = _statesForm.edit;
 
         // Main
 
@@ -8810,7 +8707,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // cancel button
         vm.canCancel = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -8852,7 +8749,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // ok button
         vm.canOk = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && _state == _statesForm.view) return true;
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.connectionComponent.state == _statesForm.view) return true;
 
                 //Default value
                 return false;
@@ -8880,7 +8777,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // edit button
         vm.canEdit = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.view) return true;
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.view) return true;
 
                 //Default value
                 return false;
@@ -8922,7 +8819,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // save button
         vm.canSave = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -8964,7 +8861,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // remove button
         vm.canRemove = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.edit) return true;
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.edit) return true;
 
                 //Default value
                 return false;
@@ -9006,7 +8903,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //process button
         vm.canProcess = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && _state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.connectionComponent.state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
 
                 //Default value
                 return false;
@@ -9097,15 +8994,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function createconnectioncomponent() {
-            vm.connectionComponent = {};
-
             // Connection Component Properties __________________________________________________________________________________________
             // ==========================================================================================================================
 
             vm.connectionComponent.IsCreating = true;
 
             if (vm.componentBindingOut.object) {
-                _state = _statesForm.view;
+                vm.connectionComponent.state = _statesForm.view;
                 vm.entity.set(vm.componentBindingOut.object);
             } else vm.entity.set({});
 
@@ -9116,11 +9011,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             vm.connectionComponent.showEditableFields = {
                 get: function get() {
-                    return _state == _statesForm.edit;
+                    return vm.connectionComponent.state == _statesForm.edit;
                 },
                 set: function set(value) {
-                    if (value == true) _state = _statesForm.edit;
-                    if (value == false) _state = _statesForm.view;
+                    if (value == true) vm.connectionComponent.state = _statesForm.edit;
+                    if (value == false) vm.connectionComponent.state = _statesForm.view;
                 }
             };
 
@@ -9312,7 +9207,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         function defaultCancel() {
             if (vm.queryDetails.resource.isNewEntity(vm.connectionComponent.entity)) $mdDialog.cancel();else {
-                _state = _statesForm.view;
+                vm.connectionComponent.state = _statesForm.view;
                 reloadEntity();
             }
         };
@@ -9322,7 +9217,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function defaultEdit() {
-            _state = _statesForm.edit;
+            vm.connectionComponent.state = _statesForm.edit;
         };
 
         function defaultSave() {
@@ -9364,7 +9259,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // =======================================================================================================================================================================
 
         function setViewState(view, entity) {
-            if (view) _state = _statesForm.view;else _state = _statesForm.edit;
+            if (view) vm.connectionComponent.state = _statesForm.view;else vm.connectionComponent.state = _statesForm.edit;
 
             vm.entity.set(entity);
         }

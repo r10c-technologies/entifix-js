@@ -18,11 +18,12 @@
         
         var _statesForm = 
         {
-            edit: 1,
-            view: 2    
+            edit: true,
+            view: false    
         }; 
 
-        var _state = _statesForm.view;
+        vm.connectionComponent = { };
+        vm.connectionComponent.state = _statesForm.view;
 
         // Main
 
@@ -125,7 +126,7 @@
         {            
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && _state == _statesForm.edit)
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.connectionComponent.state == _statesForm.edit)
                     return true;
 
                 //Default value
@@ -162,7 +163,7 @@
         {            
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.ok && _state == _statesForm.view)
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.connectionComponent.state == _statesForm.view)
                     return true;
 
                 //Default value
@@ -199,7 +200,7 @@
         {            
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.view)
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.view)
                     return true;
 
                 //Default value
@@ -242,7 +243,7 @@
         {            
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.save && _state == _statesForm.edit)
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.connectionComponent.state == _statesForm.edit)
                     return true;
 
                 //Default value
@@ -280,7 +281,7 @@
         {            
             get: () =>
             {                
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && _state == _statesForm.edit)
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.edit)
                     return true;
 
                 //Default value
@@ -317,7 +318,7 @@
         {            
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.process && _state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get()))
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.connectionComponent.state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get()))
                     return true;
 
                 //Default value
@@ -410,9 +411,7 @@
         };
 
         function createconnectioncomponent()
-        {            
-            vm.connectionComponent = { };                   
-
+        {
             // Connection Component Properties __________________________________________________________________________________________
             // ==========================================================================================================================
 
@@ -420,17 +419,18 @@
             {
                 get: () =>
                 {
-                    if (vm.entity.get()) return (_state == _statesForm.edit); else return true;
+                    if (vm.entity.get()) return (vm.connectionComponent.state == _statesForm.edit); else return true;
                 },
                 set: (value) =>
                 {
                     if (value == true)
-                        _state = _statesForm.edit;
+                        vm.connectionComponent.state = _statesForm.edit;
                     if (value == false)
-                        _state = _statesForm.view;
+                        vm.connectionComponent.state = _statesForm.view;
                 }
             };
 
+            vm.connectionComponent.state = vm.connectionComponent.showEditableFields.get();
             vm.connectionComponent.isSaving = vm.isSaving;
             vm.connectionComponent.history = vm.history;
             vm.connectionComponent.canViewHistory = vm.canViewHistory;
@@ -632,16 +632,16 @@
 
         function defaultCancel()
         {
-            if (_state == _statesForm.edit)
+            if (vm.connectionComponent.state == _statesForm.edit)
             {
-                _state = _statesForm.view;                
+                vm.connectionComponent.state = _statesForm.view;                
                 reloadEntity();
             }   
         };
 
         function defaultEdit()
         {
-            _state = _statesForm.edit;
+            vm.connectionComponent.state = _statesForm.edit;
         };
 
         function defaultSave()
@@ -649,7 +649,7 @@
             vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity,  (response, saveSuccess) => 
                                                                                 {                                                                                     
                                                                                     if (saveSuccess)
-                                                                                        _state = _statesForm.view;
+                                                                                        vm.connectionComponent.state = _statesForm.view;
                                                                                     if (response && response.data.data)
                                                                                         vm.entity.set(response.data.data);
                                                                                 });
@@ -668,7 +668,7 @@
                                     "header": "Confirmación requerida", 
                                     "actionConfirm": () => 
                                     {
-                                        vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { _state = _statesForm.view; });
+                                        vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, () => { vm.connectionComponent.state = _statesForm.view; });
                                     },
                                     "actionCancel": () =>
                                     {
@@ -690,9 +690,9 @@
         function setViewState(view, entity)
         {
             if (view)
-                _state = _statesForm.view;
+                vm.connectionComponent.state = _statesForm.view;
             else
-                _state = _statesForm.edit;
+                vm.connectionComponent.state = _statesForm.edit;
 
             vm.entity.set(entity);
         }
