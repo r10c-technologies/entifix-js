@@ -232,7 +232,7 @@
                             console.warn('DevMode: There is no refresh token');
                             sv.tryLoginAsDeveloper()
                                 .then(
-                                    () => { $window.location.reload(); })
+                                    () => { console.info('Login successfully'); })
                                 .catch(
                                     (error) => { console.error('Error when trying login as developer ' + error); });                            
                         }
