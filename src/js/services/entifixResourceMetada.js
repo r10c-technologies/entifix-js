@@ -17,7 +17,7 @@
             $mainAPI = value;
         };
 
-        prov.$get = ['$http', '$mdDialog', '$mdToast', function ($http, $mdDialog, $mdToast) {
+        prov.$get = ['$http','$mdToast', function ($http, $mdToast) {
 
             var sv = {}
 
@@ -56,9 +56,8 @@
 
             // Public section _____________________________________________________________________
             sv.loadMetadata = function() {
-                $http({method: 'GET', url: $mainAPI}).then(actionSuccess, actionError);
+                $http({ method: 'GET', url: $mainAPI }).then(actionSuccess, actionError);
             }
-            
             
             //================================================================================================================================================
 

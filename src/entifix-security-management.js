@@ -27,6 +27,7 @@
             var _currentUsername = null;
             var _currentUser = null;
             var _isRefreshingToken = false;
+            var _permissions = null;
 
             //Properties
             sv.isInLoginProcess =
@@ -68,11 +69,18 @@
                 remove: () => { localStorage.removeItem(EntifixConfig.refreshTokenName.get()); }
             }
 
+            sv.permissionsToken =
+            {
+                get: () => { return localStorage.getItem(EntifixConfig.permissionsTokenName.get()); },
+                set: (value) => { localStorage.setItem(EntifixConfig.permissionsTokenName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.permissionsTokenName.get()); }
+            }
+
             sv.currentUser =
             {
                 get: () =>
                 {
-                    if (_currentUser == null);
+                    if (_currentUser == null)
                     {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken)
@@ -86,7 +94,7 @@
             {
                 get: () =>
                 {
-                    if (_currentUsername == null);
+                    if (_currentUsername == null)
                     {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken)
@@ -100,7 +108,7 @@
             {
                 get: () =>
                 {
-                    if (_currentIdUser == null);
+                    if (_currentIdUser == null)
                     {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken)
@@ -109,6 +117,20 @@
                     return _currentIdUser;
                 }        
             };
+
+            sv.permissions = 
+            {
+                get: () =>
+                {
+                    if (_permissions == null)
+                    {
+                        var tmptoken = sv.permissionsToken.get();
+                        if (tmptoken)
+                            _permissions = jwtHelper.decodeToken(tmptoken).permissions;
+                    }
+                    return _permissions;
+                }
+            }
              
             //================================================================================================================================================
 
@@ -266,6 +288,24 @@
                     sv.TryLogIn(EntifixConfig.devUser.get().user, EntifixConfig.devUser.get().password, resolve, null, reject);
                 });                
             };
+
+            sv.loadPermissions = function()
+            {
+                var $http = $injector.get('$http');
+                $http({ method: 'GET', url: EntifixConfig.permissionsUrl.get() }).then(
+                    response => {
+                        sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
+                    },
+                    error => {
+                        $mdToast.show(
+                            $mdToast.simple()
+                                .textContent('Error when trying to load permissions...')
+                                    .position('bottom right')
+                                        .hideDelay(3000)
+                        );
+                    } 
+                );
+            }
 
             // Private section _____________________________________________________________________
             function manageAuthRedirectAction()

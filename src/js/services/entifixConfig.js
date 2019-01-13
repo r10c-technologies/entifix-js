@@ -18,7 +18,9 @@
         $thisApplication, 
         $authApplication,
         $devMode = false,
-        $devUser;
+        $devUser,
+        $permissionsTokenName;
+        $permissionsUrl;
     
         prov.setAuthUrl = function(value) {
             $authUrl = value;
@@ -62,6 +64,14 @@
         
         prov.setDevUser = function(value){
             $devUser = value;
+        };
+        
+        prov.setPermissionsTokenName = function(value){
+            $permissionsTokenName = value;
+        };
+        
+        prov.setPermissionsUrl = function(value){
+            $permissionsUrl = value;
         };
 
         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
@@ -118,17 +128,27 @@
             sv.refreshTokenName =
             {
                 get: () => { return $refreshTokenName; }
-            }  
+            }
 
             sv.devUser =
             {
                 get: () => { return $devUser; }
-            }  
+            }
 
             sv.unauthorizedStateName =
             {
                 get: () => { return $unauthorizedStateName; }
-            }            
+            }
+
+            sv.permissionsTokenName =
+            {
+                get: () => { return $permissionsTokenName; }
+            }
+
+            sv.permissionsUrl =
+            {
+                get: () => { return $permissionsUrl; }
+            }
 
             return sv;
         }];
