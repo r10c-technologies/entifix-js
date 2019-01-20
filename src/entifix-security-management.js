@@ -310,6 +310,7 @@
                         sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
                     },
                     error => {
+                        var $mdToast = $injector.get('$mdToast');
                         $mdToast.show(
                             $mdToast.simple()
                                 .textContent('Error when trying to load permissions...')
