@@ -9,9 +9,9 @@
     // =========================================================================================================================================================================================
     entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
 
-    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
+    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', 'EntifixSession', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
 
-    function controller ($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) 
+    function controller ($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, EntifixSession, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) 
     {
         var vm = this;
 
@@ -28,12 +28,12 @@
         
         var _statesForm = 
         {
-            edit: 1,
-            view: 2    
+            edit: true,
+            view: false
         }; 
 
         vm.connectionComponent = { };
-        vm.connectionComponent.state = _statesForm.edit;
+        vm.connectionComponent.state = _statesForm.view;
 
         // Main
 
@@ -525,6 +525,78 @@
             set: () => { $rootScope.showHistory = !$rootScope.showHistory; }
         };
 
+        vm.hasPermissions = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null)
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasAllPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasSavePermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasEditPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasRemovePermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasProcessPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
         // =======================================================================================================================================================================
         
         // Methods ===============================================================================================================================================================
@@ -538,6 +610,7 @@
                createDynamicComponent();
 
             checkoutputs();
+            checkPermisions();
 
         };
 
@@ -828,6 +901,24 @@
             if (vm.entity.get())
                 vm.queryDetails.resource.loadAsResource(vm.entity.get(), (entityReloaded) => { vm.entity.set(entityReloaded); });
         };
+
+        function checkPermisions()
+        {
+            if (!vm.hasPermissions.get())
+            {
+                if (!vm.hasAllPermission.get())
+                {
+                    if (!vm.hasSavePermission.get())
+                        vm.componentConstruction.save = undefined;
+                    if (!vm.hasEditPermission.get())
+                        vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get())
+                        vm.componentConstruction.remove = undefined;
+                    if (!vm.hasProcessPermission.get())
+                        vm.componentConstruction.process = undefined;
+                }
+            }
+        }
 
         // =======================================================================================================================================================================
         

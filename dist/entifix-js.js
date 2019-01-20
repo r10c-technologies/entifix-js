@@ -126,6 +126,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var _currentUser = null;
             var _currentUsername = null;
             var _currentUser = null;
+            var _currentPermissions = null;
             var _isRefreshingToken = false;
 
             //Properties
@@ -192,10 +193,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
+            sv.permissionsToken = {
+                get: function get() {
+                    return localStorage.getItem(EntifixConfig.permissionsTokenName.get());
+                },
+                set: function set(value) {
+                    localStorage.setItem(EntifixConfig.permissionsTokenName.get(), value);
+                },
+                remove: function remove() {
+                    localStorage.removeItem(EntifixConfig.permissionsTokenName.get());
+                }
+            };
+
             sv.currentUser = {
                 get: function get() {
-                    if (_currentUser == null) ;
-                    {
+                    if (_currentUser == null) {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken) _currentUser = jwtHelper.decodeToken(tmptoken).name;
                     }
@@ -205,8 +217,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             sv.currentUsername = {
                 get: function get() {
-                    if (_currentUsername == null) ;
-                    {
+                    if (_currentUsername == null) {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken) _currentUsername = jwtHelper.decodeToken(tmptoken).username;
                     }
@@ -216,8 +227,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             sv.currentIdUser = {
                 get: function get() {
-                    if (_currentIdUser == null) ;
-                    {
+                    if (_currentIdUser == null) {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken) _currentIdUser = jwtHelper.decodeToken(tmptoken).idUser;
                     }
@@ -225,14 +235,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
-            //================================================================================================================================================
+            sv.currentPermissions = {
+                get: function get() {
+                    if (_currentPermissions == null) {
+                        var tmptoken = sv.permissionsToken.get();
+                        if (tmptoken) _currentPermissions = jwtHelper.decodeToken(tmptoken).permissions;
+                    }
+                    return _currentPermissions;
+                }
 
-            //Methods_________________________________________________________________________________________________________________________________________
-            //================================================================================================================================================
+                //================================================================================================================================================
 
-            // Public section _____________________________________________________________________
+                //Methods_________________________________________________________________________________________________________________________________________
+                //================================================================================================================================================
 
-            sv.TryLogIn = function (user, password, actionAccept, actionReject, actionError) {
+                // Public section _____________________________________________________________________
+
+            };sv.TryLogIn = function (user, password, actionAccept, actionReject, actionError) {
                 _inLoginProcess = true;
 
                 //Resouce to login
@@ -325,6 +344,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
+            sv.checkPermissions = function (permission) {
+                if (permission instanceof String) {
+                    if (sv.currentPermissions.get().filter(function (e) {
+                        return e == permission;
+                    }).length > 0) return true;
+                    return false;
+                } else if (permission instanceof Array) {
+                    permission.forEach(function (p) {
+                        if (sv.currentPermissions.get().filter(function (e) {
+                            return e == p;
+                        }).length > 0) return true;
+                    });
+                    return false;
+                }
+            };
+
             sv.checkNavigation = function (e, to) {
                 checkAuthentication(e, to);
                 checkStatePermissions(e, to);
@@ -343,6 +378,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     }
 
                     sv.TryLogIn(EntifixConfig.devUser.get().user, EntifixConfig.devUser.get().password, resolve, null, reject);
+                });
+            };
+
+            sv.loadPermissions = function () {
+                var $http = $injector.get('$http');
+                $http({ method: 'GET', url: EntifixConfig.permissionsUrl.get() }).then(function (response) {
+                    sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
+                }, function (error) {
+                    $mdToast.show($mdToast.simple().textContent('Error when trying to load permissions...').position('bottom right').hideDelay(3000));
                 });
             };
 
@@ -798,7 +842,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $thisApplication,
             $authApplication,
             $devMode = false,
-            $devUser;
+            $devUser,
+            $permissionsTokenName,
+            $permissionsUrl;
 
         prov.setAuthUrl = function (value) {
             $authUrl = value;
@@ -842,6 +888,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         prov.setDevUser = function (value) {
             $devUser = value;
+        };
+
+        prov.setPermissionsTokenName = function (value) {
+            $permissionsTokenName = value;
+        };
+
+        prov.setPermissionsUrl = function (value) {
+            $permissionsUrl = value;
         };
 
         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
@@ -918,6 +972,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             sv.unauthorizedStateName = {
                 get: function get() {
                     return $unauthorizedStateName;
+                }
+            };
+
+            sv.permissionsTokenName = {
+                get: function get() {
+                    return $permissionsTokenName;
+                }
+            };
+
+            sv.permissionsUrl = {
+                get: function get() {
+                    return $permissionsUrl;
                 }
             };
 
@@ -2744,7 +2810,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $mainAPI = value;
         };
 
-        prov.$get = ['$http', '$mdDialog', '$mdToast', function ($http, $mdDialog, $mdToast) {
+        prov.$get = ['$http', '$mdToast', function ($http, $mdToast) {
 
             var sv = {};
 
@@ -5161,9 +5227,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope', 'EntifixSession'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, EntifixNotifier, $timeout, $rootScope) {
+    function componentController(BaseComponentFunctions, EntifixNotification, EntifixNotifier, $timeout, $rootScope, EntifixSession) {
         var vm = this;
 
         // Properties & Fields ===================================================================================================================================================
@@ -5454,16 +5520,69 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        // =======================================================================================================================================================================
+        vm.hasPermissions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null) return true;
 
-        // Methods ===============================================================================================================================================================
+                //Default value
+                return false;
+            }
+        };
 
-        vm.$onInit = function () {
+        vm.hasAllPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasSavePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasEditPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasRemovePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasProcessPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process)) return true;
+
+                //Default value
+                return false;
+            }
+
+            // =======================================================================================================================================================================
+
+            // Methods ===============================================================================================================================================================
+
+        };vm.$onInit = function () {
             setdefaults();
             createconnectioncomponent();
             activate();
-
             checkoutputs();
+            checkPermisions();
         };
 
         function setdefaults() {
@@ -5733,6 +5852,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (view) vm.connectionComponent.state = _statesForm.view;else vm.connectionComponent.state = _statesForm.edit;
 
             vm.entity.set(entity);
+        }
+
+        function checkPermisions() {
+            if (!vm.hasPermissions.get()) {
+                if (!vm.hasAllPermission.get()) {
+                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
+                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
+                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
+                }
+            }
         }
 
         // =======================================================================================================================================================================
@@ -7268,9 +7398,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator) {
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession) {
         var vm = this;
         var cont = 0;
         var onLoading = true;
@@ -7660,7 +7790,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 if (vm.componentConstruction && vm.componentConstruction.notAppliedText) return vm.componentConstruction.notAppliedText;
 
                 //Default value
-                return { basic: 'Pendientes', extended: 'Mostrar únicamente registros Pendientes' };
+                return { basic: 'Pendientes', extended: 'Mostrar únicamente registros pendientes' };
             }
         };
 
@@ -7716,6 +7846,51 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 //Default value
                 return true;
             }
+        };
+
+        vm.hasPermissions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasAllPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasAddPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.add)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasEditPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasRemovePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+
+                //Default value
+                return false;
+            }
             // =======================================================================================================================================================================
 
             // Methods ===============================================================================================================================================================
@@ -7725,8 +7900,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             createconnectioncomponent();
             setDefaultsTable();
             activate();
-
             checkoutputs();
+            checkPermisions();
         };
 
         function setdefaults() {
@@ -8091,7 +8266,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.queryParams.get()) $state.go('.', { searchText: vm.textBoxSearchValue, page: 1 }, { notify: false });
         };
 
-        //Filters control
+        // Filters control
         function setProperties() {
             vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
@@ -8380,6 +8555,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return filters;
         };
 
+        function checkPermisions() {
+            if (!vm.hasPermissions.get()) {
+                if (!vm.hasAllPermission.get()) {
+                    if (!vm.hasAddPermission.get()) vm.componentConstruction.add = undefined;
+                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
+                }
+            }
+        }
+
         // =======================================================================================================================================================================
     };
 
@@ -8592,9 +8777,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     // =========================================================================================================================================================================================
     entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
 
-    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
+    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', 'EntifixSession', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
 
-    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
+    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, EntifixSession, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
         var vm = this;
 
         vm.componentConstruction = componentConstruction();
@@ -8609,12 +8794,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var _notifier = null;
 
         var _statesForm = {
-            edit: 1,
-            view: 2
+            edit: true,
+            view: false
         };
 
         vm.connectionComponent = {};
-        vm.connectionComponent.state = _statesForm.edit;
+        vm.connectionComponent.state = _statesForm.view;
 
         // Main
 
@@ -8976,17 +9161,71 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        // =======================================================================================================================================================================
+        vm.hasPermissions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null) return true;
 
-        // Methods ===============================================================================================================================================================
+                //Default value
+                return false;
+            }
+        };
 
-        function activate() {
+        vm.hasAllPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasSavePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasEditPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasRemovePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasProcessPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process)) return true;
+
+                //Default value
+                return false;
+            }
+
+            // =======================================================================================================================================================================
+
+            // Methods ===============================================================================================================================================================
+
+        };function activate() {
             setdefaults();
             createconnectioncomponent();
 
             if (vm.componentConstruction) createDynamicComponent();
 
             checkoutputs();
+            checkPermisions();
         };
 
         function setdefaults() {
@@ -9255,6 +9494,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 vm.entity.set(entityReloaded);
             });
         };
+
+        function checkPermisions() {
+            if (!vm.hasPermissions.get()) {
+                if (!vm.hasAllPermission.get()) {
+                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
+                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
+                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
+                }
+            }
+        }
 
         // =======================================================================================================================================================================
 

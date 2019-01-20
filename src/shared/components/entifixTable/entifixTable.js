@@ -4,9 +4,9 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator'];
+    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator)
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession)
     {
         var vm = this;
         var cont = 0;
@@ -530,7 +530,7 @@
                     return  vm.componentConstruction.notAppliedText;
 
                 //Default value
-                return { basic: 'Pendientes', extended: 'Mostrar únicamente registros Pendientes' };
+                return { basic: 'Pendientes', extended: 'Mostrar únicamente registros pendientes' };
             }
         };
 
@@ -605,6 +605,66 @@
                 return true;
             }
         }
+
+        vm.hasPermissions = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null)
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasAllPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasAddPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.add))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasEditPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasRemovePermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
         // =======================================================================================================================================================================
         
         // Methods ===============================================================================================================================================================
@@ -615,8 +675,8 @@
             createconnectioncomponent();
             setDefaultsTable();
             activate();
-
             checkoutputs();
+            checkPermisions();
         };
 
         function setdefaults()
@@ -1078,7 +1138,7 @@
                 $state.go('.', { searchText: vm.textBoxSearchValue, page: 1 }, {notify: false});
         };
 
-        //Filters control
+        // Filters control
         function setProperties()
         {
             vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
@@ -1445,6 +1505,22 @@
             if (vm.queryDetails.sort)
                 filters = filters.concat(vm.queryDetails.sort);
             return filters;
+        }
+
+        function checkPermisions()
+        {
+            if (!vm.hasPermissions.get())
+            {
+                if (!vm.hasAllPermission.get())
+                {
+                    if (!vm.hasAddPermission.get())
+                        vm.componentConstruction.add = undefined;
+                    if (!vm.hasEditPermission.get())
+                        vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get())
+                        vm.componentConstruction.remove = undefined;
+                }
+            }
         }
 
         // =======================================================================================================================================================================

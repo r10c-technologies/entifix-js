@@ -26,8 +26,8 @@
             var _currentUser = null;
             var _currentUsername = null;
             var _currentUser = null;
+            var _currentPermissions = null;
             var _isRefreshingToken = false;
-            var _permissions = null;
 
             //Properties
             sv.isInLoginProcess =
@@ -118,17 +118,17 @@
                 }        
             };
 
-            sv.permissions = 
+            sv.currentPermissions = 
             {
                 get: () =>
                 {
-                    if (_permissions == null)
+                    if (_currentPermissions == null)
                     {
                         var tmptoken = sv.permissionsToken.get();
                         if (tmptoken)
-                            _permissions = jwtHelper.decodeToken(tmptoken).permissions;
+                            _currentPermissions = jwtHelper.decodeToken(tmptoken).permissions;
                     }
-                    return _permissions;
+                    return _currentPermissions;
                 }
             }
              
@@ -262,6 +262,19 @@
                             manageRedirectAction();
                     }
             };
+
+            sv.checkPermissions = function(permission)
+            {
+                if (permission instanceof String)
+                {
+                    if (sv.currentPermissions.get().filter((e) => { return e == permission; }).length > 0 )
+                        return true;
+                    return false;
+                } else if (permission instanceof Array) {
+                    permission.forEach(p => { if (sv.currentPermissions.get().filter((e) => { return e == p; }).length > 0 ) return true; });
+                    return false;
+                }
+            };  
 
             sv.checkNavigation = function(e, to)
             {

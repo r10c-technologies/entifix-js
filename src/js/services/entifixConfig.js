@@ -19,7 +19,7 @@
         $authApplication,
         $devMode = false,
         $devUser,
-        $permissionsTokenName;
+        $permissionsTokenName,
         $permissionsUrl;
     
         prov.setAuthUrl = function(value) {

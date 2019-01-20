@@ -4,9 +4,9 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope', 'EntifixSession'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, EntifixNotifier, $timeout, $rootScope)
+    function componentController(BaseComponentFunctions, EntifixNotification, EntifixNotifier, $timeout, $rootScope, EntifixSession)
     {
         var vm = this;
 
@@ -392,6 +392,78 @@
             get: () => { return $rootScope.showHistory; }
         };
 
+        vm.hasPermissions = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null)
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasAllPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasSavePermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasEditPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasRemovePermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasProcessPermission = 
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
         // =======================================================================================================================================================================
         
         // Methods ===============================================================================================================================================================
@@ -401,8 +473,8 @@
             setdefaults();
             createconnectioncomponent();
             activate();
-
             checkoutputs();
+            checkPermisions();
         };
 
         function setdefaults()
@@ -695,6 +767,24 @@
                 vm.connectionComponent.state = _statesForm.edit;
 
             vm.entity.set(entity);
+        }
+
+        function checkPermisions()
+        {
+            if (!vm.hasPermissions.get())
+            {
+                if (!vm.hasAllPermission.get())
+                {
+                    if (!vm.hasSavePermission.get())
+                        vm.componentConstruction.save = undefined;
+                    if (!vm.hasEditPermission.get())
+                        vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get())
+                        vm.componentConstruction.remove = undefined;
+                    if (!vm.hasProcessPermission.get())
+                        vm.componentConstruction.process = undefined;
+                }
+            }
         }
 
         // =======================================================================================================================================================================
