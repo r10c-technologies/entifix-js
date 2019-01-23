@@ -360,9 +360,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
-            sv.checkNavigation = function (e, to) {
-                checkAuthentication(e, to);
-                checkStatePermissions(e, to);
+            sv.checkNavigation = function (transition) {
+                checkAuthentication(transition.$from(), transition.$to());
+                checkStatePermissions(transition.$from(), transition.$to());
             };
 
             sv.tryLoginAsDeveloper = function () {
@@ -409,7 +409,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             function checkAuthentication(e, toState) {
                 var authSkipped = toState.skipAuthorization || false;
-                var authenticated = sv.authToken.get() != null;
+                var authenticated = sv.authToken.get() != null && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get());
                 var requiresLogin = toState.data && (toState.data.requiresLogin || toState.data.requiresLoginDev) && !authSkipped;
 
                 if (requiresLogin && !authenticated) {
@@ -502,6 +502,185 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixNoAuthorized', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
+        return {
+            restrict: 'A',
+            link: function link($scope, element) {
+                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
+                var resize = function resize() {
+                    if ($scope.initialHeight != '') {
+                        element[0].style.height = $scope.initialHeight;
+                        $scope.initialHeight = '';
+                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
+                };
+                element.on("input change", resize);
+                $timeout(resize, 0);
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive("entifixFileRead", [function () {
+        return {
+            require: "ngModel",
+            link: function postLink(scope, elem, attrs, ngModel) {
+                elem.on("change", function (e) {
+                    if (!attrs.multiple) {
+                        var files = elem[0].files[0];
+                        ngModel.$setViewValue(files);
+                    } else {
+                        var files = elem[0].files;
+                        ngModel.$setViewValue(files);
+                    }
+                });
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNextFocus', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+
+                elem.bind('keydown', function (e) {
+                    var code = e.keyCode || e.which;
+                    if (code === 13 || code === 39 || code === 9) {
+                        var focusNext;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusNext = false, len = pageElems.length;
+                        for (var i = 0; i < len; i++) {
+                            var pe = pageElems[i];
+                            if (focusNext) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusNext = true;
+                            }
+                        }
+                    }
+                    if (code === 37) {
+                        var focusPrevious;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusPrevious = false, len = pageElems.length;
+                        for (var i = len - 1; i >= 0; i--) {
+                            var pe = pageElems[i];
+                            if (focusPrevious) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusPrevious = true;
+                            }
+                        }
+                    }
+                });
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberBlock', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+                if (attrs.numberValidation == "true") {
+                    elem.bind('keydown', function (e) {
+                        var code = e.keyCode || e.which;
+                        if (!(code === 8 || // backspace
+                        code === 46 || // delete
+                        code === 110 || code === 190 || // decimal point
+                        code === 9 || // tab
+                        code === 37 || // left arrow
+                        code === 39 || // right arrow
+                        code >= 48 && code <= 57 || code >= 96 && code <= 105)) {
+                            // numbers
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberValidation', function () {
+        return {
+            require: 'ngModel',
+            link: function link(scope, element, attrs, ctrl) {
+                if (attrs.numberValidation == "true") {
+                    ctrl.$parsers.push(function (value) {
+                        if (ctrl.$isEmpty(value)) {
+                            ctrl.$setValidity('number', true);
+                            return null;
+                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+                            ctrl.$setValidity('number', true);
+                            return value;
+                        } else ctrl.$setValidity('number', false);
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
+        return {
+            restrict: 'A',
+            priority: 1001,
+            terminal: true,
+            scope: {
+                perm: "&permission"
+            },
+            compile: function compile(element, attributes) {
+                var permission = attributes.entifixSecurityContext;
+
+                element.removeAttr('entifix-security-context');
+
+                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
+
+                var fn = $compile(element);
+                return function (scope) {
+                    fn(scope);
+                };
+            }
+        };
+    }]);
 })();
 'use strict';
 
@@ -2727,185 +2906,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             request: request
         };
     };
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
-        return {
-            restrict: 'A',
-            link: function link($scope, element) {
-                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
-                var resize = function resize() {
-                    if ($scope.initialHeight != '') {
-                        element[0].style.height = $scope.initialHeight;
-                        $scope.initialHeight = '';
-                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
-                };
-                element.on("input change", resize);
-                $timeout(resize, 0);
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixFileRead", [function () {
-        return {
-            require: "ngModel",
-            link: function postLink(scope, elem, attrs, ngModel) {
-                elem.on("change", function (e) {
-                    if (!attrs.multiple) {
-                        var files = elem[0].files[0];
-                        ngModel.$setViewValue(files);
-                    } else {
-                        var files = elem[0].files;
-                        ngModel.$setViewValue(files);
-                    }
-                });
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNextFocus', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-
-                elem.bind('keydown', function (e) {
-                    var code = e.keyCode || e.which;
-                    if (code === 13 || code === 39 || code === 9) {
-                        var focusNext;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusNext = false, len = pageElems.length;
-                        for (var i = 0; i < len; i++) {
-                            var pe = pageElems[i];
-                            if (focusNext) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusNext = true;
-                            }
-                        }
-                    }
-                    if (code === 37) {
-                        var focusPrevious;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusPrevious = false, len = pageElems.length;
-                        for (var i = len - 1; i >= 0; i--) {
-                            var pe = pageElems[i];
-                            if (focusPrevious) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusPrevious = true;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberBlock', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-                if (attrs.numberValidation == "true") {
-                    elem.bind('keydown', function (e) {
-                        var code = e.keyCode || e.which;
-                        if (!(code === 8 || // backspace
-                        code === 46 || // delete
-                        code === 110 || code === 190 || // decimal point
-                        code === 9 || // tab
-                        code === 37 || // left arrow
-                        code === 39 || // right arrow
-                        code >= 48 && code <= 57 || code >= 96 && code <= 105)) {
-                            // numbers
-                            e.preventDefault();
-                        }
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberValidation', function () {
-        return {
-            require: 'ngModel',
-            link: function link(scope, element, attrs, ctrl) {
-                if (attrs.numberValidation == "true") {
-                    ctrl.$parsers.push(function (value) {
-                        if (ctrl.$isEmpty(value)) {
-                            ctrl.$setValidity('number', true);
-                            return null;
-                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
-                            ctrl.$setValidity('number', true);
-                            return value;
-                        } else ctrl.$setValidity('number', false);
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
-        return {
-            restrict: 'A',
-            priority: 1001,
-            terminal: true,
-            scope: {
-                perm: "&permission"
-            },
-            compile: function compile(element, attributes) {
-                var permission = attributes.entifixSecurityContext;
-
-                element.removeAttr('entifix-security-context');
-
-                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
-
-                var fn = $compile(element);
-                return function (scope) {
-                    fn(scope);
-                };
-            }
-        };
-    }]);
 })();
 'use strict';
 
@@ -7028,6 +7028,282 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
+    function componentcontroller() {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Editable Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
+                return 'entifixradiobutton' + randomNumber;
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.isMultipleDisplay = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            loadCollection();
+            checkoutputs();
+        };
+
+        function loadCollection() {
+            if (!vm.isMultipleDisplay.get()) {
+                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
+                    vm.items = enumResult;
+                });
+            } else {
+                prepareMultiDisplayParameters();
+                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
+            }
+        };
+
+        function prepareMultiDisplayParameters() {
+            var actionSuccess = function actionSuccess(enumResult) {
+                vm.items = enumResult;
+            };
+            vm.parameters = {
+                displayProperties: vm.componentConstruction.displayProperties,
+                actionSuccess: actionSuccess,
+                actionError: vm.queryDetails.actionError,
+                filters: vm.queryDetails.filters
+            };
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        return vm.getValue();
+                    }
+                }
+            };
+
+            if (vm.init) vm.init();
+        };
+
+        vm.getDisplayValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item.Display;
+            }
+
+            return null;
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item;
+            }
+
+            return null;
+        };
+
+        vm.runOnChangeTrigger = function () {
+            var entity = vm.items.filter(function (e) {
+                return e.Value == vm.valueModel;
+            })[0];
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
+        };
+
+        function getCleanedString(stringToClean) {
+            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+            for (var i = 0; i < specialChars.length; i++) {
+                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+            }stringToClean = stringToClean.toLowerCase();
+            stringToClean = stringToClean.replace(/ /g, "");
+            stringToClean = stringToClean.replace(/á/gi, "a");
+            stringToClean = stringToClean.replace(/é/gi, "e");
+            stringToClean = stringToClean.replace(/í/gi, "i");
+            stringToClean = stringToClean.replace(/ó/gi, "o");
+            stringToClean = stringToClean.replace(/ú/gi, "u");
+            stringToClean = stringToClean.replace(/ñ/gi, "n");
+            return stringToClean;
+        }
+
+        //=======================================================================================================================================================================
+    };
+
+    componentcontroller.$inject = [];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixRadioButton', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
     function componentcontroller($filter) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
@@ -7502,282 +7778,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixInput', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller() {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Editable Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (getCleanedString(vm.title.get()) != '') return getCleanedString(vm.title.get());
-                return 'entifixradiobutton' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.isMultipleDisplay = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            loadCollection();
-            checkoutputs();
-        };
-
-        function loadCollection() {
-            if (!vm.isMultipleDisplay.get()) {
-                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
-                    vm.items = enumResult;
-                });
-            } else {
-                prepareMultiDisplayParameters();
-                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
-            }
-        };
-
-        function prepareMultiDisplayParameters() {
-            var actionSuccess = function actionSuccess(enumResult) {
-                vm.items = enumResult;
-            };
-            vm.parameters = {
-                displayProperties: vm.componentConstruction.displayProperties,
-                actionSuccess: actionSuccess,
-                actionError: vm.queryDetails.actionError,
-                filters: vm.queryDetails.filters
-            };
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        return vm.getValue();
-                    }
-                }
-            };
-
-            if (vm.init) vm.init();
-        };
-
-        vm.getDisplayValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item.Display;
-            }
-
-            return null;
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item;
-            }
-
-            return null;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            var entity = vm.items.filter(function (e) {
-                return e.Value == vm.valueModel;
-            })[0];
-            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
-        };
-
-        function getCleanedString(stringToClean) {
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) {
-                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-            }stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g, "");
-            stringToClean = stringToClean.replace(/á/gi, "a");
-            stringToClean = stringToClean.replace(/é/gi, "e");
-            stringToClean = stringToClean.replace(/í/gi, "i");
-            stringToClean = stringToClean.replace(/ó/gi, "o");
-            stringToClean = stringToClean.replace(/ú/gi, "u");
-            stringToClean = stringToClean.replace(/ñ/gi, "n");
-            return stringToClean;
-        }
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = [];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixRadioButton', component);
 })();
 'use strict';
 

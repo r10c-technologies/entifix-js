@@ -274,12 +274,12 @@
                     permission.forEach(p => { if (sv.currentPermissions.get().filter((e) => { return e == p; }).length > 0 ) return true; });
                     return false;
                 }
-            };  
+            };
 
-            sv.checkNavigation = function(e, to)
+            sv.checkNavigation = function(transition)
             {
-                checkAuthentication(e, to);
-                checkStatePermissions(e, to);
+                checkAuthentication(transition.$from(), transition.$to());
+                checkStatePermissions(transition.$from(), transition.$to());
             };
 
             sv.tryLoginAsDeveloper = function()
@@ -345,7 +345,7 @@
             function checkAuthentication(e, toState)
             {
                 var authSkipped = toState.skipAuthorization || false;
-                var authenticated = sv.authToken.get() != null;
+                var authenticated = sv.authToken.get() != null && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get());
                 var requiresLogin = toState.data && (toState.data.requiresLogin || toState.data.requiresLoginDev ) && !authSkipped;
 
                 if (requiresLogin && !authenticated)
