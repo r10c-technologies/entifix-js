@@ -47,25 +47,16 @@
                 var tempUrl = getBaseUrl();
 
                 actionError = actionError || _defaultActionError;
+                data = transformDataToRequest(data);
+                
+                let options = { method: 'POST', url: tempUrl, data: data };
 
                 if (isFormDataRequest())
                 {
-                    data = transformDataToRequest(data);
-                    $http({
-                            method: 'POST',
-                            url: tempUrl,
-                            data: convertData(data),
-                            headers : {'Content-Type': undefined} 
-                        }).then(actionSuccess, actionError);
+                    options.headers = { 'Content-Type': undefined };
+                    data = convertToFormData(data);
                 }
-                else
-                {
-                    $http({
-                            method: 'POST',
-                            url: tempUrl,
-                            data: transformDataToRequest(data)
-                        }).then(actionSuccess, actionError);
-                }
+                $http(options).then(actionSuccess, actionError);
             };
 
             var PUT = (data, actionSuccess, actionError) =>
@@ -74,25 +65,16 @@
                 var tempUrl = getBaseUrl();
 
                 actionError = actionError || _defaultActionError;
+                data = transformDataToRequest(data);
+                
+                let options = { method: 'PUT', url: tempUrl, data: data };
 
                 if (isFormDataRequest())
                 {
-                    data = transformDataToRequest(data);
-                    $http({
-                            method: 'PUT',
-                            url: tempUrl,
-                            data: convertData(data),
-                            headers : {'Content-Type': undefined} 
-                        }).then(actionSuccess, actionError);
+                    options.headers = { 'Content-Type': undefined };
+                    data = convertToFormData(data);
                 }
-                else
-                {
-                    $http({
-                            method: 'PUT',
-                            url: tempUrl,
-                            data: transformDataToRequest(data)
-                        }).then(actionSuccess, actionError);
-                }
+                $http(options).then(actionSuccess, actionError);
             };
 
             var DELETE = (id, actionSuccess, actionError) =>
@@ -101,12 +83,10 @@
                 var tempUrl = getBaseUrl();
 
                 var tempUrl = tempUrl + '/' + id;
-                actionError = actionError || _defaultActionError;   
+                actionError = actionError || _defaultActionError;
 
-                $http({
-                        method: 'DELETE',
-                        url: tempUrl
-                    }).then(actionSuccess, actionError);
+                let options = { method: 'DELETE', url: tempUrl };
+                $http(options).then(actionSuccess, actionError);
             };
 
             var PATCH = (data, actionSuccess, actionError) =>
@@ -115,25 +95,16 @@
                 var tempUrl = getBaseUrl();
 
                 actionError = actionError || _defaultActionError;
+                data = transformDataToRequest(data);
+
+                let options = { method: 'PATCH', url: tempUrl, data: data };
 
                 if (isFormDataRequest())
                 {
-                    data = transformDataToRequest(data);
-                    $http({
-                            method: 'PATCH',
-                            url: tempUrl,
-                            data: convertData(data),
-                            headers : {'Content-Type': undefined} 
-                        }).then(actionSuccess, actionError);
+                    options.headers = { 'Content-Type': undefined };
+                    data = convertToFormData(data);
                 }
-                else
-                {
-                    $http({
-                            method: 'PATCH',
-                            url: tempUrl,
-                            data: transformDataToRequest(data)
-                        }).then(actionSuccess, actionError);
-                }
+                $http(options).then(actionSuccess, actionError);
             };
 
             //Format functions ===>>>>:
@@ -221,7 +192,7 @@
                 return data;
             };
 
-            function convertData (data)
+            function convertToFormData (data)
             {
                 var fd = new FormData();
                 for (var p in data)

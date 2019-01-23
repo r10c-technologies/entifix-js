@@ -218,12 +218,7 @@
         vm.isFormDataRequest = function(resourceName)
         {
             var resource = getResource(resourceName);
-            var formDataRequest = resource.formDataRequest;
-
-            if (!formDataRequest)
-                return false
-            
-            return true;
+            return resource.isFormDataRequest != null || resource.isFormDataRequest != undefined;
         }
         
         vm.getStartDateProperty = function(resourceName)
