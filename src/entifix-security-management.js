@@ -358,8 +358,10 @@
                         else
                             console.warn('DevMode: No auth application registered');
                     }
-                    else
-                        e.preventDefault();
+                    else {
+                        //e.preventDefault();
+                        manageRedirectAction();
+                    }
                 }
             };
 
