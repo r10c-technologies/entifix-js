@@ -407,7 +407,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 $window.location.href = EntifixConfig.authApplication.get();
             }
 
-            function checkAuthentication(e, toState) {
+            function checkAuthentication(transition) {
                 var e = transition.$from();
                 var toState = transition.$to();
                 var authSkipped = toState.skipAuthorization || false;

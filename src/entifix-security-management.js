@@ -342,7 +342,7 @@
                 $window.location.href = EntifixConfig.authApplication.get();
             }
 
-            function checkAuthentication(e, toState)
+            function checkAuthentication(transition)
             {
                 var e = transition.$from();
                 var toState = transition.$to();
