@@ -361,7 +361,7 @@
                             console.warn('DevMode: No auth application registered');
                     }
                     else {
-                        transition.$abort();
+                        transition.abort();
                         manageRedirectAction();
                     }
                 }
@@ -382,7 +382,7 @@
                             if (EntifixConfig.unauthorizedStateName.get())
                             {
                                 console.warn('Permission required: ' + toState.data.securityContext +' - Redirect to no authorization state: ' + EntifixConfig.unauthorizedStateName.get());
-                                transition.$abort();
+                                transition.abort();
                                 $state.go(EntifixConfig.unauthorizedStateName.get());                            
                             }                            
                             else
