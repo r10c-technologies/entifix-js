@@ -278,8 +278,8 @@
 
             sv.checkNavigation = function(transition)
             {
-                checkAuthentication(transition.$from(), transition.$to());
-                checkStatePermissions(transition.$from(), transition.$to());
+                checkAuthentication(transition);
+                checkStatePermissions(transition);
             };
 
             sv.tryLoginAsDeveloper = function()
@@ -344,6 +344,8 @@
 
             function checkAuthentication(e, toState)
             {
+                var e = transition.$from();
+                var toState = transition.$to();
                 var authSkipped = toState.skipAuthorization || false;
                 var authenticated = sv.authToken.get() != null && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get());
                 var requiresLogin = toState.data && (toState.data.requiresLogin || toState.data.requiresLoginDev ) && !authSkipped;
@@ -359,14 +361,16 @@
                             console.warn('DevMode: No auth application registered');
                     }
                     else {
-                        //e.preventDefault();
+                        transition.$abort();
                         manageRedirectAction();
                     }
                 }
             };
 
-            function checkStatePermissions(e, toState)
+            function checkStatePermissions(transition)
             {
+                var e = transition.$from();
+                var toState = transition.$to();
                 if (toState.data && toState.data.securityContext)
                 {
                     if (!sv.checkPermissions(toState.data.securityContext))
@@ -378,7 +382,7 @@
                             if (EntifixConfig.unauthorizedStateName.get())
                             {
                                 console.warn('Permission required: ' + toState.data.securityContext +' - Redirect to no authorization state: ' + EntifixConfig.unauthorizedStateName.get());
-                                e.preventDefault();
+                                transition.$abort();
                                 $state.go(EntifixConfig.unauthorizedStateName.get());                            
                             }                            
                             else
