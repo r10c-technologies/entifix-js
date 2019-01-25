@@ -74,6 +74,15 @@
             $permissionsUrl = value;
         };
 
+        prov.checkAuth = function () {
+            let authenticated = localStorage.getItem($authTokenName);
+            if (!authenticated) {
+                localStorage.setItem($redirectName, $thisApplication);
+                localStorage.setItem($authAppName, $authApplication);
+                window.location.replace($authApplication);
+            }
+        }
+
         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________
         // ===================================================================================================================================================
         prov.$get = [function () {
