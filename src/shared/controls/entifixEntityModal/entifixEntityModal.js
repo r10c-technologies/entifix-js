@@ -904,7 +904,7 @@
 
         function checkPermisions()
         {
-            if (!vm.hasPermissions.get())
+            if (vm.hasPermissions.get())
             {
                 if (!vm.hasAllPermission.get())
                 {

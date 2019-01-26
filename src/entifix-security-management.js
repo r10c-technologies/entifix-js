@@ -24,8 +24,9 @@
             //Fields
             var _inLoginProcess = false;
             var _currentUser = null;
-            var _currentUsername = null;
+            var _currentUserName = null;
             var _currentUser = null;
+            var _currentIdUser = null;
             var _currentPermissions = null;
             var _isRefreshingToken = false;
 
@@ -90,17 +91,17 @@
                 }        
             };
 
-            sv.currentUsername =
+            sv.currentUserName =
             {
                 get: () =>
                 {
-                    if (_currentUsername == null)
+                    if (_currentUserName == null)
                     {
                         var tmptoken = sv.authToken.get();
                         if (tmptoken)
-                            _currentUsername = jwtHelper.decodeToken(tmptoken).username;
+                            _currentUserName = jwtHelper.decodeToken(tmptoken).userName;
                     }
-                    return _currentUsername;
+                    return _currentUserName;
                 }        
             };
 
@@ -463,9 +464,7 @@
 
         vm.$onInit = function()
         {
-            var currentUser = EntifixSession.currentUser.get();
-            if (currentUser)
-                vm.nameCurrentUser = currentUser.usuario;
+            vm.nameCurrentUser = EntifixSession.currentUser.get();
         };
     };
 

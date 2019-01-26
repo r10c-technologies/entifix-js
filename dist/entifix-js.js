@@ -124,8 +124,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             //Fields
             var _inLoginProcess = false;
             var _currentUser = null;
-            var _currentUsername = null;
+            var _currentUserName = null;
             var _currentUser = null;
+            var _currentIdUser = null;
             var _currentPermissions = null;
             var _isRefreshingToken = false;
 
@@ -215,13 +216,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
-            sv.currentUsername = {
+            sv.currentUserName = {
                 get: function get() {
-                    if (_currentUsername == null) {
+                    if (_currentUserName == null) {
                         var tmptoken = sv.authToken.get();
-                        if (tmptoken) _currentUsername = jwtHelper.decodeToken(tmptoken).username;
+                        if (tmptoken) _currentUserName = jwtHelper.decodeToken(tmptoken).userName;
                     }
-                    return _currentUsername;
+                    return _currentUserName;
                 }
             };
 
@@ -503,8 +504,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var vm = this;
 
         vm.$onInit = function () {
-            var currentUser = EntifixSession.currentUser.get();
-            if (currentUser) vm.nameCurrentUser = currentUser.usuario;
+            vm.nameCurrentUser = EntifixSession.currentUser.get();
         };
     };
 
@@ -5845,7 +5845,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
 
         function checkPermisions() {
-            if (!vm.hasPermissions.get()) {
+            if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
                     if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
@@ -8546,7 +8546,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function checkPermisions() {
-            if (!vm.hasPermissions.get()) {
+            if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasAddPermission.get()) vm.componentConstruction.add = undefined;
                     if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
@@ -9486,7 +9486,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function checkPermisions() {
-            if (!vm.hasPermissions.get()) {
+            if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
                     if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
