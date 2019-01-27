@@ -1,29 +1,17 @@
-<br/><br/><br/>
-<div class="row">
-    <div class="col-lg-1 hidden-md"></div>
-    <div class="col-xs-12 col-md-6 col-lg-5">
-        <div class="row hidden-xs hidden-sm">
-            <br/><br/><br/><br/><br/><br/>
-        </div>        
-        <div class="row text-danger text-center">            
-            <h1>
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp Acceso Restringido
-            </h1>            
-        </div>
-        <br/>
-        <div class="row text-center">            
-            <h3>El usuario actual no tiene permisos para ver el recurso solicitado</h3>
-            <br/>
-            <div class="well well-sm"><h3>{{'Usuario: ' + vm.nameCurrentUser}}</h3></div>            
-        </div>
-        <br/><br/>
-        <div class="row text-mutted text-center">            
-            <p>Si necesita el acceso, por favor comuníquese con el administrador del sistema</p>
-        </div>
+<div layout="column" layout-align="center center">
+    <div>
+        <img ng-src="{{vm.imgError}}"/>
     </div>
-    <div class="col-xs-12 col-md-6 col-lg-5">
-        <img src="./img/security.png" alt="Image" class="img-responsive center-block" />
+    <div class="text-danger">
+        <h1>&nbsp; {{vm.header}}</h1>
     </div>
-    <div class="col-lg-1 hidden-md"></div>    
+    <div>
+        <h2>{{vm.infoError}}</h2>
+    </div>
+    <div>
+        <h3>{{vm.infoUser}}</h3>
+    </div>
+    <div>
+        <p>{{vm.footer}}</p>
+    </div>
 </div>
-<br/><br/><br/>

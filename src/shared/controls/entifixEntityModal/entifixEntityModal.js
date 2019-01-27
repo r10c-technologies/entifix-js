@@ -541,7 +541,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all))
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all))
                     return true;
 
                 //Default value
@@ -553,7 +553,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save))
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save))
                     return true;
 
                 //Default value
@@ -565,7 +565,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit))
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit))
                     return true;
 
                 //Default value
@@ -577,7 +577,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove))
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove))
                     return true;
 
                 //Default value
@@ -589,7 +589,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process))
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process))
                     return true;
 
                 //Default value
@@ -610,7 +610,7 @@
                createDynamicComponent();
 
             checkoutputs();
-            checkPermisions();
+            checkPermissions();
 
         };
 
@@ -902,7 +902,7 @@
                 vm.queryDetails.resource.loadAsResource(vm.entity.get(), (entityReloaded) => { vm.entity.set(entityReloaded); });
         };
 
-        function checkPermisions()
+        function checkPermissions()
         {
             if (vm.hasPermissions.get())
             {

@@ -352,12 +352,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     }).length > 0) return true;
                     return false;
                 } else if (permission instanceof Array) {
-                    permission.forEach(function (p) {
-                        if (sv.currentPermissions.get().filter(function (e) {
+                    return permission.filter(function (p) {
+                        return sv.currentPermissions.get().filter(function (e) {
                             return e == p;
-                        }).length > 0) return true;
-                    });
-                    return false;
+                        }).length > 0;
+                    }).length > 0;
                 }
             };
 
@@ -465,38 +464,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     'use strict';
 
     var component = {
-        template: '<br/><br/><br/> \
-                    <div class="row"> \
-                        <div class="col-lg-1 hidden-md"></div> \
-                        <div class="col-xs-12 col-md-6 col-lg-5"> \
-                            <div class="row hidden-xs hidden-sm"> \
-                                <br/><br/><br/><br/><br/><br/> \
-                            </div> \
-                            <div class="row text-danger text-center"> \
-                                <h1> \
-                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp Acceso Restringido \
-                                </h1> \
-                            </div> \
-                            <br/> \
-                            <div class="row text-center"> \
-                                <h3>El usuario actual no tiene permisos para ver el recurso solicitado</h3> \
-                                <br/> \
-                                <div class="well well-sm"><h3>{{\'Usuario: \' + vm.nameCurrentUser}}</h3></div> \
-                            </div> \
-                            <br/><br/> \
-                            <div class="row text-mutted text-center"> \
-                                <p>Si necesita el acceso, por favor comuníquese con el administrador del sistema</p> \
-                            </div> \
+        template: '<div layout="column" layout-align="center center"> \
+                        <div> \
+                            <img ng-src="{{vm.imgError}}"/> \
                         </div> \
-                        <div class="col-xs-12 col-md-6 col-lg-5"> \
-                            <img src="./img/security.png" alt="Image" class="img-responsive center-block" /> \
+                        <div class="text-danger"> \
+                            <h1>&nbsp; {{vm.header}}</h1> \
                         </div> \
-                        <div class="col-lg-1 hidden-md"></div> \
+                        <div> \
+                            <h2>{{vm.infoError}}</h2> \
+                        </div> \
+                        <div> \
+                            <h3>{{vm.infoUser}}</h3> \
+                        </div> \
+                        <div> \
+                            <p>{{vm.footer}}</p> \
+                        </div> \
                     </div> \
-                    <br/><br/><br/> \
                     ',
         controller: componentController,
-        controllerAs: 'vm'
+        controllerAs: 'vm',
+        bindings: {
+            infoError: '@',
+            header: '@',
+            infoUser: '@',
+            footer: '@',
+            imgError: '@'
+        }
     };
 
     componentController.$inject = ['EntifixSession'];
@@ -505,6 +499,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.$onInit = function () {
             vm.nameCurrentUser = EntifixSession.currentUser.get();
+            vm.currentUserName = EntifixSession.currentUserName.get();
+            vm.header = vm.header ? vm.header : 'Acceso Restringido';
+            vm.infoError = vm.infoError ? vm.infoError : 'El usuario actual no tiene permisos para ver el recurso solicitado';
+            vm.infoUser = vm.infoUser ? vm.infoUser : "Usuario: " + vm.nameCurrentUser + " - " + vm.currentUserName;
+            vm.footer = vm.footer ? vm.footer : "Si necesita el acceso, por favor comuníquese con el administrador del sistema.";
+            vm.imgError = vm.imgError ? vm.imgError : "./app/img/error.png";
         };
     };
 
@@ -5521,7 +5521,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasAllPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all)) return true;
 
                 //Default value
                 return false;
@@ -5530,7 +5530,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasSavePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save)) return true;
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
 
                 //Default value
                 return false;
@@ -5539,7 +5539,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -5548,7 +5548,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
 
                 //Default value
                 return false;
@@ -5557,7 +5557,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasProcessPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process)) return true;
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
 
                 //Default value
                 return false;
@@ -5572,7 +5572,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             createconnectioncomponent();
             activate();
             checkoutputs();
-            checkPermisions();
+            checkPermissions();
         };
 
         function setdefaults() {
@@ -5844,7 +5844,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             vm.entity.set(entity);
         }
 
-        function checkPermisions() {
+        function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
@@ -7849,7 +7849,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasAllPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all)) return true;
 
                 //Default value
                 return false;
@@ -7858,7 +7858,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasAddPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.add)) return true;
+                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add)) return true;
 
                 //Default value
                 return false;
@@ -7867,7 +7867,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -7876,7 +7876,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
 
                 //Default value
                 return false;
@@ -7891,7 +7891,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             setDefaultsTable();
             activate();
             checkoutputs();
-            checkPermisions();
+            checkPermissions();
         };
 
         function setdefaults() {
@@ -8545,7 +8545,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return filters;
         };
 
-        function checkPermisions() {
+        function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasAddPermission.get()) vm.componentConstruction.add = undefined;
@@ -9162,7 +9162,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasAllPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all)) return true;
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all)) return true;
 
                 //Default value
                 return false;
@@ -9171,7 +9171,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasSavePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.save)) return true;
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
 
                 //Default value
                 return false;
@@ -9180,7 +9180,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit)) return true;
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -9189,7 +9189,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove)) return true;
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
 
                 //Default value
                 return false;
@@ -9198,7 +9198,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasProcessPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.process)) return true;
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
 
                 //Default value
                 return false;
@@ -9215,7 +9215,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.componentConstruction) createDynamicComponent();
 
             checkoutputs();
-            checkPermisions();
+            checkPermissions();
         };
 
         function setdefaults() {
@@ -9485,7 +9485,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             });
         };
 
-        function checkPermisions() {
+        function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
                     if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;

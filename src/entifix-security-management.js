@@ -266,14 +266,13 @@
 
             sv.checkPermissions = function(permission)
             {
-                if (permission instanceof String)
-                {
-                    if (sv.currentPermissions.get().filter((e) => { return e == permission; }).length > 0 )
+                if (permission instanceof String) {
+                    if (sv.currentPermissions.get().filter(e => e == permission).length > 0)
                         return true;
                     return false;
                 } else if (permission instanceof Array) {
-                    permission.forEach(p => { if (sv.currentPermissions.get().filter((e) => { return e == p; }).length > 0 ) return true; });
-                    return false;
+                    return permission.filter(p => sv.currentPermissions.get().filter(e => e == p).length > 0).length > 0;
+                    
                 }
             };
 
@@ -423,38 +422,34 @@
     
     var component =
     {
-        template: '<br/><br/><br/> \
-                    <div class="row"> \
-                        <div class="col-lg-1 hidden-md"></div> \
-                        <div class="col-xs-12 col-md-6 col-lg-5"> \
-                            <div class="row hidden-xs hidden-sm"> \
-                                <br/><br/><br/><br/><br/><br/> \
-                            </div> \
-                            <div class="row text-danger text-center"> \
-                                <h1> \
-                                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp Acceso Restringido \
-                                </h1> \
-                            </div> \
-                            <br/> \
-                            <div class="row text-center"> \
-                                <h3>El usuario actual no tiene permisos para ver el recurso solicitado</h3> \
-                                <br/> \
-                                <div class="well well-sm"><h3>{{\'Usuario: \' + vm.nameCurrentUser}}</h3></div> \
-                            </div> \
-                            <br/><br/> \
-                            <div class="row text-mutted text-center"> \
-                                <p>Si necesita el acceso, por favor comuníquese con el administrador del sistema</p> \
-                            </div> \
+        template: '<div layout="column" layout-align="center center"> \
+                        <div> \
+                            <img ng-src="{{vm.imgError}}"/> \
                         </div> \
-                        <div class="col-xs-12 col-md-6 col-lg-5"> \
-                            <img src="./img/security.png" alt="Image" class="img-responsive center-block" /> \
+                        <div class="text-danger"> \
+                            <h1>&nbsp; {{vm.header}}</h1> \
                         </div> \
-                        <div class="col-lg-1 hidden-md"></div> \
+                        <div> \
+                            <h2>{{vm.infoError}}</h2> \
+                        </div> \
+                        <div> \
+                            <h3>{{vm.infoUser}}</h3> \
+                        </div> \
+                        <div> \
+                            <p>{{vm.footer}}</p> \
+                        </div> \
                     </div> \
-                    <br/><br/><br/> \
                     ',
         controller: componentController,
-        controllerAs: 'vm'
+        controllerAs: 'vm',
+        bindings:
+        {
+            infoError: '@',
+            header: '@',
+            infoUser: '@',
+            footer: '@',
+            imgError: '@'
+        }
     };
 
     componentController.$inject = ['EntifixSession'];
@@ -465,6 +460,12 @@
         vm.$onInit = function()
         {
             vm.nameCurrentUser = EntifixSession.currentUser.get();
+            vm.currentUserName = EntifixSession.currentUserName.get();
+            vm.header = vm.header ? vm.header : 'Acceso Restringido';
+            vm.infoError = vm.infoError ? vm.infoError : 'El usuario actual no tiene permisos para ver el recurso solicitado';
+            vm.infoUser = vm.infoUser ? vm.infoUser : "Usuario: " + vm.nameCurrentUser + " - " + vm.currentUserName;
+            vm.footer = vm.footer ? vm.footer : "Si necesita el acceso, por favor comuníquese con el administrador del sistema.";
+            vm.imgError = vm.imgError ? vm.imgError : "./app/img/error.png";
         };
     };
 

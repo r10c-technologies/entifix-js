@@ -622,7 +622,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.all))
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all))
                     return true;
 
                 //Default value
@@ -634,7 +634,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.add))
+                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add))
                     return true;
 
                 //Default value
@@ -646,7 +646,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.edit))
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit))
                     return true;
 
                 //Default value
@@ -658,7 +658,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermisions(vm.componentConstruction.permissions.remove))
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove))
                     return true;
 
                 //Default value
@@ -676,7 +676,7 @@
             setDefaultsTable();
             activate();
             checkoutputs();
-            checkPermisions();
+            checkPermissions();
         };
 
         function setdefaults()
@@ -1507,7 +1507,7 @@
             return filters;
         }
 
-        function checkPermisions()
+        function checkPermissions()
         {
             if (vm.hasPermissions.get())
             {
