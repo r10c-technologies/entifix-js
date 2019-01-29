@@ -27,6 +27,7 @@
             var _currentUserName = null;
             var _currentUser = null;
             var _currentIdUser = null;
+            var _currentSystemOwner = null;
             var _currentPermissions = null;
             var _isRefreshingToken = false;
 
@@ -116,6 +117,20 @@
                             _currentIdUser = jwtHelper.decodeToken(tmptoken).idUser;
                     }
                     return _currentIdUser;
+                }        
+            };
+
+            sv.currentSystemOwner =
+            {
+                get: () =>
+                {
+                    if (_currentSystemOwner == null)
+                    {
+                        var tmptoken = sv.authToken.get();
+                        if (tmptoken)
+                            _currentSystemOwner = jwtHelper.decodeToken(tmptoken).systemOwner;
+                    }
+                    return _currentSystemOwner;
                 }        
             };
 

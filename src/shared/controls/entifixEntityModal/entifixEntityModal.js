@@ -33,7 +33,7 @@
         }; 
 
         vm.connectionComponent = { };
-        vm.connectionComponent.state = _statesForm.view;
+        vm.connectionComponent.state = _statesForm.edit;
 
         // Main
 
