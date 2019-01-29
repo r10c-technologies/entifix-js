@@ -655,6 +655,7 @@
                 }
             };
 
+            vm.connectionComponent.state = vm.connectionComponent.showEditableFields.get();
             vm.connectionComponent.isSaving = vm.isSaving;
             vm.connectionComponent.history = vm.history;
             vm.connectionComponent.canViewHistory = vm.canViewHistory;
