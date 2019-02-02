@@ -1,7 +1,7 @@
 (function () {
     'use strict';
    
-    function componentcontroller()
+    function componentcontroller(EntifixStringUtils)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
@@ -98,8 +98,8 @@
         {
             get: () =>
             {
-                if (getCleanedString(vm.title.get()) != '')
-                    return getCleanedString(vm.title.get())
+                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                    return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixradiobutton' + randomNumber;
             }
         };
@@ -235,29 +235,12 @@
             if (vm.onChange)
                 vm.onChange({oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity});
         }
-
-        function getCleanedString(stringToClean){
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) 
-                stringToClean= stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-
-            stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g,"");
-            stringToClean = stringToClean.replace(/á/gi,"a");
-            stringToClean = stringToClean.replace(/é/gi,"e");
-            stringToClean = stringToClean.replace(/í/gi,"i");
-            stringToClean = stringToClean.replace(/ó/gi,"o");
-            stringToClean = stringToClean.replace(/ú/gi,"u");
-            stringToClean = stringToClean.replace(/ñ/gi,"n");
-            return stringToClean;
-        }
  
         //=======================================================================================================================================================================
 
     };
 
-    componentcontroller.$inject = [];
+    componentcontroller.$inject = ['EntifixStringUtils'];
 
     var component = 
     {

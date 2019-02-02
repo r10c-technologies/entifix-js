@@ -859,7 +859,7 @@
                     var joinProperties = filterProperties(EntifixMetadata.getJoinProperties(resourceName), columnsSelected);
                     
                     for (var prop in pagProperties)
-                        resPagFilters.push({property: pagProperties[prop], value: searchText});
+                        resPagFilters.push({ property: pagProperties[prop], value: searchText, operator: "lk" });
 
                     for (var prop in joinProperties)
                     {
@@ -882,11 +882,7 @@
                 var actionSuccess = (response) => { createDownloadFile(response, typeFile, fileName); }
                 var actionError = (response) => { _checkActionErrors(response); }
 
-                var config = {
-                    method: 'GET',
-                    url: url,
-                    responseType : 'arraybuffer'
-                }
+                var config = { method: 'GET', url: url, responseType : 'arraybuffer' };
 
                 $http(config).then(actionSuccess, actionError);
             }
@@ -965,7 +961,7 @@
 
             function getCleanedString(stringToClean)
             {
-                return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length);
+                return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length).toLowerCase();
             }
 
             function createDownloadFile(response, typeFile, fileName)

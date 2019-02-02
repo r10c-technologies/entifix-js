@@ -1,7 +1,7 @@
 (function () {
     'use strict';
    
-    function componentcontroller($timeout)
+    function componentcontroller($timeout, EntifixStringUtils)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
@@ -225,8 +225,8 @@
         {
             get: () =>
             {
-                if (getCleanedString(vm.title.get()) != '')
-                    return getCleanedString(vm.title.get())
+                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                    return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixautocomplete' + randomNumber;
             }
         };
@@ -482,31 +482,13 @@
             return null;
         };
 
-        function getCleanedString(stringToClean)
-        {
-            var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-            for (var i = 0; i < specialChars.length; i++) 
-                stringToClean= stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-
-            stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g,"");
-            stringToClean = stringToClean.replace(/á/gi,"a");
-            stringToClean = stringToClean.replace(/é/gi,"e");
-            stringToClean = stringToClean.replace(/í/gi,"i");
-            stringToClean = stringToClean.replace(/ó/gi,"o");
-            stringToClean = stringToClean.replace(/ú/gi,"u");
-            stringToClean = stringToClean.replace(/ñ/gi,"n");
-            return stringToClean;
-        }
-
         function constructFilters(searchText)
         {
             //Construct Filters
             var allFilters = [];
 
             if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0)
-                allFilters = allFilters.concat( vm.componentConstruction.searchProperties.map( (D_searchProperty) => { return { property: D_searchProperty, value: searchText } } ));
+                allFilters = allFilters.concat(vm.componentConstruction.searchProperties.map((D_searchProperty) => { return { property: D_searchProperty, value: searchText, operator: 'lk' } } ));
                 
             if (vm.queryDetails && vm.queryDetails.filters)
                 allFilters = allFilters.concat(vm.queryDetails.filters);
@@ -606,7 +588,7 @@
                                         {
                                             
                                         },
-                                        [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter', operator: 'eq'}]
+                                        [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter' }]
                                     );
         }
 
@@ -688,7 +670,7 @@
 
     };
 
-    componentcontroller.$inject = ['$timeout'];
+    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils'];
 
     var component = 
     {

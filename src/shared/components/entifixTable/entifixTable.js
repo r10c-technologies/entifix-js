@@ -1135,7 +1135,7 @@
             vm.pager.page = 1;
             filters = null;
             if (vm.queryParams.get())
-                $state.go('.', { searchText: vm.textBoxSearchValue, page: 1 }, {notify: false});
+                $state.go('.', { searchText: vm.textBoxSearchValue, page: 1 }, { notify: false });
         };
 
         // Filters control
@@ -1413,7 +1413,7 @@
 
         function getCleanedString(stringToClean)
         {
-            return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length);
+            return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length).toLowerCase();
         }
 
         vm.searchItemsDate = function(skipReload)
