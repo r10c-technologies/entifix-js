@@ -760,10 +760,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                     //Transform dates
                     if (value && singleParam.type == 'date' || singleParam.type == 'datetime') {
-                        var dateGenerator = new EntifixDateGenerator();
-                        if (value && !(value instanceof Date)) var asDate = dateGenerator.transformStringToDate(value);else if (value) var asDate = value;else var asDate = null;
+                        if (value && !(value instanceof Date)) var asDate = EntifixDateGenerator.transformStringToDate(value);else if (value) var asDate = value;else var asDate = null;
 
-                        element[singleParam.outProperty || singleParam.property] = dateGenerator.transformDateToString(asDate, singleParam.type, true);
+                        element[singleParam.outProperty || singleParam.property] = EntifixDateGenerator.transformDateToString(asDate, singleParam.type, true);
                         onEnd();
                     }
 
@@ -863,7 +862,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $devMode = false,
             $devUser,
             $permissionsTokenName,
-            $permissionsUrl;
+            $permissionsUrl,
+            $systemOwnerEntityName;
 
         prov.setAuthUrl = function (value) {
             $authUrl = value;
@@ -915,6 +915,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         prov.setPermissionsUrl = function (value) {
             $permissionsUrl = value;
+        };
+
+        prov.setSystemOwnerEntityName = function (value) {
+            $systemOwnerEntityName = value;
         };
 
         prov.checkAuth = function () {
@@ -1015,6 +1019,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
+            sv.systemOwnerEntityName = {
+                get: function get() {
+                    return $systemOwnerEntityName;
+                }
+            };
+
             return sv;
         }];
     }]);
@@ -1049,50 +1059,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         // ERROR 404
         vm.notFoundError = function (error) {
             $mdToast.show($mdToast.simple().textContent('¡Error 404! El recurso solicitado no fue encontrado.').position('bottom right').hideDelay(3000));
-        };
-
-        //ERROR 412 
-        vm.preconditionFailedError = function (error) {
-            $mdDialog.show({ template: '<md-dialog aria-label="Elija una Bodega para trabajar" class="md-md"> \
-                                                <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
-                                                    <div class="md-toolbar-tools" layout> \
-                                                        <div flex layout layout-align="start center"> \
-                                                            <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
-                                                            <h2>&nbsp Elija una Bodega para trabajar</h2> \
-                                                        </div> \
-                                                    </div> \
-                                                </md-toolbar> \
-                                                <div> \
-                                                    <md-dialog-content> \
-                                                        <md-content layout-padding> \
-                                                            <div flex> \
-                                                                <md-input-container class="entifix-select-width"> \
-                                                                    <label>Bodega</label> \
-                                                                    <md-select \
-                                                                        ng-model="vm.workgroupName" \
-                                                                        aria-label="Bodega"> \
-                                                                        <md-option ng-repeat="item in vm.workgroups" ng-click="vm.setWorkgroupId(item)" ng-value="item.nombreBodega">{{item.nombreBodega}}</md-option> \
-                                                                    </md-select> \
-                                                                </md-input-container> \
-                                                            </div> \
-                                                        </md-content> \
-                                                    </md-dialog-content> \
-                                                    <md-dialog-actions layout="row"> \
-                                                        <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.cancel()"> \
-                                                            <md-icon class="material-icons">clear</md-icon> Cancelar \
-                                                        </md-button> \
-                                                        <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.ok()"> \
-                                                            <md-icon class="material-icons">done</md-icon> Ok \
-                                                        </md-button> \
-                                                    </md-dialog-actions> \
-                                                </div> \
-                                            </md-dialog>',
-                //templateUrl: 'dist/shared/components/entifixPreconditionFailedError/entifixPreconditionFailedError.html',
-                controller: 'PreconditionFailedErrorController',
-                parent: angular.element(document.body), clickOutsideToClose: false, escapeToClose: false, fullscreen: true,
-                controllerAs: 'vm',
-                locals: { sessionData: { subject: EntifixSession.currentUser.get(), authTokenName: EntifixSession.authTokenName.get(), currentWorkgroup: EntifixSession.currentWorkgroup.get() } }
-            }).then(function () {}, function () {});
         };
 
         // ERROR 500
@@ -1288,9 +1254,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return defaultUrl;
         };
 
-        vm.isFormDataRequest = function (resourceName) {
+        vm.getRequestOptions = function (resourceName) {
             var resource = getResource(resourceName);
-            return resource.isFormDataRequest != null || resource.isFormDataRequest != undefined;
+            if (resource.requestOptions != null || resource.requestOptions != undefined) return resource.requestOptions;else {
+                return undefined;
+            }
         };
 
         vm.getStartDateProperty = function (resourceName) {
@@ -1875,11 +1843,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                var options = { method: 'POST', url: tempUrl, data: data };
+                var options = { method: 'POST', url: tempUrl };
 
-                if (isFormDataRequest()) {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                if (getRequestOptions()) {
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -1891,11 +1859,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                var options = { method: 'PUT', url: tempUrl, data: data };
+                var options = { method: 'PUT', url: tempUrl };
 
-                if (isFormDataRequest()) {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                if (getRequestOptions()) {
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -1918,11 +1886,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                var options = { method: 'PATCH', url: tempUrl, data: data };
+                var options = { method: 'PATCH', url: tempUrl };
 
-                if (isFormDataRequest()) {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                if (getRequestOptions()) {
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -1967,10 +1935,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                             //For date properties
                             if (TProperty.type == 'date' || TProperty.type == 'datetime') {
-                                var dateGenerator = new EntifixDateGenerator();
-                                if (!(data[TProperty.name] instanceof Date)) var dateValue = dateGenerator.transformStringToDate(data[TProperty.name]);else var dateValue = data[TProperty.name];
+                                if (!(data[TProperty.name] instanceof Date)) var dateValue = EntifixDateGenerator.transformStringToDate(data[TProperty.name]);else var dateValue = data[TProperty.name];
 
-                                data[TProperty.name] = dateGenerator.transformDateToString(dateValue, TProperty.type, false);
+                                data[TProperty.name] = EntifixDateGenerator.transformDateToString(dateValue, TProperty.type, false);
                             }
 
                             //Other types of properties to transform....
@@ -1993,10 +1960,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             };
 
             function convertToFormData(data) {
-                var fd = new FormData();
-                for (var p in data) {
-                    fd.append(p, data[p]);
-                }return fd;
+                var formData = new FormData();
+                for (var member in data) {
+                    formData.append(member, data[member]);
+                }return formData;
             }
 
             function transformDataFromResponse(data) {
@@ -2023,7 +1990,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 //For date-time properties
                                 if (TProperty.type == 'date' || TProperty.type == 'datetime') {
                                     var objectValue = data[TProperty.name];
-                                    if (!(objectValue instanceof Date)) data[TProperty.name] = new EntifixDateGenerator().transformStringToDate(objectValue);
+                                    if (!(objectValue instanceof Date)) data[TProperty.name] = EntifixDateGenerator.transformStringToDate(objectValue);
                                 }
 
                                 //Other types of properties to transform....
@@ -2565,8 +2532,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return EntifixMetadata.getNotApplyProperty(resourceName);
             };
 
-            function isFormDataRequest() {
-                return EntifixMetadata.isFormDataRequest(resourceName);
+            function getRequestOptions() {
+                return EntifixMetadata.getRequestOptions(resourceName);
             }
 
             function filterProperties(properties, columnsSelected) {
@@ -2799,160 +2766,155 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').factory('EntifixDateGenerator', factory);
+    angular.module('entifix-js').service('EntifixDateGenerator', service);
 
-    factory.$inject = [];
+    service.$inject = [];
 
-    function factory() {
-        return function () {
-            var vm = this;
+    function service() {
+        var vm = this;
 
-            // Properties and fields
-            // =========================================================================================================================
+        // Properties and fields
+        // =========================================================================================================================
 
-            // Fields
+        // Fields
 
-            // Properties
+        // Properties
 
-            // =========================================================================================================================
+        // =========================================================================================================================
 
 
-            // Methods
-            // =========================================================================================================================
+        // Methods
+        // =========================================================================================================================
 
-            function activate() {};
+        function activate() {};
 
-            vm.transformStringToDate = function (value) {
-                if (isInvalidDate(value)) {
-                    var dayOrYear = value.split("-");
-                    if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
+        vm.transformStringToDate = function (value) {
+            if (isInvalidDate(value)) {
+                var dayOrYear = value.split("-");
+                if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
 
-                    if (value.length > 10) var isDateTime = true;else var isDateTime = false;
+                if (value.length > 10) var isDateTime = true;else var isDateTime = false;
 
-                    if (value && !(value instanceof Date)) {
-                        if (isDateTime) {
-                            if (isToDisplay) {
-                                var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
-                                var dateArray = reggie.exec(value);
-                                return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
-                            } else {
-                                var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-                                var dateArray = reggie.exec(value);
-                                return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
-                            }
+                if (value && !(value instanceof Date)) {
+                    if (isDateTime) {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
                         } else {
-                            if (isToDisplay) {
-                                var reggie = /(\d{2})-(\d{2})-(\d{4})/;
-                                var dateArray = reggie.exec(value);
-                                return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                            } else {
-                                var reggie = /(\d{4})-(\d{2})-(\d{2})/;
-                                var dateArray = reggie.exec(value);
-                                return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                            }
+                            var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
                         }
-                    } else if (value) {
-                        return value;
-                    } else return null;
-                } else return new Date(value);
-            };
-
-            vm.transformDateToString = function (value, type, isToDisplay) {
-                var valueToReturn;
-                var type = type.toUpperCase();
-                if (value instanceof Date) {
-                    if (type == 'DATE' || type == 'DATETIME') {
-                        var year = value.getFullYear();
-                        var month = (value.getMonth() + 1).toString();
-                        var day = value.getDate().toString();
-
-                        if (month.length < 2) month = '0' + month;
-                        if (day.length < 2) day = '0' + day;
-
-                        if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
+                    } else {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        } else {
+                            var reggie = /(\d{4})-(\d{2})-(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        }
                     }
-
-                    if (type == 'DATETIME' || type == 'TIME') {
-                        var hours = value.getHours().toString();
-                        var minutes = value.getMinutes().toString();
-                        var seconds = value.getSeconds().toString();
-
-                        if (hours.length < 2) hours = '0' + hours;
-                        if (minutes.length < 2) minutes = '0' + minutes;
-                        if (seconds.length < 2) seconds = '0' + seconds;
-
-                        if (type == 'DATETIME') valueToReturn += ' ';
-
-                        valueToReturn += hours + ':' + minutes + ':' + seconds;
-                    }
-                    return valueToReturn;
-                }
-                return value;
-            };
-
-            function isInvalidDate(value) {
-                var valueDate = new Date(value);
-                if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
-                return false;
-            }
-
-            // =========================================================================================================================
-
-            // Constructor call
-            activate();
+                } else if (value) {
+                    return value;
+                } else return null;
+            } else return new Date(value);
         };
+
+        vm.transformDateToString = function (value, type, isToDisplay) {
+            var valueToReturn;
+            var type = type.toUpperCase();
+            if (value instanceof Date) {
+                if (type == 'DATE' || type == 'DATETIME') {
+                    var year = value.getFullYear();
+                    var month = (value.getMonth() + 1).toString();
+                    var day = value.getDate().toString();
+
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+
+                    if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
+                }
+
+                if (type == 'DATETIME' || type == 'TIME') {
+                    var hours = value.getHours().toString();
+                    var minutes = value.getMinutes().toString();
+                    var seconds = value.getSeconds().toString();
+
+                    if (hours.length < 2) hours = '0' + hours;
+                    if (minutes.length < 2) minutes = '0' + minutes;
+                    if (seconds.length < 2) seconds = '0' + seconds;
+
+                    if (type == 'DATETIME') valueToReturn += ' ';
+
+                    valueToReturn += hours + ':' + minutes + ':' + seconds;
+                }
+                return valueToReturn;
+            }
+            return value;
+        };
+
+        function isInvalidDate(value) {
+            var valueDate = new Date(value);
+            if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
+            return false;
+        }
+
+        // =========================================================================================================================
+
+        // Constructor call
+        activate();
     };
 })();
 'use strict';
 
 (function () {
-            'use strict';
+        'use strict';
 
-            angular.module('entifix-js').factory('EntifixStringUtils', factory);
+        angular.module('entifix-js').service('EntifixStringUtils', service);
 
-            factory.$inject = [];
+        service.$inject = [];
 
-            function factory() {
-                        return function () {
-                                    var vm = this;
+        function service() {
+                var vm = this;
 
-                                    // Properties and fields
-                                    // =========================================================================================================================
+                // Properties and fields
+                // =========================================================================================================================
 
-                                    // Fields
-                                    var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+                // Fields
+                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
 
-                                    // Properties
+                // Properties
 
-                                    // =========================================================================================================================
+                // =========================================================================================================================
 
 
-                                    // Methods
-                                    // =========================================================================================================================
+                // Methods
+                // =========================================================================================================================
 
-                                    function activate() {};
+                function activate() {};
 
-                                    vm.getCleanedString(stringToClean);
-                                    {
-                                                for (var i = 0; i < specialChars.length; i++) {
-                                                            stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-                                                }stringToClean = stringToClean.toLowerCase();
-                                                stringToClean = stringToClean.replace(/ /g, "");
-                                                stringToClean = stringToClean.replace(/á/gi, "a");
-                                                stringToClean = stringToClean.replace(/é/gi, "e");
-                                                stringToClean = stringToClean.replace(/í/gi, "i");
-                                                stringToClean = stringToClean.replace(/ó/gi, "o");
-                                                stringToClean = stringToClean.replace(/ú/gi, "u");
-                                                stringToClean = stringToClean.replace(/ñ/gi, "n");
-                                                return stringToClean;
-                                    }
+                vm.getCleanedString = function (stringToClean) {
+                        for (var i = 0; i < specialChars.length; i++) {
+                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+                        }stringToClean = stringToClean.toLowerCase();
+                        stringToClean = stringToClean.replace(/ /g, "");
+                        stringToClean = stringToClean.replace(/á/gi, "a");
+                        stringToClean = stringToClean.replace(/é/gi, "e");
+                        stringToClean = stringToClean.replace(/í/gi, "i");
+                        stringToClean = stringToClean.replace(/ó/gi, "o");
+                        stringToClean = stringToClean.replace(/ú/gi, "u");
+                        stringToClean = stringToClean.replace(/ñ/gi, "n");
+                        return stringToClean;
+                };
 
-                                    // =========================================================================================================================
+                // =========================================================================================================================
 
-                                    // Constructor call
-                                    activate();
-                        };
-            };
+                // Constructor call
+                activate();
+        };
 })();
 'use strict';
 
@@ -4008,8 +3970,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         template: ' \
                 <!-- Main Tab Mode --> \
                     <div layout="row" ng-if="bindCtrl.useMainTab.get()"> \
-                        <div flex="5"></div> \
-                        <div flex="90"> \
+                        <div flex="5" hide-xs show-gt-xs></div> \
+                        <div flex-xs="100" flex-gt-xs="90"> \
                             <div ng-if="!bindCtrl.isModal.get()"> \
                                 <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
                                     <div class="md-toolbar-tools" layout> \
@@ -4073,7 +4035,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 </div> \
                             </div> \
                         </div> \
-                        <div flex="5"></div> \
+                        <div flex="5" hide-xs show-gt-xs></div> \
                     </div> \
                     <!-- No Main Tab Mode --> \
                     <div ng-if="!bindCtrl.useMainTab.get()"> \
@@ -5088,7 +5050,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         function transformStringToDate(value) {
-            return new EntifixDateGenerator().transformStringToDate(value);
+            return EntifixDateGenerator.transformStringToDate(value);
         }
 
         $scope.$watch(function () {
@@ -6594,75 +6556,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 'use strict';
 
 (function () {
-        'use strict';
-
-        angular.module('entifix-js').controller('PreconditionFailedErrorController', controller);
-        controller.$inject = ['sessionData', 'AppResources', '$http', '$mdDialog', '$state'];
-
-        function controller(sessionData, AppResources, $http, $mdDialog, $state) {
-                var vm = this;
-
-                // Properties & fields
-                // ==============================================================================================================================================================
-
-                // ==============================================================================================================================================================
-
-
-                // Methods
-                // ==============================================================================================================================================================
-                function activate() {
-                        createComponents();
-                        setDefaults();
-                };
-
-                function createComponents() {
-                        $http({
-                                method: 'GET',
-                                url: AppResources.baseUrl + AppResources.api + 'catalogo/bodega' + '?administradores.nip=' + sessionData.subject
-                        }).then(function (results) {
-                                if (results.data.data) vm.workgroups = results.data.data;
-                        });
-                }
-
-                function setDefaults() {
-                        if (sessionData.currentWorkgroup) $http({ method: 'GET', url: AppResources.baseUrl + AppResources.api + 'catalogo/bodega' + '?id=' + sessionData.currentWorkgroup }).then(function (results) {
-                                if (results.data.data[0]) vm.workgroupName = results.data.data[0].nombreBodega;
-                        });
-                }
-
-                vm.cancel = function () {
-                        $mdDialog.cancel();
-                };
-
-                vm.ok = function () {
-                        $http({
-                                method: 'PUT',
-                                url: AppResources.baseUrl + AppResources.api + AppResources.login,
-                                data: { subject: sessionData.subject, workgroupId: vm.workgroupId }
-                        }).then(actionSuccess, actionError);
-                };
-
-                function actionSuccess(results) {
-                        localStorage.setItem(sessionData.authTokenName, results.data.data[0][sessionData.authTokenName]);
-                        $state.reload();
-                        $mdDialog.hide(vm.workgroupName);
-                }
-
-                function actionError() {
-                        swal('¡Error!', 'Ocurrió un error al intentar elegir una bodega. Por favor intentelo de nuevo o contacte a su administrador de Sistemas.', 'error');
-                }
-
-                vm.setWorkgroupId = function (workgroup) {
-                        if (workgroup) vm.workgroupId = workgroup.id;
-                };
-
-                activate();
-                // ==============================================================================================================================================================
-        };
-})();
-'use strict';
-
-(function () {
     'use strict';
 
     function componentcontroller(EntifixStringUtils) {
@@ -8047,7 +7940,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         }
 
         function transformStringToDate(value) {
-            return new EntifixDateGenerator().transformStringToDate(value);
+            return EntifixDateGenerator.transformStringToDate(value);
         }
 
         function transformBoolean(value) {
@@ -9547,5 +9440,142 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         return entityModal;
+    };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixSystemOwnerController', controller);
+
+    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog'];
+
+    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.resource.getCollection(function (results) {
+                if (results.length) vm.systemOwners = results;
+            });
+
+            vm.systemOwnerQueryDetails = {
+                resource: vm.resource
+            };
+
+            vm.systemOwnerComponentConstruction = {
+                title: { text: 'Clínica médica' },
+                displayPropertyName: 'name'
+            };
+        }
+
+        function setDefaults() {
+            vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
+            // load current system owner
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel();
+        };
+
+        vm.ok = function () {
+            // post tu refresh new system owner
+            $mdDialog.hide(vm.systemOwner);
+        };
+
+        vm.setSystemOwner = function (systemOwner) {
+            if (systemOwner) vm.systemOwner = workgroup.id;
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixSystemOwner', systemOwnerFactory);
+
+    systemOwnerFactory.$inject = ['$mdDialog'];
+
+    function systemOwnerFactory($mdDialog) {
+        var systemOwnerController = function systemOwnerController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseSystemOwner = function () {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
+                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-md"> \
+                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
+                                                                <h2>&nbsp Elija una Clínica Médica</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select \
+                                                                        value-model="vm.systemOwner" \
+                                                                        show-editable-fields="true" \
+                                                                        query-details="vm.systemOwnerQueryDetails" \
+                                                                        component-construction="vm.systemOwnerComponentConstruction" \
+                                                                        component-binding-out="vm.systemOwnerInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixSystemOwnerController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (results) {}, function () {});
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return systemOwnerController;
     };
 })();

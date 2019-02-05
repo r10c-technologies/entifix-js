@@ -616,8 +616,8 @@
         template: ' \
                 <!-- Main Tab Mode --> \
                     <div layout="row" ng-if="bindCtrl.useMainTab.get()"> \
-                        <div flex="5"></div> \
-                        <div flex="90"> \
+                        <div flex="5" hide-xs show-gt-xs></div> \
+                        <div flex-xs="100" flex-gt-xs="90"> \
                             <div ng-if="!bindCtrl.isModal.get()"> \
                                 <md-toolbar ng-if="bindCtrl.showBar.get()" md-colors="{background:\'default-primary-500\'}"> \
                                     <div class="md-toolbar-tools" layout> \
@@ -681,7 +681,7 @@
                                 </div> \
                             </div> \
                         </div> \
-                        <div flex="5"></div> \
+                        <div flex="5" hide-xs show-gt-xs></div> \
                     </div> \
                     <!-- No Main Tab Mode --> \
                     <div ng-if="!bindCtrl.useMainTab.get()"> \

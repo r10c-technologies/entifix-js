@@ -20,7 +20,8 @@
         $devMode = false,
         $devUser,
         $permissionsTokenName,
-        $permissionsUrl;
+        $permissionsUrl,
+        $systemOwnerEntityName;
     
         prov.setAuthUrl = function(value) {
             $authUrl = value;
@@ -66,12 +67,16 @@
             $devUser = value;
         };
         
-        prov.setPermissionsTokenName = function(value){
+        prov.setPermissionsTokenName = function(value) {
             $permissionsTokenName = value;
         };
         
-        prov.setPermissionsUrl = function(value){
+        prov.setPermissionsUrl = function(value) {
             $permissionsUrl = value;
+        };
+        
+        prov.setSystemOwnerEntityName = function(value) {
+            $systemOwnerEntityName = value;
         };
 
         prov.checkAuth = function () {
@@ -157,6 +162,11 @@
             sv.permissionsUrl =
             {
                 get: () => { return $permissionsUrl; }
+            }
+
+            sv.systemOwnerEntityName =
+            {
+                get: () => { return $systemOwnerEntityName; }
             }
 
             return sv;

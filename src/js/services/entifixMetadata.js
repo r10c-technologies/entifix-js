@@ -215,10 +215,14 @@
             return defaultUrl;
         }
         
-        vm.isFormDataRequest = function(resourceName)
+        vm.getRequestOptions = function(resourceName)
         {
             var resource = getResource(resourceName);
-            return resource.isFormDataRequest != null || resource.isFormDataRequest != undefined;
+            if(resource.requestOptions != null || resource.requestOptions != undefined)
+                return resource.requestOptions;
+            else {
+                return undefined;
+            }
         }
         
         vm.getStartDateProperty = function(resourceName)

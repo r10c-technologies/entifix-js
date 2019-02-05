@@ -563,7 +563,7 @@
 
         function transformStringToDate(value)
         {
-            return new EntifixDateGenerator().transformStringToDate(value);
+            return EntifixDateGenerator.transformStringToDate(value);
         }
 
         $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); } )

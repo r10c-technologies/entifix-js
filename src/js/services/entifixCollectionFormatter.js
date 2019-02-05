@@ -75,15 +75,14 @@
                     //Transform dates
                     if (value && singleParam.type == 'date'|| singleParam.type == 'datetime')
                     {
-                        var dateGenerator = new EntifixDateGenerator();
                         if (value && !(value instanceof Date))
-                            var asDate = dateGenerator.transformStringToDate(value);
+                            var asDate = EntifixDateGenerator.transformStringToDate(value);
                         else if (value)
                             var asDate = value;
                         else
                             var asDate = null;
 
-                        element[(singleParam.outProperty || singleParam.property)] = dateGenerator.transformDateToString(asDate, singleParam.type, true);
+                        element[(singleParam.outProperty || singleParam.property)] = EntifixDateGenerator.transformDateToString(asDate, singleParam.type, true);
                         onEnd();
                     }
 

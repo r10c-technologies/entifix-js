@@ -49,12 +49,12 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'POST', url: tempUrl, data: data };
+                let options = { method: 'POST', url: tempUrl };
 
-                if (isFormDataRequest())
+                if (getRequestOptions())
                 {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -67,12 +67,12 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'PUT', url: tempUrl, data: data };
+                let options = { method: 'PUT', url: tempUrl };
 
-                if (isFormDataRequest())
+                if (getRequestOptions())
                 {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -97,12 +97,12 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                let options = { method: 'PATCH', url: tempUrl, data: data };
+                let options = { method: 'PATCH', url: tempUrl };
 
-                if (isFormDataRequest())
+                if (getRequestOptions())
                 {
-                    options.headers = { 'Content-Type': undefined };
-                    data = convertToFormData(data);
+                    options.headers = getRequestOptions().headers;
+                    options.data = convertToFormData(data);
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -158,13 +158,12 @@
                             //For date properties
                             if (TProperty.type == 'date' || TProperty.type == 'datetime')
                             {
-                                var dateGenerator = new EntifixDateGenerator();
                                 if (!(data[TProperty.name] instanceof Date))
-                                    var dateValue = dateGenerator.transformStringToDate(data[TProperty.name]);
+                                    var dateValue = EntifixDateGenerator.transformStringToDate(data[TProperty.name]);
                                 else
                                     var dateValue = data[TProperty.name];
 
-                                data[TProperty.name] = dateGenerator.transformDateToString(dateValue, TProperty.type, false);
+                                data[TProperty.name] = EntifixDateGenerator.transformDateToString(dateValue, TProperty.type, false);
                             }
 
                             //Other types of properties to transform....
@@ -192,12 +191,12 @@
                 return data;
             };
 
-            function convertToFormData (data)
+            function convertToFormData(data)
             {
-                var fd = new FormData();
-                for (var p in data)
-                    fd.append(p, data[p]);
-                return fd;
+                var formData = new FormData();
+                for (var member in data)
+                    formData.append(member, data[member]);
+                return formData;
             }
             
             function transformDataFromResponse(data)
@@ -235,7 +234,7 @@
                                 {
                                     var objectValue = data[TProperty.name];
                                     if (!(objectValue instanceof Date))
-                                        data[TProperty.name] = new EntifixDateGenerator().transformStringToDate(objectValue);
+                                        data[TProperty.name] = EntifixDateGenerator.transformStringToDate(objectValue);
                                 }
 
                                 //Other types of properties to transform....
@@ -926,9 +925,9 @@
                 return EntifixMetadata.getNotApplyProperty(resourceName);
             }
 
-            function isFormDataRequest()
+            function getRequestOptions()
             {
-                return EntifixMetadata.isFormDataRequest(resourceName);
+                return EntifixMetadata.getRequestOptions(resourceName);
             }
 
             function filterProperties(properties, columnsSelected)

@@ -936,7 +936,7 @@
 
         function transformStringToDate(value)
         {
-            return new EntifixDateGenerator().transformStringToDate(value);
+            return EntifixDateGenerator.transformStringToDate(value);
         }
 
         function transformBoolean(value)
