@@ -135,9 +135,9 @@
                 }
 
                 //Default value
-                if (!vm.isMultiple.get())
-                    return 'Seleccionar Archivo';
-                return 'Seleccionar Archivos...';
+                if (vm.isMultiple.get())
+                    return 'Seleccionar Archivos...';
+                return 'Seleccionar Archivo';
             }
         };
         
@@ -155,6 +155,8 @@
                 }
 
                 //Default value
+                if (vm.isMultiple.get())
+                    return 'Eliminar archivos...';
                 return 'Eliminar archivo...';
             }
         };
@@ -173,6 +175,8 @@
                 }
 
                 //Default value
+                if (vm.isMultiple.get())
+                    return 'Nombre de los archivos: ';
                 return 'Nombre del archivo: ';
             }
         };

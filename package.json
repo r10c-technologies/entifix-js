@@ -1,6 +1,6 @@
 {
   "name": "entifix-js",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Entifix JS, the basic framework to develop SPA based in AngularJS.",
   "main": "gulpfile.js",
   "dependencies": {

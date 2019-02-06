@@ -29,11 +29,7 @@
 
                 actionError = actionError || _defaultActionError;
 
-                var requestConfig =
-                {
-                    method: 'GET',
-                    url: tempUrl
-                };
+                var requestConfig = { method: 'GET', url: tempUrl };
 
                 if (returnPromise)
                     return $http(requestConfig);
@@ -49,12 +45,11 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'POST', url: tempUrl };
+                let options = { method: 'POST', url: tempUrl, data: data };
+                let extraOptions = getRequestOptions();
 
-                if (getRequestOptions())
-                {
-                    options.headers = getRequestOptions().headers;
-                    options.data = convertToFormData(data);
+                if (extraOptions) {
+                    options.headers = extraOptions.headers;
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -67,12 +62,11 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'PUT', url: tempUrl };
+                let options = { method: 'PUT', url: tempUrl, data: data };
+                let extraOptions = getRequestOptions();
 
-                if (getRequestOptions())
-                {
-                    options.headers = getRequestOptions().headers;
-                    options.data = convertToFormData(data);
+                if (extraOptions) {
+                    options.headers = extraOptions.headers;
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -97,12 +91,11 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                let options = { method: 'PATCH', url: tempUrl };
+                let options = { method: 'PATCH', url: tempUrl, data: data };
+                let extraOptions = getRequestOptions();
 
-                if (getRequestOptions())
-                {
-                    options.headers = getRequestOptions().headers;
-                    options.data = convertToFormData(data);
+                if (extraOptions) {
+                    options.headers = extraOptions.headers;
                 }
                 $http(options).then(actionSuccess, actionError);
             };
@@ -127,12 +120,12 @@
 
             function transformDataToRequest (data)
             {
-                //Set type
+                // Set type as a property
                 var typeInfo = EntifixMetadata.getTypeInfo(resourceName);
                 if (typeInfo && data[typeInfo.property] && data[_keyProperty])
                     data[typeInfo.property] = { [typeInfo.property]: typeInfo.value };
                 
-                //Transform properties
+                // Transform properties
                 var transformProperties = EntifixMetadata.getTransformProperties(resourceName);
                 if (transformProperties.length > 0)
                 {
@@ -142,7 +135,7 @@
                         
                         if (data[TProperty.name])
                         {
-                            //For entity properties
+                            // For entity properties
                             if (TProperty.type == 'entity')
                             {
                                 var value = data[TProperty.name];
@@ -155,7 +148,7 @@
                                 }                                                                
                             }
 
-                            //For date properties
+                            // For date properties
                             if (TProperty.type == 'date' || TProperty.type == 'datetime')
                             {
                                 if (!(data[TProperty.name] instanceof Date))
@@ -166,7 +159,7 @@
                                 data[TProperty.name] = EntifixDateGenerator.transformDateToString(dateValue, TProperty.type, false);
                             }
 
-                            //Other types of properties to transform....
+                            // Other types of properties to transform....
 
                             /*if (TProperty.propertyMetaData.type == ?)
                             {
@@ -177,27 +170,30 @@
                     }
                 }
 
-
-                //Remove non persistent and excluded properties/members
-                for(var p in data)
+                // Remove non persistent and excluded properties/members
+                for(var property in data)
                 {
-                    if (p.substr(0,1) == '$')
-                        delete(data[p]);
+                    if (property.substr(0,1) == '$')
+                        delete(data[property]);
                 };
                 var excludedMembers = EntifixMetadata.getExcludedMembers(resourceName);
                 for (var i = 0; i < excludedMembers.length; i++)
                     delete(data[excludedMembers[i]]);
+
+                // Set type as an object
+                if (typeInfo && typeInfo.type) {
+                    switch (typeInfo.type) {
+                        case "FormData":
+                            let formData = new FormData();
+                            for (var member in data)
+                                formData.append(member, data[member]);
+                            data = formData;
+                            break;
+                    }
+                }
                 
                 return data;
             };
-
-            function convertToFormData(data)
-            {
-                var formData = new FormData();
-                for (var member in data)
-                    formData.append(member, data[member]);
-                return formData;
-            }
             
             function transformDataFromResponse(data)
             {
