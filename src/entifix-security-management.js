@@ -26,7 +26,6 @@
             var _currentUser = null;
             var _currentUserName = null;
             var _currentUser = null;
-            var _currentIdUser = null;
             var _currentSystemOwner = null;
             var _currentPermissions = null;
             var _isRefreshingToken = false;
@@ -106,30 +105,13 @@
                 }        
             };
 
-            sv.currentIdUser =
-            {
-                get: () =>
-                {
-                    if (_currentIdUser == null)
-                    {
-                        var tmptoken = sv.authToken.get();
-                        if (tmptoken)
-                            _currentIdUser = jwtHelper.decodeToken(tmptoken).idUser;
-                    }
-                    return _currentIdUser;
-                }        
-            };
-
             sv.currentSystemOwner =
             {
                 get: () =>
                 {
-                    if (_currentSystemOwner == null)
-                    {
-                        var tmptoken = sv.authToken.get();
-                        if (tmptoken)
-                            _currentSystemOwner = jwtHelper.decodeToken(tmptoken).systemOwner;
-                    }
+                    var tmptoken = sv.authToken.get();
+                    if (tmptoken)
+                        _currentSystemOwner = jwtHelper.decodeToken(tmptoken).systemOwner;
                     return _currentSystemOwner;
                 }        
             };
@@ -175,8 +157,7 @@
                                                 console.info('DevMode: Login success');
 
                                             //Save token from response
-                                            sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
-                                            sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
+                                            sv.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()])
                                             
                                             if (actionAccept)
                                                 actionAccept();
@@ -228,8 +209,7 @@
                                                     console.info('DevMode: Refresh success');
 
                                                 //Save token from response
-                                                sv.authToken.set(response.data.data[EntifixConfig.authTokenName.get()]);
-                                                sv.refreshTokenLS.set(response.data.data[EntifixConfig.refreshTokenName.get()]);
+                                                sv.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()])
                                                 
                                                 if (actionAccept)
                                                     actionAccept(response.data);
@@ -334,6 +314,12 @@
                         );
                     } 
                 );
+            }
+
+            sv.saveTokens = function(token, refreshToken)
+            {
+                sv.authToken.set(token);
+                sv.refreshTokenLS.set(refreshToken);
             }
 
             // Private section _____________________________________________________________________

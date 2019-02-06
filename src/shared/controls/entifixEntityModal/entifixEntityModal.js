@@ -967,7 +967,7 @@
 
             // Methods _____________________________________________________________________________________________________________________________________________________________________
             //==============================================================================================================================================================================
-            vm.openModal = function () 
+            vm.openModal = function (callback) 
             {
                 if (componentConstruction && componentConstruction.event)
                     var event = componentConstruction.event;
@@ -1051,7 +1051,8 @@
                                     })
                 .then(function (results)
                     {
-                        
+                        if (callback)
+                            callback(results);
                     },
                     function ()
                     {

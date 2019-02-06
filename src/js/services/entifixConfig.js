@@ -21,7 +21,10 @@
         $devUser,
         $permissionsTokenName,
         $permissionsUrl,
-        $systemOwnerEntityName;
+        $systemOwnerEntityName,
+        $systemOwnerEntitySwapName,
+        $systemOwnerDisplayName,
+        $idSystemOwnerPropertyName;
     
         prov.setAuthUrl = function(value) {
             $authUrl = value;
@@ -78,6 +81,18 @@
         prov.setSystemOwnerEntityName = function(value) {
             $systemOwnerEntityName = value;
         };
+        
+        prov.setSystemOwnerEntitySwapName = function(value) {
+            $systemOwnerEntitySwapName = value;
+        };
+
+        prov.setSystemOwnerDisplayName = function(value) {
+            $systemOwnerDisplayName = value;
+        }
+
+        prov.setIdSystemOwnerPropertyName = function(value) {
+            $idSystemOwnerPropertyName = value;
+        }
 
         prov.checkAuth = function () {
             let authenticated = localStorage.getItem($authTokenName);
@@ -167,6 +182,21 @@
             sv.systemOwnerEntityName =
             {
                 get: () => { return $systemOwnerEntityName; }
+            }
+
+            sv.systemOwnerEntitySwapName =
+            {
+                get: () => { return $systemOwnerEntitySwapName; }
+            }
+
+            sv.systemOwnerDisplayName  =
+            {
+                get: () => { return $systemOwnerDisplayName; }
+            }
+
+            sv.idSystemOwnerPropertyName  =
+            {
+                get: () => { return $idSystemOwnerPropertyName; }
             }
 
             return sv;

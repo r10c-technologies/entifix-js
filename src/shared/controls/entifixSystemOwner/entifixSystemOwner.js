@@ -3,9 +3,9 @@
    
     angular.module('entifix-js').controller('EntifixSystemOwnerController', controller);
 
-    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog'];
+    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog', 'EntifixNotification', '$state'];
 
-    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog)
+    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog, EntifixNotification, $state)
     {
         var vm = this;
 
@@ -26,8 +26,6 @@
 
         function createComponents()
         {
-            vm.resource.getCollection((results)=> { if (results.length) vm.systemOwners = results; });
-
             vm.systemOwnerQueryDetails =
             {
                 resource: vm.resource
@@ -35,15 +33,14 @@
 
             vm.systemOwnerComponentConstruction =
             {
-                title: { text: 'Clínica médica' },
-                displayPropertyName: 'name'
+                title: { text: EntifixConfig.systemOwnerDisplayName.get() },
+                displayPropertyName: 'systemOwner'
             };
         }
 
         function setDefaults()
         {
             vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
-            // load current system owner
         }
 
         vm.cancel = function()
@@ -53,15 +50,26 @@
 
         vm.ok = function()
         {
-            // post tu refresh new system owner
-            $mdDialog.hide(vm.systemOwner);
+            if (vm.systemOwner) {
+                new EntifixResource(EntifixConfig.systemOwnerEntitySwapName.get()).saveEntity(
+                    { [EntifixConfig.idSystemOwnerPropertyName.get()] : vm.systemOwner },
+                    (response, saveSuccess) => {
+                        if (saveSuccess) {
+                            EntifixSession.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()]);
+                            EntifixNotification.success({"body": "La actualización de " + EntifixConfig.systemOwnerDisplayName.get() + " ha sido exitosa.", "isToast": true });
+                            $state.reload();
+                            $mdDialog.hide(vm.systemOwner);
+                        } else {
+                            EntifixNotification.error({"body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo.", "isToast": true });
+                        }
+                    },
+                    error => {
+                        EntifixNotification.error({"body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo. " + error.data.message, "isToast": true });
+                    });
+            } else {
+                EntifixNotification.error({"body": "Por favor, seleccione un " + EntifixConfig.systemOwnerDisplayName.get() + ".", "isToast": true });
+            }
         };
-
-        vm.setSystemOwner = function(systemOwner)
-        {
-            if (systemOwner)
-                vm.systemOwner = workgroup.id;
-        }
 
         activate();
         // ==============================================================================================================================================================
@@ -93,7 +101,7 @@
 
             // Methods _____________________________________________________________________________________________________________________________________________________________________
             //==============================================================================================================================================================================
-            vm.chooseSystemOwner = function () 
+            vm.chooseSystemOwner = function (callback) 
             {
                 $mdDialog.show({
                                     //templateUrl: 'src/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
@@ -137,7 +145,7 @@
                                     fullscreen: true,
                                     controllerAs: 'vm'
                                     })
-                .then(function (results) { }, function () { });
+                .then(function (results) { if(callback) callback(results); }, function () { });
             };
 
             //==============================================================================================================================================================================
