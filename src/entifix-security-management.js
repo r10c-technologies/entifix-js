@@ -322,6 +322,16 @@
                 sv.refreshTokenLS.set(refreshToken);
             }
 
+            sv.logout = function()
+            {
+                sv.authToken.remove();
+                sv.refreshTokenLS.remove();
+                sv.permissionsToken.remove();
+                sv.redirect.set(EntifixConfig.thisApplication.get());
+                sv.authApp.set(EntifixConfig.authUrl.get());
+                $window.location.href = EntifixConfig.authApplication.get();
+            }
+
             // Private section _____________________________________________________________________
             function manageAuthRedirectAction()
             {
@@ -338,9 +348,7 @@
 
             function manageRedirectAction()
             {
-                sv.redirect.set(EntifixConfig.thisApplication.get());
-                sv.authApp.set(EntifixConfig.authUrl.get());
-                $window.location.href = EntifixConfig.authApplication.get();
+                sv.logout();
             }
 
             function checkAuthentication(transition)
