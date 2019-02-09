@@ -2946,1018 +2946,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    var entifixEnvironmentModule = angular.module('entifix-js');
-
-    // CONTROLLER ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
-
-    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', 'EntifixSession', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
-
-    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, EntifixSession, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
-        var vm = this;
-
-        vm.componentConstruction = componentConstruction();
-        vm.componentBehavior = componentBehavior();
-        vm.componentBindingOut = componentBindingOut();
-        vm.queryDetails = queryDetails();
-
-        // Properties & Fields ===================================================================================================================================================
-
-        //Fields
-        var _isloading = false;
-        var _notifier = null;
-
-        var _statesForm = {
-            edit: true,
-            view: false
-        };
-
-        vm.connectionComponent = {};
-        vm.connectionComponent.state = _statesForm.edit;
-
-        // Main
-
-        vm.entity = {
-            get: function get() {
-                if (vm.connectionComponent) return vm.connectionComponent.entity;
-                return null;
-            },
-            set: function set(value) {
-                if (vm.connectionComponent) {
-                    var oldValue = vm.connectionComponent.entity;
-                    vm.connectionComponent.entity = value;
-
-                    if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onChangeEntity) vm.componentBehavior.events.onChangeEntity(oldValue, value);
-                }
-            }
-        };
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isLoading.get();
-                return false;
-            }
-        };
-
-        vm.isSaving = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isSaving.get();
-                return false;
-            }
-        };
-
-        vm.isDeleting = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isDeleting.get();
-                return false;
-            }
-        };
-
-        vm.onTask = {
-            get: function get() {
-                var response = vm.isLoading.get() || vm.isSaving.get() || vm.isDeleting.get();
-
-                return response;
-            }
-        };
-
-        vm.size = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.size) return vm.componentConstruction.size;
-
-                //Default value
-                return 'md-md';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.entityName) {
-                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.componentConstruction.title.entityName;else return 'Agregar ' + vm.componentConstruction.title.entityName;
-                    }
-
-                    if (vm.componentConstruction.title.entityProperty && vm.entity.get()) {
-                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];else return 'Agregar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];
-                    }
-
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                if (!vm.connectionComponent.showEditableFields.get()) return 'Editar Registro';
-                return 'Agregar Registro';
-            }
-        };
-
-        vm.icon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.icon) {
-                    if (vm.componentConstruction.icon.text) return vm.componentConstruction.icon.text;
-                }
-
-                //Default value
-                return 'menu';
-            }
-        };
-
-        // cancel button
-        vm.canCancel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.connectionComponent.state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.cancelIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.icon) return vm.componentConstruction.cancel.icon;
-
-                //Default value
-                return 'clear';
-            }
-        };
-
-        vm.cancelText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.text) {
-                    if (vm.componentConstruction.cancel.text.getter) return vm.componentConstruction.cancel.text.getter();else if (vm.componentConstruction.cancel.text) return vm.componentConstruction.cancel.text;
-                };
-
-                //Default value
-                return 'Cancelar';
-            }
-        };
-
-        vm.cancelHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.href) {
-                    if (vm.componentConstruction.cancel.href instanceof Object && vm.componentConstruction.cancel.href.getter) return vm.componentConstruction.cancel.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.cancel.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // ok button
-        vm.canOk = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && vm.connectionComponent.state == _statesForm.view) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.okIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.icon) return vm.componentConstruction.ok.icon;
-
-                //Default value
-                return 'done';
-            }
-        };
-
-        vm.okText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.text) return '' + vm.componentConstruction.ok.text;
-
-                //Default value
-                return 'Aceptar';
-            }
-        };
-
-        // edit button
-        vm.canEdit = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.view) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.editIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.icon) return vm.componentConstruction.edit.icon;
-
-                //Default value
-                return 'create';
-            }
-        };
-
-        vm.editText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit) {
-                    if (vm.componentConstruction.edit.text instanceof Object && vm.componentConstruction.edit.text.getter) return vm.componentConstruction.edit.text.getter();else if (vm.componentConstruction.edit.text) return vm.componentConstruction.edit.text;
-                };
-
-                //Default value
-                return 'Editar';
-            }
-        };
-
-        vm.editHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.href) {
-                    if (vm.componentConstruction.edit.href instanceof Object && vm.componentConstruction.edit.href.getter) return vm.componentConstruction.edit.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.edit.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // save button
-        vm.canSave = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && vm.connectionComponent.state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.saveIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.icon) return '' + vm.componentConstruction.save.icon;
-
-                //Default value
-                return 'save';
-            }
-        };
-
-        vm.saveText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save) {
-                    if (vm.componentConstruction.save.text instanceof Object && vm.componentConstruction.save.text.getter) return vm.componentConstruction.save.text.getter();else if (vm.componentConstruction.save.text) return vm.componentConstruction.save.text;
-                };
-
-                //Default value
-                return 'Guardar';
-            }
-        };
-
-        vm.saveHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.href) {
-                    if (vm.componentConstruction.save.href instanceof Object && vm.componentConstruction.save.href.getter) return vm.componentConstruction.save.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.save.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        // remove button
-        vm.canRemove = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.edit) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.removeIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.icon) return vm.componentConstruction.remove.icon;
-
-                //Default value
-                return 'delete';
-            }
-        };
-
-        vm.removeText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove) {
-                    if (vm.componentConstruction.remove.text instanceof Object && vm.componentConstruction.remove.text.getter) return vm.componentConstruction.remove.text.getter();else if (vm.componentConstruction.remove.text) return vm.componentConstruction.remove.text;
-                };
-
-                //Default value
-                return 'Eliminar';
-            }
-        };
-
-        vm.removeHref = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.href) {
-                    if (vm.componentConstruction.remove.href instanceof Object && vm.componentConstruction.remove.href.getter) return vm.componentConstruction.remove.href.getter(vm.entity.get(), vm.queryDetails.resource);
-                    return vm.componentConstruction.remove.href;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        //process button
-        vm.canProcess = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && vm.connectionComponent.state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.processIcon = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.icon) return vm.componentConstruction.process.icon;
-
-                //Default value
-                return 'done_all';
-            }
-        };
-
-        vm.processText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.text) return '' + vm.componentConstruction.process.text;
-
-                //Default value
-                return 'Procesar';
-            }
-        };
-
-        vm.allowActions = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.allowActions != null) return vm.componentConstruction.allowActions;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.saveTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.saveTooltip) return vm.componentConstruction.saveTooltip;
-
-                //Default value
-                return 'Todos los campos obligatorios deben estar correctos';
-            }
-        };
-
-        vm.historyTooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
-
-                //Default value
-                return 'Mostrar Bitácora';
-            }
-        };
-
-        var _canViewHistory = true;
-        vm.canViewHistory = {
-            get: function get() {
-                if (_canViewHistory) return true;
-                return false;
-            },
-
-            set: function set(value) {
-                _canViewHistory = value;
-            }
-        };
-
-        vm.history = {
-            get: function get() {
-                return $rootScope.showHistory;
-            },
-            set: function set() {
-                $rootScope.showHistory = !$rootScope.showHistory;
-            }
-        };
-
-        vm.hasPermissions = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.permissions != null) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.hasAllPermission = {
-            get: function get() {
-                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all)) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.hasSavePermission = {
-            get: function get() {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.hasEditPermission = {
-            get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.hasRemovePermission = {
-            get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.hasProcessPermission = {
-            get: function get() {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
-
-                //Default value
-                return false;
-            }
-
-            // =======================================================================================================================================================================
-
-            // Methods ===============================================================================================================================================================
-
-        };function activate() {
-            setdefaults();
-            createconnectioncomponent();
-
-            if (vm.componentConstruction) createDynamicComponent();
-
-            checkoutputs();
-            checkPermissions();
-        };
-
-        function setdefaults() {
-            _notifier = new EntifixNotifier(vm.queryDetails.resource);
-        };
-
-        function createconnectioncomponent() {
-            // Connection Component Properties __________________________________________________________________________________________
-            // ==========================================================================================================================
-
-            vm.connectionComponent.IsCreating = true;
-
-            if (vm.componentBindingOut.object) {
-                vm.connectionComponent.state = _statesForm.view;
-                vm.entity.set(vm.componentBindingOut.object);
-            } else vm.entity.set({});
-
-            vm.connectionComponent.entity = vm.entity.get();
-            if (vm.queryDetails.resource) {
-                vm.connectionComponent.resource = vm.queryDetails.resource;
-            }
-
-            vm.connectionComponent.showEditableFields = {
-                get: function get() {
-                    return vm.connectionComponent.state == _statesForm.edit;
-                },
-                set: function set(value) {
-                    if (value == true) vm.connectionComponent.state = _statesForm.edit;
-                    if (value == false) vm.connectionComponent.state = _statesForm.view;
-                }
-            };
-
-            vm.connectionComponent.state = vm.connectionComponent.showEditableFields.get();
-            vm.connectionComponent.isSaving = vm.isSaving;
-            vm.connectionComponent.history = vm.history;
-            vm.connectionComponent.canViewHistory = vm.canViewHistory;
-
-            vm.connectionComponent.canCancel = { get: function get() {
-                    return vm.canCancel.get();
-                } };
-            vm.connectionComponent.canRemove = { get: function get() {
-                    return vm.canRemove.get();
-                } };
-            vm.connectionComponent.canSave = { get: function get() {
-                    return vm.canSave.get();
-                } };
-            vm.connectionComponent.canEdit = { get: function get() {
-                    return vm.canEdit.get();
-                } };
-            vm.connectionComponent.canOk = { get: function get() {
-                    return vm.canOk.get();
-                } };
-            vm.connectionComponent.canProcess = { get: function get() {
-                    return vm.canProcess.get();
-                } };
-
-            vm.connectionComponent.cancelText = { get: function get() {
-                    return vm.cancelText.get();
-                } };
-            vm.connectionComponent.removeText = { get: function get() {
-                    return vm.removeText.get();
-                } };
-            vm.connectionComponent.saveText = { get: function get() {
-                    return vm.saveText.get();
-                } };
-            vm.connectionComponent.editText = { get: function get() {
-                    return vm.editText.get();
-                } };
-            vm.connectionComponent.okText = { get: function get() {
-                    return vm.okText.get();
-                } };
-            vm.connectionComponent.processText = { get: function get() {
-                    return vm.processText.get();
-                } };
-
-            vm.connectionComponent.cancelIcon = { get: function get() {
-                    return vm.cancelIcon.get();
-                } };
-            vm.connectionComponent.removeIcon = { get: function get() {
-                    return vm.removeIcon.get();
-                } };
-            vm.connectionComponent.saveIcon = { get: function get() {
-                    return vm.saveIcon.get();
-                } };
-            vm.connectionComponent.editIcon = { get: function get() {
-                    return vm.editIcon.get();
-                } };
-            vm.connectionComponent.okIcon = { get: function get() {
-                    return vm.okIcon.get();
-                } };
-            vm.connectionComponent.processIcon = { get: function get() {
-                    return vm.processIcon.get();
-                } };
-
-            vm.connectionComponent.cancel = { invoke: function invoke() {
-                    vm.cancel();
-                } };
-            vm.connectionComponent.remove = { invoke: function invoke() {
-                    vm.remove();
-                } };
-            vm.connectionComponent.edit = { invoke: function invoke() {
-                    vm.edit();
-                } };
-            vm.connectionComponent.ok = { invoke: function invoke() {
-                    vm.ok();
-                } };
-            vm.connectionComponent.save = { invoke: function invoke() {
-                    vm.save();
-                } };
-            vm.connectionComponent.process = { invoke: function invoke() {
-                    vm.process();
-                } };
-
-            vm.connectionComponent.onTask = { get: function get() {
-                    return vm.onTask.get();
-                } };
-            vm.connectionComponent.saveTooltip = { get: function get() {
-                    return vm.saveTooltip.get();
-                } };
-            vm.connectionComponent.entityForm = { valid: function valid() {
-                    return vm.entityForm.$valid;
-                } };
-
-            vm.connectionComponent.evaluateErrors = {
-                get: function get(name) {
-                    return evaluateErrors(name);
-                }
-            };
-
-            function evaluateErrors(property) {
-                var errors = {};
-                for (var error in vm.entityForm.$error) {
-                    var propertyValue = vm.entityForm.$error[error];
-
-                    if (propertyValue instanceof Array) propertyValue.forEach(function (element) {
-                        if (element.$name == property) errors[error] = true;
-                    });
-                }
-
-                return errors;
-            }
-
-            // ==========================================================================================================================
-
-
-            // Connection Component Methods _____________________________________________________________________________________________
-            // ==========================================================================================================================
-
-            var searchForm = function searchForm() {
-                if (vm.entityForm) vm.connectionComponent.entityForm = vm.entityForm;else $timeout(searchForm, 200);
-            };
-
-            searchForm();
-        };
-
-        function createDynamicComponent() {
-            var res = BaseComponentFunctions.CreateStringHtmlComponentAndBindings(vm.componentConstruction, 'bindCtrl.connectionComponent.objectBindings');
-            vm.stringhtmlcomponent = res.stringhtml;
-            vm.connectionComponent.objectBindings = res.objectbindings;
-        };
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                showEditableFields: vm.connectionComponent.showEditableFields,
-                entity: vm.entity,
-                recreateDynamicComponent: createDynamicComponent
-            };
-
-            if (vm.componentBehavior && vm.componentBehavior.afterConstruction) vm.componentBehavior.afterConstruction();
-        };
-
-        vm.cancel = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCancel) vm.componentBehavior.events.onCancel();
-
-            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction();else defaultCancel();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCanceled) vm.componentBehavior.events.onCanceled();
-        };
-
-        vm.ok = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onOk) vm.componentBehavior.events.onOk();
-
-            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk);else defaultOk();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAfterOk) vm.componentBehavior.events.onAfterOk();
-        };
-
-        vm.edit = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdit) vm.componentBehavior.events.onEdit();
-
-            if (vm.componentConstruction.edit.customAction) vm.componentConstruction.edit.customAction(vm.entity.get(), defaultOk);else defaultEdit();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdited) vm.componentBehavior.events.onEdited();
-        };
-
-        vm.save = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSave) vm.componentBehavior.events.onSave(vm.entity.get());
-
-            if (vm.componentConstruction.save.customAction) vm.componentConstruction.save.customAction(vm.entity.get(), defaultOk, setViewState);else defaultSave();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSaved) vm.componentBehavior.events.onSaved();
-        };
-
-        vm.remove = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemove) vm.componentBehavior.events.onRemove();
-
-            if (vm.componentConstruction.remove.customAction) vm.componentConstruction.remove.customAction(vm.entity.get(), defaultOk);else defaultRemove();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemoved) vm.componentBehavior.events.onRemoved();
-        };
-
-        vm.process = function () {
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcess) vm.componentBehavior.events.onProcess();
-
-            if (vm.componentConstruction.process.customAction) vm.componentConstruction.process.customAction(vm.entity.get(), defaultOk, setViewState);else defaultProcess();
-
-            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcessed) vm.componentBehavior.events.onProcessed();
-        };
-
-        function defaultCancel() {
-            if (vm.queryDetails.resource.isNewEntity(vm.connectionComponent.entity)) $mdDialog.cancel();else {
-                vm.connectionComponent.state = _statesForm.view;
-                reloadEntity();
-            }
-        };
-
-        function defaultOk() {
-            $mdDialog.hide();
-        };
-
-        function defaultEdit() {
-            vm.connectionComponent.state = _statesForm.edit;
-        };
-
-        function defaultSave() {
-            vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity, function (response, saveSuccess) {
-                if (saveSuccess) {
-                    if (response && response.data.data) vm.entity.set(response.data.data);
-                    defaultOk();
-                }
-            });
-        };
-
-        function defaultProcess() {
-            vm.connectionComponent.entity[vm.queryDetails.resource.getOpProperty.get()] = 'PROCESAR';
-            defaultSave();
-        };
-
-        function defaultRemove() {
-            EntifixNotification.confirm({
-                "body": "Está seguro de eliminar el registro",
-                "header": "Confirmación requerida",
-                "actionConfirm": function actionConfirm() {
-                    vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
-                        defaultOk();
-                    });
-                },
-                "actionCancel": function actionCancel() {} });
-        };
-
-        vm.submit = function () {
-            vm.save();
-        };
-
-        function reloadEntity() {
-            if (vm.entity.get()) vm.queryDetails.resource.loadAsResource(vm.entity.get(), function (entityReloaded) {
-                vm.entity.set(entityReloaded);
-            });
-        };
-
-        function checkPermissions() {
-            if (vm.hasPermissions.get()) {
-                if (!vm.hasAllPermission.get()) {
-                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
-                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
-                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
-                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
-                }
-            }
-        }
-
-        // =======================================================================================================================================================================
-
-        function setViewState(view, entity) {
-            if (view) vm.connectionComponent.state = _statesForm.view;else vm.connectionComponent.state = _statesForm.edit;
-
-            vm.entity.set(entity);
-        }
-
-        activate();
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    entifixEnvironmentModule.factory('EntifixEntityModal', entityModal);
-    entityModal.$inject = ['$mdDialog'];
-
-    function entityModal($mdDialog) {
-        var entityModal = function entityModal(_componentConstruction, _componentBehavior, _componentBindingOut, _queryDetails) {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.openModal = function (callback) {
-                if (_componentConstruction && _componentConstruction.event) var event = _componentConstruction.event;
-
-                if (_componentConstruction && _componentConstruction.clickOutsideToClose != null) var clickOutsideToClose = _componentConstruction.clickOutsideToClose;else var clickOutsideToClose = false;
-
-                if (_componentConstruction && _componentConstruction.escapeToClose != null) var escapeToClose = _componentConstruction.escapeToClose;else var escapeToClose = true;
-
-                if (_componentConstruction && _componentConstruction.fullscreen != null) var fullscreen = _componentConstruction.fullscreen;else var fullscreen = true;
-
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixEntityModal/entifixEntityModal.html',
-                    template: '<md-dialog aria-label="{{bindCtrl.title.get()}}" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }" class="{{bindCtrl.size.get()}}"> \
-                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></div> \
-                                                                <h2>&nbsp{{bindCtrl.title.get()}}</h2> \
-                                                            </div> \
-                                                            <div flex layout layout-align="end center" ng-if="bindCtrl.canViewHistory.get()"> \
-                                                                <md-button layout layout-align="end end" class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
-                                                                    <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
-                                                                    <md-icon class="material-icons">history</md-icon> \
-                                                                </md-button> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off"> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row" ng-if="bindCtrl.allowActions.get()"> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon>&nbsp;{{bindCtrl.cancelText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.removeHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon>&nbsp;{{bindCtrl.removeText.get()}} \
-                                                            </md-button> \
-                                                            <md-button type="submit" class="md-primary" ng-show="bindCtrl.canSave.get()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
-                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
-                                                                <md-icon class="material-icons">{{bindCtrl.saveIcon.get()}}</md-icon>&nbsp;{{bindCtrl.saveText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.editHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon>&nbsp;{{bindCtrl.editText.get()}} \
-                                                            </md-button> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
-                                                                <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon>&nbsp;{{bindCtrl.okText.get()}} \
-                                                            </md-button> \
-                                                            <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
-                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
-                                                                <md-icon class="material-icons">{{bindCtrl.processIcon.get()}}</md-icon>&nbsp;{{bindCtrl.processText.get()}} \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </form> \
-                                                </md-dialog>',
-                    controller: 'EntifixEntityModalController',
-                    parent: angular.element(document.body),
-                    targetEvent: event,
-                    clickOutsideToClose: clickOutsideToClose,
-                    escapeToClose: escapeToClose,
-                    fullscreen: fullscreen,
-                    controllerAs: 'bindCtrl',
-                    multiple: true,
-                    locals: {
-                        componentConstruction: function componentConstruction() {
-                            return _componentConstruction;
-                        },
-                        componentBehavior: function componentBehavior() {
-                            return _componentBehavior;
-                        },
-                        componentBindingOut: function componentBindingOut() {
-                            return _componentBindingOut;
-                        },
-                        queryDetails: function queryDetails() {
-                            return _queryDetails;
-                        }
-                    }
-                }).then(function (results) {
-                    if (callback) callback(results);
-                }, function () {});
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return entityModal;
-    };
-})();
-'use strict';
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').controller('EntifixSystemOwnerController', controller);
-
-    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog', 'EntifixNotification', '$state'];
-
-    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog, EntifixNotification, $state) {
-        var vm = this;
-
-        // Properties & fields
-        // ==============================================================================================================================================================
-
-        // ==============================================================================================================================================================
-
-
-        // Methods
-        // ==============================================================================================================================================================
-        function activate() {
-            setDefaults();
-            createComponents();
-        };
-
-        function createComponents() {
-            vm.systemOwnerQueryDetails = {
-                resource: vm.resource
-            };
-
-            vm.systemOwnerComponentConstruction = {
-                title: { text: EntifixConfig.systemOwnerDisplayName.get() },
-                displayPropertyName: 'systemOwner'
-            };
-        }
-
-        function setDefaults() {
-            vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
-        }
-
-        vm.cancel = function () {
-            $mdDialog.cancel();
-        };
-
-        vm.ok = function () {
-            if (vm.systemOwner) {
-                new EntifixResource(EntifixConfig.systemOwnerEntitySwapName.get()).saveEntity(_defineProperty({}, EntifixConfig.idSystemOwnerPropertyName.get(), vm.systemOwner), function (response, saveSuccess) {
-                    if (saveSuccess) {
-                        EntifixSession.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()]);
-                        EntifixNotification.success({ "body": "La actualización de " + EntifixConfig.systemOwnerDisplayName.get() + " ha sido exitosa.", "isToast": true });
-                        $state.reload();
-                        $mdDialog.hide(vm.systemOwner);
-                    } else {
-                        EntifixNotification.error({ "body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo.", "isToast": true });
-                    }
-                }, function (error) {
-                    EntifixNotification.error({ "body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo. " + error.data.message, "isToast": true });
-                });
-            } else {
-                EntifixNotification.error({ "body": "Por favor, seleccione un " + EntifixConfig.systemOwnerDisplayName.get() + ".", "isToast": true });
-            }
-        };
-
-        activate();
-        // ==============================================================================================================================================================
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    angular.module('entifix-js').factory('EntifixSystemOwner', systemOwnerFactory);
-
-    systemOwnerFactory.$inject = ['$mdDialog'];
-
-    function systemOwnerFactory($mdDialog) {
-        var systemOwnerController = function systemOwnerController() {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.chooseSystemOwner = function (callback) {
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
-                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-md"> \
-                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
-                                                                <h2>&nbsp Elija una Clínica Médica</h2> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <div> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div flex> \
-                                                                    <entifix-select \
-                                                                        value-model="vm.systemOwner" \
-                                                                        show-editable-fields="true" \
-                                                                        query-details="vm.systemOwnerQueryDetails" \
-                                                                        component-construction="vm.systemOwnerComponentConstruction" \
-                                                                        component-binding-out="vm.systemOwnerInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row"> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.cancel()"> \
-                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
-                                                            </md-button> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.ok()"> \
-                                                                <md-icon class="material-icons">done</md-icon> Ok \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </div> \
-                                                </md-dialog>',
-                    controller: 'EntifixSystemOwnerController',
-                    parent: angular.element(document.body),
-                    clickOutsideToClose: false,
-                    escapeToClose: false,
-                    fullscreen: true,
-                    controllerAs: 'vm'
-                }).then(function (results) {
-                    if (callback) callback(results);
-                }, function () {});
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return systemOwnerController;
-    };
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     function componentcontroller($timeout, EntifixStringUtils) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
@@ -4018,10 +3006,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.requiredMatch = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatch) return vm.componentConstruction.requiredMatch;
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null) return vm.componentConstruction.requiredMatch;
 
                 //Default value
-                return false;
+                return true;
             }
         };
 
@@ -4318,7 +3306,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         vm.getValue = function () {
             if (vm.valueModel) return vm.valueModel;
 
-            return null;
+            return undefined;
         };
 
         function constructFilters(searchText) {
@@ -4416,13 +3404,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return items;
             } else if (searchText) {
                 return new Promise(function (resolve, reject) {
-                    setValueModel(null);
+                    setValueModel(undefined);
                     cleanPlannedUpdate();
                     createPlannedUpdate(resolve, reject, searchText);
                 });
             }
             return new Promise(function (resolve, reject) {
-                setValueModel(null);
+                setValueModel(undefined);
                 cleanPlannedUpdate();
                 createPlannedInsert(resolve, reject, searchText);
             });
@@ -4433,9 +3421,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return vm.selectedItem == vm.mappingMethod.get()(D_entity);
             })[0];
             if (!vm.canCreateNewEntity.get()) {
-                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(null);
+                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(undefined);
             } else {
-                if (vm.onChange) vm.onChange({ oldValue: null, newValue: vm.selectedItem, entity: entity });
+                if (vm.onChange) vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
 
                 if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
             }
@@ -4481,7 +3469,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     ng-required="vm.isRequired.get()" \
                                     md-require-match="vm.requiredMatch.get()" \
                                     placeholder="{{vm.placeholder.get()}}" \
-                                    ng-disabled="vm.disabled.get()"> \
+                                    ng-disabled="vm.disabled.get()" \
+                                    md-clear-button="true"> \
                                     <md-item-template> \
                                         <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                     </md-item-template> \
@@ -4519,7 +3508,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 ng-required="vm.isRequired.get()" \
                                 md-require-match="vm.requiredMatch.get()" \
                                 placeholder="{{vm.placeholder.get()}}" \
-                                ng-disabled="vm.disabled.get()"> \
+                                ng-disabled="vm.disabled.get()" \
+                                md-clear-button="true"> \
                                 <md-item-template> \
                                     <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                 </md-item-template> \
@@ -7133,266 +6123,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller(EntifixStringUtils) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Editable Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixradiobutton' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.isMultipleDisplay = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            loadCollection();
-            checkoutputs();
-        };
-
-        function loadCollection() {
-            if (!vm.isMultipleDisplay.get()) {
-                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
-                    vm.items = enumResult;
-                });
-            } else {
-                prepareMultiDisplayParameters();
-                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
-            }
-        };
-
-        function prepareMultiDisplayParameters() {
-            var actionSuccess = function actionSuccess(enumResult) {
-                vm.items = enumResult;
-            };
-            vm.parameters = {
-                displayProperties: vm.componentConstruction.displayProperties,
-                actionSuccess: actionSuccess,
-                actionError: vm.queryDetails.actionError,
-                filters: vm.queryDetails.filters
-            };
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        return vm.getValue();
-                    }
-                }
-            };
-
-            if (vm.init) vm.init();
-        };
-
-        vm.getDisplayValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item.Display;
-            }
-
-            return null;
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item;
-            }
-
-            return null;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            var entity = vm.items.filter(function (e) {
-                return e.Value == vm.valueModel;
-            })[0];
-            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
-        };
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = ['EntifixStringUtils'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <div ng-if="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
-                            <md-radio-group \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                name="{{vm.name.get()}}"> \
-                                <md-radio-button \
-                                    ng-repeat="item in vm.items" \
-                                    ng-value="item.Value" \
-                                    aria-label="item.Display"> \
-                                    {{item.Display}} \
-                                </md-radio-button> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-radio-group> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplayValue()}}</strong> \
-                        </div> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixRadioButton', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     function componentcontroller($filter, EntifixStringUtils) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
@@ -8240,6 +6970,266 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixSelect', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller(EntifixStringUtils) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Editable Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixradiobutton' + randomNumber;
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.isMultipleDisplay = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            loadCollection();
+            checkoutputs();
+        };
+
+        function loadCollection() {
+            if (!vm.isMultipleDisplay.get()) {
+                vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
+                    vm.items = enumResult;
+                });
+            } else {
+                prepareMultiDisplayParameters();
+                vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
+            }
+        };
+
+        function prepareMultiDisplayParameters() {
+            var actionSuccess = function actionSuccess(enumResult) {
+                vm.items = enumResult;
+            };
+            vm.parameters = {
+                displayProperties: vm.componentConstruction.displayProperties,
+                actionSuccess: actionSuccess,
+                actionError: vm.queryDetails.actionError,
+                filters: vm.queryDetails.filters
+            };
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        return vm.getValue();
+                    }
+                }
+            };
+
+            if (vm.init) vm.init();
+        };
+
+        vm.getDisplayValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item.Display;
+            }
+
+            return null;
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item;
+            }
+
+            return null;
+        };
+
+        vm.runOnChangeTrigger = function () {
+            var entity = vm.items.filter(function (e) {
+                return e.Value == vm.valueModel;
+            })[0];
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
+        };
+
+        //=======================================================================================================================================================================
+    };
+
+    componentcontroller.$inject = ['EntifixStringUtils'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixRadioButton/entifixRadioButton.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <div ng-if="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label> \
+                            <md-radio-group \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                name="{{vm.name.get()}}"> \
+                                <md-radio-button \
+                                    ng-repeat="item in vm.items" \
+                                    ng-value="item.Value" \
+                                    aria-label="item.Display"> \
+                                    {{item.Display}} \
+                                </md-radio-button> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-radio-group> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label><br/> \
+                            <strong>{{vm.getDisplayValue()}}</strong> \
+                        </div> \
+                    </div> \
+                </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixRadioButton', component);
 })();
 'use strict';
 
@@ -9616,4 +8606,1016 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    var entifixEnvironmentModule = angular.module('entifix-js');
+
+    // CONTROLLER ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    entifixEnvironmentModule.controller('EntifixEntityModalController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotifier', '$timeout', 'BaseComponentFunctions', 'EntifixNotification', 'EntifixSession', '$rootScope', 'componentConstruction', 'componentBehavior', 'componentBindingOut', 'queryDetails'];
+
+    function controller($mdDialog, EntifixNotifier, $timeout, BaseComponentFunctions, EntifixNotification, EntifixSession, $rootScope, componentConstruction, componentBehavior, componentBindingOut, queryDetails) {
+        var vm = this;
+
+        vm.componentConstruction = componentConstruction();
+        vm.componentBehavior = componentBehavior();
+        vm.componentBindingOut = componentBindingOut();
+        vm.queryDetails = queryDetails();
+
+        // Properties & Fields ===================================================================================================================================================
+
+        //Fields
+        var _isloading = false;
+        var _notifier = null;
+
+        var _statesForm = {
+            edit: true,
+            view: false
+        };
+
+        vm.connectionComponent = {};
+        vm.connectionComponent.state = _statesForm.edit;
+
+        // Main
+
+        vm.entity = {
+            get: function get() {
+                if (vm.connectionComponent) return vm.connectionComponent.entity;
+                return null;
+            },
+            set: function set(value) {
+                if (vm.connectionComponent) {
+                    var oldValue = vm.connectionComponent.entity;
+                    vm.connectionComponent.entity = value;
+
+                    if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onChangeEntity) vm.componentBehavior.events.onChangeEntity(oldValue, value);
+                }
+            }
+        };
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isLoading.get();
+                return false;
+            }
+        };
+
+        vm.isSaving = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isSaving.get();
+                return false;
+            }
+        };
+
+        vm.isDeleting = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.isDeleting.get();
+                return false;
+            }
+        };
+
+        vm.onTask = {
+            get: function get() {
+                var response = vm.isLoading.get() || vm.isSaving.get() || vm.isDeleting.get();
+
+                return response;
+            }
+        };
+
+        vm.size = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.size) return vm.componentConstruction.size;
+
+                //Default value
+                return 'md-md';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.entityName) {
+                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.componentConstruction.title.entityName;else return 'Agregar ' + vm.componentConstruction.title.entityName;
+                    }
+
+                    if (vm.componentConstruction.title.entityProperty && vm.entity.get()) {
+                        if (!vm.connectionComponent.showEditableFields.get()) return 'Editar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];else return 'Agregar ' + vm.entity.get()[vm.componentConstruction.title.entityProperty];
+                    }
+
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                if (!vm.connectionComponent.showEditableFields.get()) return 'Editar Registro';
+                return 'Agregar Registro';
+            }
+        };
+
+        vm.icon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.icon) {
+                    if (vm.componentConstruction.icon.text) return vm.componentConstruction.icon.text;
+                }
+
+                //Default value
+                return 'menu';
+            }
+        };
+
+        // cancel button
+        vm.canCancel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.connectionComponent.state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.cancelIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.icon) return vm.componentConstruction.cancel.icon;
+
+                //Default value
+                return 'clear';
+            }
+        };
+
+        vm.cancelText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.text) {
+                    if (vm.componentConstruction.cancel.text.getter) return vm.componentConstruction.cancel.text.getter();else if (vm.componentConstruction.cancel.text) return vm.componentConstruction.cancel.text;
+                };
+
+                //Default value
+                return 'Cancelar';
+            }
+        };
+
+        vm.cancelHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.cancel && vm.componentConstruction.cancel.href) {
+                    if (vm.componentConstruction.cancel.href instanceof Object && vm.componentConstruction.cancel.href.getter) return vm.componentConstruction.cancel.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.cancel.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // ok button
+        vm.canOk = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.connectionComponent.state == _statesForm.view) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.okIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.icon) return vm.componentConstruction.ok.icon;
+
+                //Default value
+                return 'done';
+            }
+        };
+
+        vm.okText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.ok && vm.componentConstruction.ok.text) return '' + vm.componentConstruction.ok.text;
+
+                //Default value
+                return 'Aceptar';
+            }
+        };
+
+        // edit button
+        vm.canEdit = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.view) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.editIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.icon) return vm.componentConstruction.edit.icon;
+
+                //Default value
+                return 'create';
+            }
+        };
+
+        vm.editText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit) {
+                    if (vm.componentConstruction.edit.text instanceof Object && vm.componentConstruction.edit.text.getter) return vm.componentConstruction.edit.text.getter();else if (vm.componentConstruction.edit.text) return vm.componentConstruction.edit.text;
+                };
+
+                //Default value
+                return 'Editar';
+            }
+        };
+
+        vm.editHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.edit && vm.componentConstruction.edit.href) {
+                    if (vm.componentConstruction.edit.href instanceof Object && vm.componentConstruction.edit.href.getter) return vm.componentConstruction.edit.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.edit.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // save button
+        vm.canSave = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.connectionComponent.state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.saveIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.icon) return '' + vm.componentConstruction.save.icon;
+
+                //Default value
+                return 'save';
+            }
+        };
+
+        vm.saveText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save) {
+                    if (vm.componentConstruction.save.text instanceof Object && vm.componentConstruction.save.text.getter) return vm.componentConstruction.save.text.getter();else if (vm.componentConstruction.save.text) return vm.componentConstruction.save.text;
+                };
+
+                //Default value
+                return 'Guardar';
+            }
+        };
+
+        vm.saveHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.save && vm.componentConstruction.save.href) {
+                    if (vm.componentConstruction.save.href instanceof Object && vm.componentConstruction.save.href.getter) return vm.componentConstruction.save.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.save.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        // remove button
+        vm.canRemove = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && vm.connectionComponent.state == _statesForm.edit) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.removeIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.icon) return vm.componentConstruction.remove.icon;
+
+                //Default value
+                return 'delete';
+            }
+        };
+
+        vm.removeText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove) {
+                    if (vm.componentConstruction.remove.text instanceof Object && vm.componentConstruction.remove.text.getter) return vm.componentConstruction.remove.text.getter();else if (vm.componentConstruction.remove.text) return vm.componentConstruction.remove.text;
+                };
+
+                //Default value
+                return 'Eliminar';
+            }
+        };
+
+        vm.removeHref = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.remove && vm.componentConstruction.remove.href) {
+                    if (vm.componentConstruction.remove.href instanceof Object && vm.componentConstruction.remove.href.getter) return vm.componentConstruction.remove.href.getter(vm.entity.get(), vm.queryDetails.resource);
+                    return vm.componentConstruction.remove.href;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        //process button
+        vm.canProcess = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.connectionComponent.state == _statesForm.view && vm.queryDetails && vm.queryDetails.resource && vm.entity.get() && !vm.queryDetails.resource.isNewEntity(vm.entity.get()) && !vm.queryDetails.resource.isProcessedEntity(vm.entity.get())) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.processIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.icon) return vm.componentConstruction.process.icon;
+
+                //Default value
+                return 'done_all';
+            }
+        };
+
+        vm.processText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.process && vm.componentConstruction.process.text) return '' + vm.componentConstruction.process.text;
+
+                //Default value
+                return 'Procesar';
+            }
+        };
+
+        vm.allowActions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.allowActions != null) return vm.componentConstruction.allowActions;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.saveTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.saveTooltip) return vm.componentConstruction.saveTooltip;
+
+                //Default value
+                return 'Todos los campos obligatorios deben estar correctos';
+            }
+        };
+
+        vm.historyTooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.historyTooltip) return vm.componentConstruction.historyTooltip;
+
+                //Default value
+                return 'Mostrar Bitácora';
+            }
+        };
+
+        var _canViewHistory = true;
+        vm.canViewHistory = {
+            get: function get() {
+                if (_canViewHistory) return true;
+                return false;
+            },
+
+            set: function set(value) {
+                _canViewHistory = value;
+            }
+        };
+
+        vm.history = {
+            get: function get() {
+                return $rootScope.showHistory;
+            },
+            set: function set() {
+                $rootScope.showHistory = !$rootScope.showHistory;
+            }
+        };
+
+        vm.hasPermissions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.permissions != null) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasAllPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.all != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.all)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasSavePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasEditPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasRemovePermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasProcessPermission = {
+            get: function get() {
+                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
+
+                //Default value
+                return false;
+            }
+
+            // =======================================================================================================================================================================
+
+            // Methods ===============================================================================================================================================================
+
+        };function activate() {
+            setdefaults();
+            createconnectioncomponent();
+
+            if (vm.componentConstruction) createDynamicComponent();
+
+            checkoutputs();
+            checkPermissions();
+        };
+
+        function setdefaults() {
+            _notifier = new EntifixNotifier(vm.queryDetails.resource);
+        };
+
+        function createconnectioncomponent() {
+            // Connection Component Properties __________________________________________________________________________________________
+            // ==========================================================================================================================
+
+            vm.connectionComponent.IsCreating = true;
+
+            if (vm.componentBindingOut.object) {
+                vm.connectionComponent.state = _statesForm.view;
+                vm.entity.set(vm.componentBindingOut.object);
+            } else vm.entity.set({});
+
+            vm.connectionComponent.entity = vm.entity.get();
+            if (vm.queryDetails.resource) {
+                vm.connectionComponent.resource = vm.queryDetails.resource;
+            }
+
+            vm.connectionComponent.showEditableFields = {
+                get: function get() {
+                    return vm.connectionComponent.state == _statesForm.edit;
+                },
+                set: function set(value) {
+                    if (value == true) vm.connectionComponent.state = _statesForm.edit;
+                    if (value == false) vm.connectionComponent.state = _statesForm.view;
+                }
+            };
+
+            vm.connectionComponent.state = vm.connectionComponent.showEditableFields.get();
+            vm.connectionComponent.isSaving = vm.isSaving;
+            vm.connectionComponent.history = vm.history;
+            vm.connectionComponent.canViewHistory = vm.canViewHistory;
+
+            vm.connectionComponent.canCancel = { get: function get() {
+                    return vm.canCancel.get();
+                } };
+            vm.connectionComponent.canRemove = { get: function get() {
+                    return vm.canRemove.get();
+                } };
+            vm.connectionComponent.canSave = { get: function get() {
+                    return vm.canSave.get();
+                } };
+            vm.connectionComponent.canEdit = { get: function get() {
+                    return vm.canEdit.get();
+                } };
+            vm.connectionComponent.canOk = { get: function get() {
+                    return vm.canOk.get();
+                } };
+            vm.connectionComponent.canProcess = { get: function get() {
+                    return vm.canProcess.get();
+                } };
+
+            vm.connectionComponent.cancelText = { get: function get() {
+                    return vm.cancelText.get();
+                } };
+            vm.connectionComponent.removeText = { get: function get() {
+                    return vm.removeText.get();
+                } };
+            vm.connectionComponent.saveText = { get: function get() {
+                    return vm.saveText.get();
+                } };
+            vm.connectionComponent.editText = { get: function get() {
+                    return vm.editText.get();
+                } };
+            vm.connectionComponent.okText = { get: function get() {
+                    return vm.okText.get();
+                } };
+            vm.connectionComponent.processText = { get: function get() {
+                    return vm.processText.get();
+                } };
+
+            vm.connectionComponent.cancelIcon = { get: function get() {
+                    return vm.cancelIcon.get();
+                } };
+            vm.connectionComponent.removeIcon = { get: function get() {
+                    return vm.removeIcon.get();
+                } };
+            vm.connectionComponent.saveIcon = { get: function get() {
+                    return vm.saveIcon.get();
+                } };
+            vm.connectionComponent.editIcon = { get: function get() {
+                    return vm.editIcon.get();
+                } };
+            vm.connectionComponent.okIcon = { get: function get() {
+                    return vm.okIcon.get();
+                } };
+            vm.connectionComponent.processIcon = { get: function get() {
+                    return vm.processIcon.get();
+                } };
+
+            vm.connectionComponent.cancel = { invoke: function invoke() {
+                    vm.cancel();
+                } };
+            vm.connectionComponent.remove = { invoke: function invoke() {
+                    vm.remove();
+                } };
+            vm.connectionComponent.edit = { invoke: function invoke() {
+                    vm.edit();
+                } };
+            vm.connectionComponent.ok = { invoke: function invoke() {
+                    vm.ok();
+                } };
+            vm.connectionComponent.save = { invoke: function invoke() {
+                    vm.save();
+                } };
+            vm.connectionComponent.process = { invoke: function invoke() {
+                    vm.process();
+                } };
+
+            vm.connectionComponent.onTask = { get: function get() {
+                    return vm.onTask.get();
+                } };
+            vm.connectionComponent.saveTooltip = { get: function get() {
+                    return vm.saveTooltip.get();
+                } };
+            vm.connectionComponent.entityForm = { valid: function valid() {
+                    return vm.entityForm.$valid;
+                } };
+
+            vm.connectionComponent.evaluateErrors = {
+                get: function get(name) {
+                    return evaluateErrors(name);
+                }
+            };
+
+            function evaluateErrors(property) {
+                var errors = {};
+                for (var error in vm.entityForm.$error) {
+                    var propertyValue = vm.entityForm.$error[error];
+
+                    if (propertyValue instanceof Array) propertyValue.forEach(function (element) {
+                        if (element.$name == property) errors[error] = true;
+                    });
+                }
+
+                return errors;
+            }
+
+            // ==========================================================================================================================
+
+
+            // Connection Component Methods _____________________________________________________________________________________________
+            // ==========================================================================================================================
+
+            var searchForm = function searchForm() {
+                if (vm.entityForm) vm.connectionComponent.entityForm = vm.entityForm;else $timeout(searchForm, 200);
+            };
+
+            searchForm();
+        };
+
+        function createDynamicComponent() {
+            var res = BaseComponentFunctions.CreateStringHtmlComponentAndBindings(vm.componentConstruction, 'bindCtrl.connectionComponent.objectBindings');
+            vm.stringhtmlcomponent = res.stringhtml;
+            vm.connectionComponent.objectBindings = res.objectbindings;
+        };
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                showEditableFields: vm.connectionComponent.showEditableFields,
+                entity: vm.entity,
+                recreateDynamicComponent: createDynamicComponent
+            };
+
+            if (vm.componentBehavior && vm.componentBehavior.afterConstruction) vm.componentBehavior.afterConstruction();
+        };
+
+        vm.cancel = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCancel) vm.componentBehavior.events.onCancel();
+
+            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction();else defaultCancel();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCanceled) vm.componentBehavior.events.onCanceled();
+        };
+
+        vm.ok = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onOk) vm.componentBehavior.events.onOk();
+
+            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk);else defaultOk();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAfterOk) vm.componentBehavior.events.onAfterOk();
+        };
+
+        vm.edit = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdit) vm.componentBehavior.events.onEdit();
+
+            if (vm.componentConstruction.edit.customAction) vm.componentConstruction.edit.customAction(vm.entity.get(), defaultOk);else defaultEdit();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onEdited) vm.componentBehavior.events.onEdited();
+        };
+
+        vm.save = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSave) vm.componentBehavior.events.onSave(vm.entity.get());
+
+            if (vm.componentConstruction.save.customAction) vm.componentConstruction.save.customAction(vm.entity.get(), defaultOk, setViewState);else defaultSave();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSaved) vm.componentBehavior.events.onSaved();
+        };
+
+        vm.remove = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemove) vm.componentBehavior.events.onRemove();
+
+            if (vm.componentConstruction.remove.customAction) vm.componentConstruction.remove.customAction(vm.entity.get(), defaultOk);else defaultRemove();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onRemoved) vm.componentBehavior.events.onRemoved();
+        };
+
+        vm.process = function () {
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcess) vm.componentBehavior.events.onProcess();
+
+            if (vm.componentConstruction.process.customAction) vm.componentConstruction.process.customAction(vm.entity.get(), defaultOk, setViewState);else defaultProcess();
+
+            if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcessed) vm.componentBehavior.events.onProcessed();
+        };
+
+        function defaultCancel() {
+            if (vm.queryDetails.resource.isNewEntity(vm.connectionComponent.entity)) $mdDialog.cancel();else {
+                vm.connectionComponent.state = _statesForm.view;
+                reloadEntity();
+            }
+        };
+
+        function defaultOk() {
+            $mdDialog.hide();
+        };
+
+        function defaultEdit() {
+            vm.connectionComponent.state = _statesForm.edit;
+        };
+
+        function defaultSave() {
+            vm.queryDetails.resource.saveEntity(vm.connectionComponent.entity, function (response, saveSuccess) {
+                if (saveSuccess) {
+                    if (response && response.data.data) vm.entity.set(response.data.data);
+                    defaultOk();
+                }
+            });
+        };
+
+        function defaultProcess() {
+            vm.connectionComponent.entity[vm.queryDetails.resource.getOpProperty.get()] = 'PROCESAR';
+            defaultSave();
+        };
+
+        function defaultRemove() {
+            EntifixNotification.confirm({
+                "body": "Está seguro de eliminar el registro",
+                "header": "Confirmación requerida",
+                "actionConfirm": function actionConfirm() {
+                    vm.queryDetails.resource.deleteEntity(vm.connectionComponent.entity, function () {
+                        defaultOk();
+                    });
+                },
+                "actionCancel": function actionCancel() {} });
+        };
+
+        vm.submit = function () {
+            vm.save();
+        };
+
+        function reloadEntity() {
+            if (vm.entity.get()) vm.queryDetails.resource.loadAsResource(vm.entity.get(), function (entityReloaded) {
+                vm.entity.set(entityReloaded);
+            });
+        };
+
+        function checkPermissions() {
+            if (vm.hasPermissions.get()) {
+                if (!vm.hasAllPermission.get()) {
+                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
+                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
+                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
+                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
+                }
+            }
+        }
+
+        // =======================================================================================================================================================================
+
+        function setViewState(view, entity) {
+            if (view) vm.connectionComponent.state = _statesForm.view;else vm.connectionComponent.state = _statesForm.edit;
+
+            vm.entity.set(entity);
+        }
+
+        activate();
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    entifixEnvironmentModule.factory('EntifixEntityModal', entityModal);
+    entityModal.$inject = ['$mdDialog'];
+
+    function entityModal($mdDialog) {
+        var entityModal = function entityModal(_componentConstruction, _componentBehavior, _componentBindingOut, _queryDetails) {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.openModal = function (callback) {
+                if (_componentConstruction && _componentConstruction.event) var event = _componentConstruction.event;
+
+                if (_componentConstruction && _componentConstruction.clickOutsideToClose != null) var clickOutsideToClose = _componentConstruction.clickOutsideToClose;else var clickOutsideToClose = false;
+
+                if (_componentConstruction && _componentConstruction.escapeToClose != null) var escapeToClose = _componentConstruction.escapeToClose;else var escapeToClose = true;
+
+                if (_componentConstruction && _componentConstruction.fullscreen != null) var fullscreen = _componentConstruction.fullscreen;else var fullscreen = true;
+
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixEntityModal/entifixEntityModal.html',
+                    template: '<md-dialog aria-label="{{bindCtrl.title.get()}}" ng-class="{\'whirl double-up whirlback\': bindCtrl.onTask.get() }" class="{{bindCtrl.size.get()}}"> \
+                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">{{bindCtrl.icon.get()}}</md-icon></div> \
+                                                                <h2>&nbsp{{bindCtrl.title.get()}}</h2> \
+                                                            </div> \
+                                                            <div flex layout layout-align="end center" ng-if="bindCtrl.canViewHistory.get()"> \
+                                                                <md-button layout layout-align="end end" class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.history.set()"> \
+                                                                    <md-tooltip>{{bindCtrl.historyTooltip.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">history</md-icon> \
+                                                                </md-button> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <form name="bindCtrl.entityForm" novalidate ng-submit="bindCtrl.entityForm.$valid && bindCtrl.submit()" autocomplete="off"> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row" ng-if="bindCtrl.allowActions.get()"> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon>&nbsp;{{bindCtrl.cancelText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.removeHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.removeIcon.get()}}</md-icon>&nbsp;{{bindCtrl.removeText.get()}} \
+                                                            </md-button> \
+                                                            <md-button type="submit" class="md-primary" ng-show="bindCtrl.canSave.get()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
+                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                                                <md-icon class="material-icons">{{bindCtrl.saveIcon.get()}}</md-icon>&nbsp;{{bindCtrl.saveText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.editHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon>&nbsp;{{bindCtrl.editText.get()}} \
+                                                            </md-button> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
+                                                                <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon>&nbsp;{{bindCtrl.okText.get()}} \
+                                                            </md-button> \
+                                                            <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
+                                                                <md-tooltip ng-if="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid">{{bindCtrl.saveTooltip.get()}}</md-tooltip> \
+                                                                <md-icon class="material-icons">{{bindCtrl.processIcon.get()}}</md-icon>&nbsp;{{bindCtrl.processText.get()}} \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </form> \
+                                                </md-dialog>',
+                    controller: 'EntifixEntityModalController',
+                    parent: angular.element(document.body),
+                    targetEvent: event,
+                    clickOutsideToClose: clickOutsideToClose,
+                    escapeToClose: escapeToClose,
+                    fullscreen: fullscreen,
+                    controllerAs: 'bindCtrl',
+                    multiple: true,
+                    locals: {
+                        componentConstruction: function componentConstruction() {
+                            return _componentConstruction;
+                        },
+                        componentBehavior: function componentBehavior() {
+                            return _componentBehavior;
+                        },
+                        componentBindingOut: function componentBindingOut() {
+                            return _componentBindingOut;
+                        },
+                        queryDetails: function queryDetails() {
+                            return _queryDetails;
+                        }
+                    }
+                }).then(function (results) {
+                    if (callback) callback(results);
+                }, function () {});
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return entityModal;
+    };
+})();
+'use strict';
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixSystemOwnerController', controller);
+
+    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog', 'EntifixNotification', '$state'];
+
+    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog, EntifixNotification, $state) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.systemOwnerQueryDetails = {
+                resource: vm.resource
+            };
+
+            vm.systemOwnerComponentConstruction = {
+                title: { text: EntifixConfig.systemOwnerDisplayName.get() },
+                displayPropertyName: 'systemOwner'
+            };
+        }
+
+        function setDefaults() {
+            vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel();
+        };
+
+        vm.ok = function () {
+            if (vm.systemOwner) {
+                new EntifixResource(EntifixConfig.systemOwnerEntitySwapName.get()).saveEntity(_defineProperty({}, EntifixConfig.idSystemOwnerPropertyName.get(), vm.systemOwner), function (response, saveSuccess) {
+                    if (saveSuccess) {
+                        EntifixSession.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()]);
+                        EntifixNotification.success({ "body": "La actualización de " + EntifixConfig.systemOwnerDisplayName.get() + " ha sido exitosa.", "isToast": true });
+                        $state.reload();
+                        $mdDialog.hide(vm.systemOwner);
+                    } else {
+                        EntifixNotification.error({ "body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo.", "isToast": true });
+                    }
+                }, function (error) {
+                    EntifixNotification.error({ "body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo. " + error.data.message, "isToast": true });
+                });
+            } else {
+                EntifixNotification.error({ "body": "Por favor, seleccione un " + EntifixConfig.systemOwnerDisplayName.get() + ".", "isToast": true });
+            }
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixSystemOwner', systemOwnerFactory);
+
+    systemOwnerFactory.$inject = ['$mdDialog'];
+
+    function systemOwnerFactory($mdDialog) {
+        var systemOwnerController = function systemOwnerController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseSystemOwner = function (callback) {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
+                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-md"> \
+                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
+                                                                <h2>&nbsp Elija una Clínica Médica</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select \
+                                                                        value-model="vm.systemOwner" \
+                                                                        show-editable-fields="true" \
+                                                                        query-details="vm.systemOwnerQueryDetails" \
+                                                                        component-construction="vm.systemOwnerComponentConstruction" \
+                                                                        component-binding-out="vm.systemOwnerInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixSystemOwnerController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (results) {
+                    if (callback) callback(results);
+                }, function () {});
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return systemOwnerController;
+    };
 })();

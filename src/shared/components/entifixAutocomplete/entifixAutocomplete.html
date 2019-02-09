@@ -17,7 +17,8 @@
                 ng-required="vm.isRequired.get()"
                 md-require-match="vm.requiredMatch.get()"
                 placeholder="{{vm.placeholder.get()}}"
-                ng-disabled="vm.disabled.get()">
+                ng-disabled="vm.disabled.get()"
+                md-clear-button="true">
                 <md-item-template>
                     <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span>
                 </md-item-template>
@@ -55,7 +56,8 @@
             ng-required="vm.isRequired.get()"
             md-require-match="vm.requiredMatch.get()"
             placeholder="{{vm.placeholder.get()}}"
-            ng-disabled="vm.disabled.get()">
+            ng-disabled="vm.disabled.get()"
+            md-clear-button="true">
             <md-item-template>
                 <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span>
             </md-item-template>

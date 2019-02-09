@@ -81,11 +81,11 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatch)
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null)
                     return vm.componentConstruction.requiredMatch;
 
                 //Default value
-                return false;
+                return true;
             }
         };
         
@@ -479,7 +479,7 @@
             if (vm.valueModel)
                 return vm.valueModel;
 
-            return null;
+            return undefined;
         };
 
         function constructFilters(searchText)
@@ -506,7 +506,7 @@
                 vm.valueModel = value;
                 if (vm.onChange)
                     vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity }); 
-            }  
+            }
         }
 
         vm.updateData = function(data)
@@ -625,14 +625,14 @@
             {
                 return new Promise((resolve, reject)=>
                 {
-                    setValueModel(null);
+                    setValueModel(undefined);
                     cleanPlannedUpdate();
                     createPlannedUpdate(resolve, reject, searchText);
                 }); 
             }
             return new Promise((resolve, reject) =>
             {
-                setValueModel(null);
+                setValueModel(undefined);
                 cleanPlannedUpdate();
                 createPlannedInsert(resolve, reject, searchText);
             });
@@ -646,12 +646,12 @@
                 if (vm.selectedItem)
                     setValueModel(vm.queryDetails.resource.getId(entity), entity);
                 else
-                    setValueModel(null);    
+                    setValueModel(undefined);    
             }
             else
             {
                 if (vm.onChange)
-                    vm.onChange({ oldValue: null, newValue: vm.selectedItem, entity: entity });
+                    vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
                 
                 if (entity && vm.selectedItem)
                     setValueModel(vm.queryDetails.resource.getId(entity), entity);
@@ -704,7 +704,8 @@
                                     ng-required="vm.isRequired.get()" \
                                     md-require-match="vm.requiredMatch.get()" \
                                     placeholder="{{vm.placeholder.get()}}" \
-                                    ng-disabled="vm.disabled.get()"> \
+                                    ng-disabled="vm.disabled.get()" \
+                                    md-clear-button="true"> \
                                     <md-item-template> \
                                         <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                     </md-item-template> \
@@ -742,7 +743,8 @@
                                 ng-required="vm.isRequired.get()" \
                                 md-require-match="vm.requiredMatch.get()" \
                                 placeholder="{{vm.placeholder.get()}}" \
-                                ng-disabled="vm.disabled.get()"> \
+                                ng-disabled="vm.disabled.get()" \
+                                md-clear-button="true"> \
                                 <md-item-template> \
                                     <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                 </md-item-template> \
