@@ -449,43 +449,48 @@
             
         };
 
+        function updateDateString() 
+        {            
+            if (!(vm.valueModel instanceof Date)) {
+                var dateValueModel = transformStringToDate(vm.valueModel);
+                vm.valueModel = dateValueModel;
+            }
+            else
+                var dateValueModel = vm.valueModel;
+
+            var date = dateValueModel;
+            var meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+            var diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+            var hours = "";
+            var minutes = "";
+
+            if (vm.hasTime.get())
+            {
+                hours = date.getHours().toString();
+                minutes = date.getMinutes().toString();
+                if (hours.length < 2)
+                    hours = '0' + hours;
+                if (minutes.length < 2)
+                    minutes = '0' + minutes;
+
+                hours = parseInt(hours);
+                
+                if (hours > 12)
+                    hours = (hours - 12).toString() + ':' + minutes + ' ' + 'pm';
+                else if (hours == 12)
+                    hours = hours.toString() + ':' + minutes + ' ' + 'pm';
+                    else
+                        hours = hours.toString() + ':' + minutes + ' ' + 'am';
+            }
+            vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+        }
+
         vm.getDateString = function(skip)
         {
             if (vm.valueModel)
             {
                 if (!vm.dateString) {
-                    if (!(vm.valueModel instanceof Date)) {
-                        var dateValueModel = transformStringToDate(vm.valueModel);
-                        vm.valueModel = dateValueModel;
-                    }
-                    else
-                        var dateValueModel = vm.valueModel;
-    
-                    var date = dateValueModel;
-                    var meses = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-                    var diasSemana = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
-                    var hours = "";
-                    var minutes = "";
-
-                    if (vm.hasTime.get())
-                    {
-                        hours = date.getHours().toString();
-                        minutes = date.getMinutes().toString();
-                        if (hours.length < 2)
-                            hours = '0' + hours;
-                        if (minutes.length < 2)
-                            minutes = '0' + minutes;
-
-                        hours = parseInt(hours);
-                        
-                        if (hours > 12)
-                            hours = (hours - 12).toString() + ':' + minutes + ' ' + 'pm';
-                        else if (hours == 12)
-                            hours = hours.toString() + ':' + minutes + ' ' + 'pm';
-                            else
-                                hours = hours.toString() + ':' + minutes + ' ' + 'am';
-                    }
-                    vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+                    updateDateString();
                     return vm.dateString;
                 } else {
                     return vm.dateString;
@@ -557,6 +562,7 @@
 
         vm.runOnChangeTrigger = function()
         {
+            updateDateString();
             if (vm.onChange)
                 vm.onChange( { value: vm.valueModel } );
         }

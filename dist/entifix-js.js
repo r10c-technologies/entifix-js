@@ -2950,6 +2950,596 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
+(function () {
+    'use strict';
+
+    function componentcontroller($timeout, EntifixStringUtils) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        var _defaultTitle;
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Editable Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.requiredMatch = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null) return vm.componentConstruction.requiredMatch;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.requiredMatchMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatchMessage) {
+                    if (vm.componentConstruction.requiredMatchMessage.getter) return vm.componentConstruction.requiredMatchMessage.getter();
+
+                    if (vm.componentConstruction.requiredMatchMessage.text) return vm.componentConstruction.requiredMatchMessage.text;
+                }
+
+                //Default value
+                return 'Seleccione un elemento de la lista';
+            }
+        };
+
+        vm.minLengthRequest = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthRequest) return vm.componentConstruction.minLengthRequest;
+
+                //Default value
+                return 0;
+            }
+        };
+
+        vm.minLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.minLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
+                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
+
+                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado corto';
+            }
+        };
+
+        vm.maxLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
+                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
+
+                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado largo';
+            }
+        };
+
+        vm.createNewEntityMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.createNewEntityMessage) {
+                    if (vm.componentConstruction.createNewEntityMessage.getter) return vm.componentConstruction.createNewEntityMessage.getter();
+
+                    if (vm.componentConstruction.createNewEntityMessage.text) return vm.componentConstruction.createNewEntityMessage.text;
+                }
+
+                //Default value
+                return 'Agregar ';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            },
+
+            set: function set(value) {
+                if (value) vm.componentConstruction.title = { text: value };
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixautocomplete' + randomNumber;
+            }
+        };
+
+        vm.mappingMethod = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.mapping) {
+                    if (vm.componentConstruction.mapping.method) return vm.componentConstruction.mapping.method;
+                    if (vm.componentConstruction.mapping.property) return function (element) {
+                        return element[vm.componentConstruction.mapping.property];
+                    };
+                }
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.placeholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.placeholder) {
+                    if (vm.componentConstruction.placeholder.getter) return vm.componentConstruction.placeholder.getter();
+
+                    if (vm.componentConstruction.placeholder.text) return vm.componentConstruction.placeholder.text;
+                }
+
+                //Default value
+                return "";
+            }
+        };
+
+        vm.disabled = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.disabled) return vm.componentConstruction.disabled;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.floating = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.floating != null) return vm.componentConstruction.floating;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.loadAllItems = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.loadAllItems) return vm.componentConstruction.loadAllItems;
+
+                //Default Value
+                return false;
+            }
+        };
+
+        vm.noCache = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.noCache != null) return vm.componentConstruction.noCache;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.notFoundText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.notFoundText) {
+                    if (vm.componentConstruction.notFoundText.getter) return vm.componentConstruction.notFoundText.getter();
+
+                    if (vm.componentConstruction.notFoundText.text) return vm.componentConstruction.notFoundText.text;
+                }
+
+                //Default value
+                return 'No hay coincidencias. ';
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.canCreateNewEntity = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.canCreateNewEntity) return vm.componentConstruction.canCreateNewEntity;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.maxItemsQuery = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxItemsQuery) return vm.componentConstruction.maxItemsQuery;
+
+                //Default value
+                return 10;
+            }
+        };
+
+        vm.keyProperty = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.keyProperty) return vm.componentConstruction.keyProperty;
+
+                //Default value
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.getKeyProperty.get();
+
+                return 'id';
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+        };
+
+        vm.getConstantFilters = function () {
+            var constantFilters = [];
+            if (vm.queryDetails && vm.queryDetails.constantFilters) {
+                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
+            }
+
+            return constantFilters;
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.loadAllItems.get()) loadCollection();
+            checkoutputs();
+            _defaultTitle = vm.title.get();
+        };
+
+        function loadCollection() {
+            vm.queryDetails.resource.getCollection(function (results) {
+                vm.items = results;
+            });
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        if (vm.entityList && vm.entityList.length > 0) return vm.entityList.filter(function (D_entity) {
+                            return vm.selectedItem == vm.mappingMethod.get()(D_entity);
+                        })[0];
+                    },
+                    set: function set(value) {
+                        if (value) getEntity(value);else {
+                            vm.showList = [];vm.selectedItem = undefined;vm.entityList = [];
+                        }
+                    }
+                }
+            };
+
+            if (vm.componentConstruction.init) vm.componentConstruction.init();
+
+            vm.loadingFirstRequest = false;
+        }
+
+        vm.getDisplayValue = function () {
+            if (vm.valueModel && vm.selectedItem) return vm.selectedItem;
+
+            if (vm.valueModel && !vm.selectedItem && !vm.loadingFirstRequest) getEntity(vm.valueModel);
+
+            return vm.nullValueLabel.get();
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel) return vm.valueModel;
+
+            return undefined;
+        };
+
+        function constructFilters(searchText) {
+            //Construct Filters
+            var allFilters = [];
+
+            if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0) allFilters = allFilters.concat(vm.componentConstruction.searchProperties.map(function (D_searchProperty) {
+                return { property: D_searchProperty, value: searchText, operator: 'lk' };
+            }));
+
+            if (vm.queryDetails && vm.queryDetails.filters) allFilters = allFilters.concat(vm.queryDetails.filters);
+
+            if (vm.getConstantFilters()) allFilters = allFilters.concat(vm.getConstantFilters());
+
+            return allFilters;
+        }
+
+        function setValueModel(value, entity) {
+            if (vm.valueModel != value) {
+                vm.valueModel = value;
+                if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity });
+            }
+        }
+
+        vm.updateData = function (data) {
+            var typedText = data.search;
+
+            vm.queryDetails.resource.getCollection(function (results) {
+                if (results.length > 0) {
+                    vm.entityList = results;
+                    vm.showList = results.map(vm.mappingMethod.get());
+                    vm.title.set(_defaultTitle);
+                } else {
+                    vm.showList = [];
+                    if (vm.canCreateNewEntity.get()) {
+                        vm.showList = [typedText];
+                        vm.title.set(_defaultTitle + ': ' + vm.createNewEntityMessage.get() + typedText);
+                    }
+                }
+                data.resolve(vm.showList);
+            }, function (error) {
+                if (data.reject) data.reject();
+            }, constructFilters(typedText));
+        };
+
+        function getInitialData(data) {
+            var maxItems = vm.maxItemsQuery.get();
+            vm.queryDetails.resource.getCollection(function (results) {
+                vm.entityList = results;
+                vm.showList = results.map(vm.mappingMethod.get());
+                data.resolve(vm.showList);
+                vm.title.set(_defaultTitle);
+            }, function (error) {
+                if (data.reject) data.reject();
+            }, vm.getConstantFilters().concat([{ property: 'skip', value: 0, type: 'fixed_filter' }, { property: 'take', value: maxItems, type: 'fixed_filter' }])
+            //,{ skip: 0, take: maxItems }
+            );
+        }
+
+        function getEntity(id) {
+            vm.loadingFirstRequest = true;
+            vm.queryDetails.resource.getCollection(function (results) {
+                if (results.length > 0) {
+                    vm.entityList = results;
+                    vm.showList = results.map(vm.mappingMethod.get());
+                    vm.selectedItem = vm.showList[0];
+                    vm.firstRequest = false;
+                }
+            }, function (error) {}, [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter' }]);
+        }
+
+        // Autosearch control
+        var planedUpdate;
+
+        function cleanPlannedUpdate() {
+            if (planedUpdate) {
+                $timeout.cancel(planedUpdate);
+                planedUpdate = null;
+            }
+        }
+
+        function createPlannedUpdate(resolve, reject, searchText) {
+            planedUpdate = $timeout(vm.updateData, 500, true, { search: searchText, resolve: resolve, reject: reject });
+        }
+
+        function createPlannedInsert(resolve, reject, searchText) {
+            planedUpdate = $timeout(getInitialData, 500, true, { search: searchText, resolve: resolve, reject: reject });
+        }
+
+        vm.searchItems = function (searchText) {
+            if (searchText && vm.loadAllItems.get()) {
+                var items = vm.items.filter(function (e) {
+                    return e[vm.componentConstruction.searchProperties[0]].indexOf(searchText) >= 0;
+                });
+                return items;
+            } else if (searchText) {
+                return new Promise(function (resolve, reject) {
+                    setValueModel(undefined);
+                    cleanPlannedUpdate();
+                    createPlannedUpdate(resolve, reject, searchText);
+                });
+            }
+            return new Promise(function (resolve, reject) {
+                setValueModel(undefined);
+                cleanPlannedUpdate();
+                createPlannedInsert(resolve, reject, searchText);
+            });
+        };
+
+        vm.changeSelectedItem = function () {
+            var entity = vm.entityList.filter(function (D_entity) {
+                return vm.selectedItem == vm.mappingMethod.get()(D_entity);
+            })[0];
+            if (!vm.canCreateNewEntity.get()) {
+                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(undefined);
+            } else {
+                if (vm.onChange) vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
+
+                if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
+            }
+        };
+
+        vm.onFocus = function ($event) {
+            if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click') $event.target.select();
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixAutocomplete/entifixAutocomplete.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
+                                <md-autocomplete \
+                                    md-floating-label={{vm.title.get()}} \
+                                    md-input-name={{vm.name.get()}} \
+                                    md-min-length="vm.minLengthRequest.get()" \
+                                    md-input-minlength="{{vm.minLength.get()}}" \
+                                    md-input-maxlength="{{vm.maxLength.get()}}" \
+                                    md-no-cache="vm.noCache.get()" \
+                                    md-selected-item="vm.selectedItem" \
+                                    md-search-text="vm.searchText" \
+                                    md-items="item in vm.searchItems(vm.searchText)" \
+                                    md-item-text="item" \
+                                    md-selected-item-change="vm.changeSelectedItem()" \
+                                    ng-required="vm.isRequired.get()" \
+                                    md-require-match="vm.requiredMatch.get()" \
+                                    placeholder="{{vm.placeholder.get()}}" \
+                                    ng-disabled="vm.disabled.get()" \
+                                    md-clear-button="true"> \
+                                    <md-item-template> \
+                                        <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                    </md-item-template> \
+                                    <md-not-found> \
+                                        <div> \
+                                            {{vm.notFoundText.get()}} \
+                                        </div> \
+                                    </md-not-found> \
+                                    <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                        <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
+                                        <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                        <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    </div> \
+                                </md-autocomplete> \
+                            </div> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()" ng-click="vm.onFocus($event)"> \
+                            <md-autocomplete \
+                                md-floating-label={{vm.title.get()}} \
+                                md-input-name={{vm.name.get()}} \
+                                md-min-length="vm.minLengthRequest.get()" \
+                                md-input-minlength="{{vm.minLength.get()}}" \
+                                md-input-maxlength="{{vm.maxLength.get()}}" \
+                                md-no-cache="vm.noCache.get()" \
+                                md-selected-item="vm.selectedItem" \
+                                md-search-text="vm.searchText" \
+                                md-items="item in vm.searchItems(vm.searchText)" \
+                                md-item-text="item" \
+                                md-selected-item-change="vm.changeSelectedItem()" \
+                                ng-required="vm.isRequired.get()" \
+                                md-require-match="vm.requiredMatch.get()" \
+                                placeholder="{{vm.placeholder.get()}}" \
+                                ng-disabled="vm.disabled.get()" \
+                                md-clear-button="true"> \
+                                <md-item-template> \
+                                    <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                </md-item-template> \
+                                <md-not-found> \
+                                    {{vm.notFoundText.get()}} \
+                                </md-not-found> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
+                                    <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                </div> \
+                            </md-autocomplete> \
+                        </div> \
+                    </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixAutocomplete', component);
+})();
+'use strict';
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 (function () {
@@ -3560,596 +4150,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     //Register component
     angular.module('entifix-js').component('entifixCatalog', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller($timeout, EntifixStringUtils) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-        var _defaultTitle;
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Editable Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.requiredMatch = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null) return vm.componentConstruction.requiredMatch;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.requiredMatchMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatchMessage) {
-                    if (vm.componentConstruction.requiredMatchMessage.getter) return vm.componentConstruction.requiredMatchMessage.getter();
-
-                    if (vm.componentConstruction.requiredMatchMessage.text) return vm.componentConstruction.requiredMatchMessage.text;
-                }
-
-                //Default value
-                return 'Seleccione un elemento de la lista';
-            }
-        };
-
-        vm.minLengthRequest = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthRequest) return vm.componentConstruction.minLengthRequest;
-
-                //Default value
-                return 0;
-            }
-        };
-
-        vm.minLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.minLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
-                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
-
-                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado corto';
-            }
-        };
-
-        vm.maxLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
-                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
-
-                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado largo';
-            }
-        };
-
-        vm.createNewEntityMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.createNewEntityMessage) {
-                    if (vm.componentConstruction.createNewEntityMessage.getter) return vm.componentConstruction.createNewEntityMessage.getter();
-
-                    if (vm.componentConstruction.createNewEntityMessage.text) return vm.componentConstruction.createNewEntityMessage.text;
-                }
-
-                //Default value
-                return 'Agregar ';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            },
-
-            set: function set(value) {
-                if (value) vm.componentConstruction.title = { text: value };
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixautocomplete' + randomNumber;
-            }
-        };
-
-        vm.mappingMethod = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.mapping) {
-                    if (vm.componentConstruction.mapping.method) return vm.componentConstruction.mapping.method;
-                    if (vm.componentConstruction.mapping.property) return function (element) {
-                        return element[vm.componentConstruction.mapping.property];
-                    };
-                }
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.placeholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.placeholder) {
-                    if (vm.componentConstruction.placeholder.getter) return vm.componentConstruction.placeholder.getter();
-
-                    if (vm.componentConstruction.placeholder.text) return vm.componentConstruction.placeholder.text;
-                }
-
-                //Default value
-                return "";
-            }
-        };
-
-        vm.disabled = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.disabled) return vm.componentConstruction.disabled;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.floating = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.floating != null) return vm.componentConstruction.floating;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.loadAllItems = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.loadAllItems) return vm.componentConstruction.loadAllItems;
-
-                //Default Value
-                return false;
-            }
-        };
-
-        vm.noCache = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.noCache != null) return vm.componentConstruction.noCache;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.notFoundText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.notFoundText) {
-                    if (vm.componentConstruction.notFoundText.getter) return vm.componentConstruction.notFoundText.getter();
-
-                    if (vm.componentConstruction.notFoundText.text) return vm.componentConstruction.notFoundText.text;
-                }
-
-                //Default value
-                return 'No hay coincidencias. ';
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.canCreateNewEntity = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.canCreateNewEntity) return vm.componentConstruction.canCreateNewEntity;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.maxItemsQuery = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxItemsQuery) return vm.componentConstruction.maxItemsQuery;
-
-                //Default value
-                return 10;
-            }
-        };
-
-        vm.keyProperty = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.keyProperty) return vm.componentConstruction.keyProperty;
-
-                //Default value
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.getKeyProperty.get();
-
-                return 'id';
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-        };
-
-        vm.getConstantFilters = function () {
-            var constantFilters = [];
-            if (vm.queryDetails && vm.queryDetails.constantFilters) {
-                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
-            }
-
-            return constantFilters;
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.loadAllItems.get()) loadCollection();
-            checkoutputs();
-            _defaultTitle = vm.title.get();
-        };
-
-        function loadCollection() {
-            vm.queryDetails.resource.getCollection(function (results) {
-                vm.items = results;
-            });
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        if (vm.entityList && vm.entityList.length > 0) return vm.entityList.filter(function (D_entity) {
-                            return vm.selectedItem == vm.mappingMethod.get()(D_entity);
-                        })[0];
-                    },
-                    set: function set(value) {
-                        if (value) getEntity(value);else {
-                            vm.showList = [];vm.selectedItem = undefined;vm.entityList = [];
-                        }
-                    }
-                }
-            };
-
-            if (vm.componentConstruction.init) vm.componentConstruction.init();
-
-            vm.loadingFirstRequest = false;
-        }
-
-        vm.getDisplayValue = function () {
-            if (vm.valueModel && vm.selectedItem) return vm.selectedItem;
-
-            if (vm.valueModel && !vm.selectedItem && !vm.loadingFirstRequest) getEntity(vm.valueModel);
-
-            return vm.nullValueLabel.get();
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel) return vm.valueModel;
-
-            return undefined;
-        };
-
-        function constructFilters(searchText) {
-            //Construct Filters
-            var allFilters = [];
-
-            if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0) allFilters = allFilters.concat(vm.componentConstruction.searchProperties.map(function (D_searchProperty) {
-                return { property: D_searchProperty, value: searchText, operator: 'lk' };
-            }));
-
-            if (vm.queryDetails && vm.queryDetails.filters) allFilters = allFilters.concat(vm.queryDetails.filters);
-
-            if (vm.getConstantFilters()) allFilters = allFilters.concat(vm.getConstantFilters());
-
-            return allFilters;
-        }
-
-        function setValueModel(value, entity) {
-            if (vm.valueModel != value) {
-                vm.valueModel = value;
-                if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity });
-            }
-        }
-
-        vm.updateData = function (data) {
-            var typedText = data.search;
-
-            vm.queryDetails.resource.getCollection(function (results) {
-                if (results.length > 0) {
-                    vm.entityList = results;
-                    vm.showList = results.map(vm.mappingMethod.get());
-                    vm.title.set(_defaultTitle);
-                } else {
-                    vm.showList = [];
-                    if (vm.canCreateNewEntity.get()) {
-                        vm.showList = [typedText];
-                        vm.title.set(_defaultTitle + ': ' + vm.createNewEntityMessage.get() + typedText);
-                    }
-                }
-                data.resolve(vm.showList);
-            }, function (error) {
-                if (data.reject) data.reject();
-            }, constructFilters(typedText));
-        };
-
-        function getInitialData(data) {
-            var maxItems = vm.maxItemsQuery.get();
-            vm.queryDetails.resource.getCollection(function (results) {
-                vm.entityList = results;
-                vm.showList = results.map(vm.mappingMethod.get());
-                data.resolve(vm.showList);
-                vm.title.set(_defaultTitle);
-            }, function (error) {
-                if (data.reject) data.reject();
-            }, vm.getConstantFilters().concat([{ property: 'skip', value: 0, type: 'fixed_filter' }, { property: 'take', value: maxItems, type: 'fixed_filter' }])
-            //,{ skip: 0, take: maxItems }
-            );
-        }
-
-        function getEntity(id) {
-            vm.loadingFirstRequest = true;
-            vm.queryDetails.resource.getCollection(function (results) {
-                if (results.length > 0) {
-                    vm.entityList = results;
-                    vm.showList = results.map(vm.mappingMethod.get());
-                    vm.selectedItem = vm.showList[0];
-                    vm.firstRequest = false;
-                }
-            }, function (error) {}, [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter' }]);
-        }
-
-        // Autosearch control
-        var planedUpdate;
-
-        function cleanPlannedUpdate() {
-            if (planedUpdate) {
-                $timeout.cancel(planedUpdate);
-                planedUpdate = null;
-            }
-        }
-
-        function createPlannedUpdate(resolve, reject, searchText) {
-            planedUpdate = $timeout(vm.updateData, 500, true, { search: searchText, resolve: resolve, reject: reject });
-        }
-
-        function createPlannedInsert(resolve, reject, searchText) {
-            planedUpdate = $timeout(getInitialData, 500, true, { search: searchText, resolve: resolve, reject: reject });
-        }
-
-        vm.searchItems = function (searchText) {
-            if (searchText && vm.loadAllItems.get()) {
-                var items = vm.items.filter(function (e) {
-                    return e[vm.componentConstruction.searchProperties[0]].indexOf(searchText) >= 0;
-                });
-                return items;
-            } else if (searchText) {
-                return new Promise(function (resolve, reject) {
-                    setValueModel(undefined);
-                    cleanPlannedUpdate();
-                    createPlannedUpdate(resolve, reject, searchText);
-                });
-            }
-            return new Promise(function (resolve, reject) {
-                setValueModel(undefined);
-                cleanPlannedUpdate();
-                createPlannedInsert(resolve, reject, searchText);
-            });
-        };
-
-        vm.changeSelectedItem = function () {
-            var entity = vm.entityList.filter(function (D_entity) {
-                return vm.selectedItem == vm.mappingMethod.get()(D_entity);
-            })[0];
-            if (!vm.canCreateNewEntity.get()) {
-                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(undefined);
-            } else {
-                if (vm.onChange) vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
-
-                if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
-            }
-        };
-
-        vm.onFocus = function ($event) {
-            if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click') $event.target.select();
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixAutocomplete/entifixAutocomplete.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
-                            <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
-                                <md-autocomplete \
-                                    md-floating-label={{vm.title.get()}} \
-                                    md-input-name={{vm.name.get()}} \
-                                    md-min-length="vm.minLengthRequest.get()" \
-                                    md-input-minlength="{{vm.minLength.get()}}" \
-                                    md-input-maxlength="{{vm.maxLength.get()}}" \
-                                    md-no-cache="vm.noCache.get()" \
-                                    md-selected-item="vm.selectedItem" \
-                                    md-search-text="vm.searchText" \
-                                    md-items="item in vm.searchItems(vm.searchText)" \
-                                    md-item-text="item" \
-                                    md-selected-item-change="vm.changeSelectedItem()" \
-                                    ng-required="vm.isRequired.get()" \
-                                    md-require-match="vm.requiredMatch.get()" \
-                                    placeholder="{{vm.placeholder.get()}}" \
-                                    ng-disabled="vm.disabled.get()" \
-                                    md-clear-button="true"> \
-                                    <md-item-template> \
-                                        <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
-                                    </md-item-template> \
-                                    <md-not-found> \
-                                        <div> \
-                                            {{vm.notFoundText.get()}} \
-                                        </div> \
-                                    </md-not-found> \
-                                    <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                        <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                        <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                        <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    </div> \
-                                </md-autocomplete> \
-                            </div> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
-                            </div> \
-                        </div> \
-                        <div ng-if="!vm.isForm.get()" ng-click="vm.onFocus($event)"> \
-                            <md-autocomplete \
-                                md-floating-label={{vm.title.get()}} \
-                                md-input-name={{vm.name.get()}} \
-                                md-min-length="vm.minLengthRequest.get()" \
-                                md-input-minlength="{{vm.minLength.get()}}" \
-                                md-input-maxlength="{{vm.maxLength.get()}}" \
-                                md-no-cache="vm.noCache.get()" \
-                                md-selected-item="vm.selectedItem" \
-                                md-search-text="vm.searchText" \
-                                md-items="item in vm.searchItems(vm.searchText)" \
-                                md-item-text="item" \
-                                md-selected-item-change="vm.changeSelectedItem()" \
-                                ng-required="vm.isRequired.get()" \
-                                md-require-match="vm.requiredMatch.get()" \
-                                placeholder="{{vm.placeholder.get()}}" \
-                                ng-disabled="vm.disabled.get()" \
-                                md-clear-button="true"> \
-                                <md-item-template> \
-                                    <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
-                                </md-item-template> \
-                                <md-not-found> \
-                                    {{vm.notFoundText.get()}} \
-                                </md-not-found> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                </div> \
-                            </md-autocomplete> \
-                        </div> \
-                    </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixAutocomplete', component);
 })();
 'use strict';
 
@@ -4997,31 +4997,35 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //Constructor
         function init() {};
 
+        function updateDateString() {
+            if (!(vm.valueModel instanceof Date)) {
+                var dateValueModel = transformStringToDate(vm.valueModel);
+                vm.valueModel = dateValueModel;
+            } else var dateValueModel = vm.valueModel;
+
+            var date = dateValueModel;
+            var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+            var diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+            var hours = "";
+            var minutes = "";
+
+            if (vm.hasTime.get()) {
+                hours = date.getHours().toString();
+                minutes = date.getMinutes().toString();
+                if (hours.length < 2) hours = '0' + hours;
+                if (minutes.length < 2) minutes = '0' + minutes;
+
+                hours = parseInt(hours);
+
+                if (hours > 12) hours = (hours - 12).toString() + ':' + minutes + ' ' + 'pm';else if (hours == 12) hours = hours.toString() + ':' + minutes + ' ' + 'pm';else hours = hours.toString() + ':' + minutes + ' ' + 'am';
+            }
+            vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+        }
+
         vm.getDateString = function (skip) {
             if (vm.valueModel) {
                 if (!vm.dateString) {
-                    if (!(vm.valueModel instanceof Date)) {
-                        var dateValueModel = transformStringToDate(vm.valueModel);
-                        vm.valueModel = dateValueModel;
-                    } else var dateValueModel = vm.valueModel;
-
-                    var date = dateValueModel;
-                    var meses = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-                    var diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
-                    var hours = "";
-                    var minutes = "";
-
-                    if (vm.hasTime.get()) {
-                        hours = date.getHours().toString();
-                        minutes = date.getMinutes().toString();
-                        if (hours.length < 2) hours = '0' + hours;
-                        if (minutes.length < 2) minutes = '0' + minutes;
-
-                        hours = parseInt(hours);
-
-                        if (hours > 12) hours = (hours - 12).toString() + ':' + minutes + ' ' + 'pm';else if (hours == 12) hours = hours.toString() + ':' + minutes + ' ' + 'pm';else hours = hours.toString() + ':' + minutes + ' ' + 'am';
-                    }
-                    vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
+                    updateDateString();
                     return vm.dateString;
                 } else {
                     return vm.dateString;
@@ -5080,6 +5084,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         vm.runOnChangeTrigger = function () {
+            updateDateString();
             if (vm.onChange) vm.onChange({ value: vm.valueModel });
         };
 
