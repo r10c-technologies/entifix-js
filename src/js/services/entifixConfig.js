@@ -24,7 +24,9 @@
         $systemOwnerEntityName,
         $systemOwnerEntitySwapName,
         $systemOwnerDisplayName,
-        $idSystemOwnerPropertyName;
+        $idSystemOwnerPropertyName,
+        $excelSheetResourceName,
+        $pdfResourceName;
     
         prov.setAuthUrl = function(value) {
             $authUrl = value;
@@ -92,6 +94,14 @@
 
         prov.setIdSystemOwnerPropertyName = function(value) {
             $idSystemOwnerPropertyName = value;
+        }
+
+        prov.setExcelSheetResourceName = function(value) {
+            $excelSheetResourceName = value;
+        }
+
+        prov.setpdfResourceName = function(value) {
+            $pdfResourceName = value;
         }
 
         prov.checkAuth = function () {
@@ -197,6 +207,16 @@
             sv.idSystemOwnerPropertyName  =
             {
                 get: () => { return $idSystemOwnerPropertyName; }
+            }
+
+            sv.excelSheetResourceName  =
+            {
+                get: () => { return $excelSheetResourceName; }
+            }
+
+            sv.pdfResourceName  =
+            {
+                get: () => { return $pdfResourceName; }
             }
 
             return sv;

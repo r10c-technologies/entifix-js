@@ -78,11 +78,6 @@
             return vm.getDefinedMembers(resourceName).filter( (p) => { return p.joinable; });
         };
 
-        vm.getResourceProperties = function(resourceName)
-        {
-            return vm.getDefinedMembers(resourceName);
-        };
-
         vm.getKeyProperty = function(resourceName)
         {
             var resource = getResource(resourceName);
@@ -270,6 +265,17 @@
                 return true;
             return false;
         }
+
+        vm.bodyDataFile = (options) =>
+        {
+            return {
+                title: options.title,
+                columns: getBodyDataFileColumns(options),
+                tableStriped: "true",
+                pageSize: "Letter",
+                data: getBodyDataFilePdfExcel(options)
+            };
+        }
         
         //==============================================================================================================================================================================
         // Utilities ===================================================================================================================================================================
@@ -288,7 +294,27 @@
         function getResource(resourceName)
         {
             return globalMetadata.resources.filter((r) => { return r.name == resourceName; })[0];
-        };   
+        };
+
+        function getBodyDataFileColumns(options) {
+            let columns = [];
+
+            options.columns.forEach((column, index) => { columns.push({ description: column.display, columnName: "Field_" + (index + 1) }) });
+
+            return columns;
+        }
+
+        function getBodyDataFilePdfExcel(options) {
+            let data = [];
+
+            options.data.forEach((row) => {
+                let dataRow = {};
+                options.columns.forEach((column, index) => { dataRow["Field_" + (index + 1)] = row[column.name] || "" });
+                data.push(dataRow);
+            });
+
+            return data;
+        }
         
         //==============================================================================================================================================================================
     };

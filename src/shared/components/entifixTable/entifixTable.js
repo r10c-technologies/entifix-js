@@ -4,14 +4,16 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession'];
+    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession)
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig)
     {
         var vm = this;
         var cont = 0;
         var onLoading = true;
         var isFirstLoad = true;
+        var filters;
+
         // Properties & Fields ===================================================================================================================================================
         
         //Fields
@@ -19,6 +21,10 @@
         var _total = 0;
         var _canShowSearchText = true;
         var _transformValues;
+        let _excelSheetResource = new EntifixResource(EntifixConfig.excelSheetResourceName.get());
+        let _pdfResource = new EntifixResource(EntifixConfig.pdfResourceName.get());
+        let originatorEvExcel;
+        let originatorEvPdf;
         
         // Main
         vm.isLoading =
@@ -279,36 +285,72 @@
             }
         };
 
-        vm.sheetIcon =
+        vm.excelSheetIcon =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.sheetIcon && vm.componentConstruction.sheetIcon.icon)
-                    return  vm.componentConstruction.sheetIcon.icon;
+                if (vm.componentConstruction && vm.componentConstruction.excelSheetIcon && vm.componentConstruction.excelSheetIcon.icon)
+                    return  vm.componentConstruction.excelSheetIcon.icon;
 
                 //Default value
                 return 'poll';
             }
         };
 
-        vm.sheetText =
+        vm.excelSheetText =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.sheetText && vm.componentConstruction.sheetText.text)
-                    return  vm.componentConstruction.sheetText.text;
+                if (vm.componentConstruction && vm.componentConstruction.excelSheetText && vm.componentConstruction.excelSheetText.text)
+                    return  vm.componentConstruction.excelSheetText.text;
 
                 //Default value
                 return 'Descargar Excel';
             }
         };
 
-        vm.canDownloadSheet =
+        vm.canDownloadExcelSheet =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.canDownloadSheet != null)
-                    return vm.componentConstruction.canDownloadSheet;
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadExcelSheet != null)
+                    return vm.componentConstruction.canDownloadExcelSheet;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.pdfIcon =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.pdfIcon && vm.componentConstruction.pdfIcon.icon)
+                    return  vm.componentConstruction.pdfIcon.icon;
+
+                //Default value
+                return 'picture_as_pdf';
+            }
+        };
+
+        vm.pdfText =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.pdfText && vm.componentConstruction.pdfText.text)
+                    return  vm.componentConstruction.pdfText.text;
+
+                //Default value
+                return 'Descargar Pdf';
+            }
+        };
+
+        vm.canDownloadPdf =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadPdf != null)
+                    return vm.componentConstruction.canDownloadPdf;
 
                 //Default value
                 return true;
@@ -389,6 +431,30 @@
                 return [{ display: 'Igual', operator: '=' },
                         { display: 'Diferente', operator: '<>' },
                         { display: 'Incluya', operator: 'lk'}];
+            },
+
+            numbers: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.numberOperators)
+                    return  vm.componentConstruction.numberOperators;
+
+                //Default value
+                return [{ display: 'Igual', operator: '=' },
+                        { display: 'Mayor que', operator: '>' },
+                        { display: 'Menor que', operator: '<' },
+                        { display: 'Mayor o igual que', operator: '>=' },
+                        { display: 'Menor o igual que', operator: '<=' },
+                        { display: 'Diferente', operator: '<>' }];
+            },
+
+            booleans: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.booleanOperators)
+                    return  vm.componentConstruction.booleanOperators;
+
+                //Default value
+                return [{ display: 'Igual', operator: '=' },
+                        { display: 'Diferente', operator: '<>' }];
             },
 
             enums: () =>
@@ -634,7 +700,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add))
+                if (!vm.componentConstruction.permissions.add || (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add)))
                     return true;
 
                 //Default value
@@ -646,7 +712,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit))
+                if (!vm.componentConstruction.permissions.edit || (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)))
                     return true;
 
                 //Default value
@@ -658,7 +724,31 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove))
+                if (!vm.componentConstruction.permissions.remove || (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasExcelSheetPermission = 
+        {
+            get: () =>
+            {
+                if (!vm.componentConstruction.permissions.excelSheet || (vm.componentConstruction.permissions.excelSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.excelSheet)))
+                    return true;
+
+                //Default value
+                return false;
+            }
+        }
+
+        vm.hasPdfPermission = 
+        {
+            get: () =>
+            {
+                if (!vm.componentConstruction.permissions.pdf || (vm.componentConstruction.permissions.pdf != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.pdf)))
                     return true;
 
                 //Default value
@@ -669,25 +759,21 @@
         
         // Methods ===============================================================================================================================================================
 
-        vm.$onInit = function()
+        vm.$onInit = () =>
         {
             setdefaults();
             createconnectioncomponent();
             setDefaultsTable();
+            checkPermissions();
             activate();
             checkoutputs();
-            checkPermissions();
         };
 
         function setdefaults()
         {
             setProperties();
             createComponents();
-
-            if (vm.isMovement.get())
-                setDateProperties();
-
-            vm.componentConstruction.reload = vm.$onInit;
+            setDateProperties();
         };
 
         function createconnectioncomponent()
@@ -716,7 +802,7 @@
                                             });     
 
             vm.connectionComponent.pager = vm.pager;
-            vm.connectionComponent.tablePropertiesNavigation = { get: () => { return vm.tablePropertiesNavigation } };
+            vm.connectionComponent.resourceMembers = { get: () => { return vm.resourceMembers } };
             vm.connectionComponent.onChangePageSize = vm.onChangePageSize;
 
             //Connection Component Properties __________________________________________________________________________________________
@@ -724,34 +810,34 @@
 
             //Connection Component Methods _____________________________________________________________________________________________
 
-            vm.connectionComponent.elementsSelection = function ()
+            vm.connectionComponent.elementsSelection = () =>
             {
                 if (vm.connectionComponent.pager != null && vm.connectionComponent.pager.currentData != null && vm.connectionComponent.pager.currentData.length > 0)
-                    return vm.connectionComponent.pager.currentData.filter(function (value) { return value.$selected == true; }).length;
+                    return vm.connectionComponent.pager.currentData.filter((value) => { return value.$selected == true; }).length;
                 return 0;
             };
 
-            vm.connectionComponent.getSelectedElements = function ()
+            vm.connectionComponent.getSelectedElements = () =>
             {
                 if (vm.connectionComponent.pager != null && vm.connectionComponent.pager.currentData != null)
-                    return vm.connectionComponent.pager.currentData.filter(function (value) { return value.$selected == true; });
+                    return vm.connectionComponent.pager.currentData.filter((value) => { return value.$selected == true; });
                 return [];
             };
 
-            vm.connectionComponent.sortTable = function (column)
+            vm.connectionComponent.sortTable = (column) =>
             {
                 if (!column.$selected)
                     column.$selected = true;
                 else
                     column.$selected = false;
                 
-                vm.tablePropertiesNavigation.filter((p) => { return (p.display != column.display); }).forEach((p) => { p.$selected = null; });
+                vm.resourceMembers.filter((p) => { return (p.display != column.display); }).forEach((p) => { p.$selected = null; });
                 setClassColumn();
-                vm.connectionComponent.pager.sortTableColumns.set([{ sort: (column.property.pageProperty || column.property.name), value: (column.$selected ? 'asc' : 'desc') }]);
+                vm.connectionComponent.pager.sortTableColumns.set([{ sort: (column.pageProperty || column.name), value: (column.$selected ? 'asc' : 'desc') }]);
                 vm.connectionComponent.pager.reload();
             };
 
-            vm.connectionComponent.singleElementSelection = function (element, forceSelection)
+            vm.connectionComponent.singleElementSelection = (element, forceSelection) =>
             {
                 if (vm.connectionComponent.allowSelection())
                 {                    
@@ -760,7 +846,7 @@
                     else
                         element.$selected = !element.$selected;
 
-                    vm.connectionComponent.pager.currentData.filter(function (value) { return (value != element); }).forEach(function (value) { value.$selected = false });
+                    vm.connectionComponent.pager.currentData.filter((value)  => { return (value != element); }).forEach((value) => { value.$selected = false });
 
                     if (element.$selected)
                         vm.connectionComponent.selectedElement = element;
@@ -771,7 +857,7 @@
                 }
             };
             
-            vm.connectionComponent.multipleElementsSelection = function (element)
+            vm.connectionComponent.multipleElementsSelection = (element) =>
             {
                 if (vm.connectionComponent.allowSelection())
                 {
@@ -781,7 +867,7 @@
                         vm.connectionComponent.selectedElement = element;
                     else 
                     {
-                        var selection = vm.connectionComponent.pager.currentData.filter(function (value) { return (value.$selected === true); });
+                        var selection = vm.connectionComponent.pager.currentData.filter(value => { return (value.$selected === true); });
 
                         if (selection.length > 0)
                             vm.connectionComponent.selectedElement = selection[0];
@@ -793,7 +879,7 @@
                 }
             };
 
-            vm.connectionComponent.directEditionElement = function(element)
+            vm.connectionComponent.directEditionElement = (element) =>
             {
                 if (vm.componentConstruction.edit)
                 {
@@ -804,7 +890,7 @@
                 }
             };
 
-            vm.connectionComponent.checkAll = function(allSelected)
+            vm.connectionComponent.checkAll = (allSelected) =>
             {
                 if (allSelected && vm.connectionComponent.pager.currentData)
                     vm.connectionComponent.pager.currentData.forEach((element) => { element.$selected = true; });
@@ -812,7 +898,7 @@
                     vm.connectionComponent.pager.currentData.forEach((element) => { element.$selected = false; });
             }
 
-            vm.connectionComponent.showColumn = function(column)
+            vm.connectionComponent.showColumn = (column) =>
             {
                 var columnsFilter = vm.columnsSelected.filter((c) => { return c == column; });
                 if (columnsFilter && columnsFilter.length > 0)
@@ -820,11 +906,11 @@
                 return false;
             };
             
-            vm.connectionComponent.onChangeElementsSelection = function () { };
-            vm.connectionComponent.allowSelection = function () { return true; };
+            vm.connectionComponent.onChangeElementsSelection = () => { };
+            vm.connectionComponent.allowSelection = () => { return true; };
 
             //Transform values to show in columns
-            vm.connectionComponent.transformValue = function(value, name)
+            vm.connectionComponent.transformValue = (value, name) =>
             {                
                 if (value != null && vm.componentConstruction && vm.componentConstruction.transformData)
                 {
@@ -880,7 +966,7 @@
                 vm.connectionComponent.showMultiselectColumn = vm.componentBehavior.showMultiselectColumn || false;
                 vm.collapsed = vm.componentBehavior.initCollapsed || false;
             }
-
+            
             vm.connectionComponent.pager.reload();
         };
         
@@ -892,7 +978,8 @@
                 recreateDynamicComponent: createDynamicComponent,
                 reloadPagination: ()=>{ if (!vm.pager.isLoading.get()) vm.pager.reload(); },
                 allowedActions: { canEdit: vm.canEdit, canRemove: vm.canRemove, canAdd: vm.canAdd },
-                cleanFilters: () => { vm.cleanFilters(); }
+                cleanFilters: () => { vm.cleanFilters(); },
+                reloadComponent: vm.$onInit
             };
         };
 
@@ -947,7 +1034,7 @@
         }
 
         //Defatult behavior for tool box
-        vm.searchElement = function()
+        vm.searchElement = () =>
         {
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onSearch)
                 vm.componentBehavior.events.onSearch();
@@ -961,7 +1048,7 @@
                 vm.componentBehavior.events.onSearched();
         };
 
-        vm.addElement = function()
+        vm.addElement = () =>
         {            
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAdd)
                 vm.componentBehavior.events.onAdd();
@@ -975,7 +1062,7 @@
                 vm.componentBehavior.events.onAdded();
         };
 
-        vm.editElement = function()
+        vm.editElement = () =>
         {
             var elementToEdit = vm.connectionComponent.selectedElement;
 
@@ -991,7 +1078,7 @@
                 vm.componentBehavior.events.onEdited();
         };
 
-        vm.removeElement = function()
+        vm.removeElement = () =>
         {
             var elementsToDelete = vm.connectionComponent.getSelectedElements();
 
@@ -1007,7 +1094,7 @@
                 vm.componentBehavior.events.onRemoved();
         };
 
-        vm.processElement = function()
+        vm.processElement = () =>
         {
             var elementToProcess = vm.connectionComponent.selectedElement;
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onProcess)
@@ -1121,14 +1208,14 @@
             rechargeTable();
         };
 
-        vm.keypressTextBoxSearch = function(keyEvent)
+        vm.keypressTextBoxSearch = (keyEvent) =>
         {
             cleanPlannedRecharge();            
             if (keyEvent.which === 13)
                 rechargeTable();
         };
 
-        vm.onChangeSearch = function()
+        vm.onChangeSearch = () =>
         {
             cleanPlannedRecharge();
             plannedRecharge = $timeout(rechargeTable, 1500);
@@ -1141,17 +1228,16 @@
         // Filters control
         function setProperties()
         {
-            vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
+            vm.searchArray = [], vm.resourceMembers = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
-            vm.resourceMembers.forEach((property) => { vm.tableProperties.push({ display: getDisplay(property), type: property.type || 'text' , property: property }); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
-            vm.tablePropertiesNavigation = vm.tableProperties.filter((p) => { return p.property.paginable == 'true' || p.property.paginable == true; });
-            setClassColumn();
+            vm.resourceMembers.forEach(property => { property.type ? property.type : property.type = 'text'; property.display ? property.display : property.display = getDisplay(property); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
             vm.operators = vm.propertiesOperators.defaults();
+            setClassColumn();
         }
 
         function setClassColumn()
         {
-            vm.tablePropertiesNavigation.forEach((property) =>
+            vm.resourceMembers.forEach((property) =>
                                                 {
                                                     if (property.$selected)
                                                         property.class = 'md-column sortable sort-descent';
@@ -1164,7 +1250,7 @@
 
         function setDateProperties()
         {
-            if (!vm.queryDetails.constantFilters)
+            if (vm.isMovement.get() && !vm.queryDetails.constantFilters)
             {
                 vm.queryDetails.constantFilters = {};
                 vm.queryDetails.constantFilters.getter = () => { return [ ]; };
@@ -1245,7 +1331,6 @@
             {
                 isForm: false,
                 transformChip: vm.transformchip,
-                onRemove: vm.onremove,
                 readOnly: true,
                 onRemove: removeChip
             };
@@ -1276,7 +1361,7 @@
             };
         }
 
-        vm.onChangeColumn = function()
+        vm.onChangeColumn = () =>
         {
             vm.valueToSearch = null;
 
@@ -1287,23 +1372,26 @@
 
                 if (vm.columnToSearch.type == 'text')
                     vm.operators = vm.propertiesOperators.strings();
+                else if (vm.columnToSearch.type == 'number')
+                    vm.operators = vm.propertiesOperators.numbers();
                 else if (vm.columnToSearch.type == 'enum')
                     vm.operators = vm.propertiesOperators.enums();
+                else if (vm.columnToSearch.type == 'boolean')
+                    vm.operators = vm.propertiesOperators.booleans();
                 else
                     vm.operators = vm.propertiesOperators.defaults();
             }
         }
 
-        vm.onChangeSwitch = function(value)
+        vm.onChangeSwitch = (value) =>
         {
             cleanCustomSearchValues(true, value);            
             vm.connectionComponent.pager.reload();
         }
 
-        vm.onChangePageSize = function(size)
+        vm.onChangePageSize = (size) =>
         {
-            if (vm.pager.totalData < vm.pager.size)
-            {
+            if (vm.pager.totalData < vm.pager.size) {
                 vm.pager.page = 1;
                 if (vm.queryParams.get())
                     $state.go('.', { itemsPerPage: vm.pager.size, page: 1 }, {notify: false});
@@ -1311,38 +1399,34 @@
             else if (vm.queryParams.get())
                 $state.go('.', { itemsPerPage: vm.pager.size }, {notify: false});
 
-            if (!size)
-            {
+            if (!size) {
                 if (!isFirstLoad)
                     vm.pager.reload();
                 else
                     isFirstLoad = false;
             }
-            else
-            {
+            else {
                 vm.pager.size = size;
                 vm.pager.reload();
             }
         }
 
-        vm.onChangePage = function()
+        vm.onChangePage = () =>
         {
             vm.pager.reload();
             if (vm.queryParams.get())
                 $state.go('.', { page: vm.pager.page }, {notify: false});
         }
 
-        vm.addChip = function()
+        vm.addChip = () =>
         {
-            if (vm.columnToSearch.display && vm.operator.operator && vm.valueToSearch)
-            {
+            if (vm.columnToSearch.display && vm.operator.operator && vm.valueToSearch) {
                 vm.valueToSearch = transformDate(vm.valueToSearch, vm.columnToSearch.type);
                 vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' ' + vm.operator.operator + ' ' + vm.valueToSearch);
-                vm.searchArray.push({ property: vm.columnToSearch.property, operator: vm.operator.operator, value: vm.valueToSearch });
+                vm.searchArray.push({ property: vm.columnToSearch, operator: vm.operator.operator, value: vm.valueToSearch });
             }
             cleanCustomSearchValues();
             setParametersAddChip();
-            vm.connectionComponent.pager.reload();
         }
 
         function removeChip(chip, index)
@@ -1352,47 +1436,7 @@
                 $state.go('.', { customSearch: JSON.stringify(vm.searchArray), chips: JSON.stringify(vm.textBoxSearchValueChips) }, {notify: false});
             else if (vm.queryParams.get())
                 $state.go('.', { customSearch: null, chips: null }, {notify: false});
-            vm.connectionComponent.pager.reload();
             filters = null;
-        }
-
-        function cleanCustomSearchValues(cleanParams, value, cleanDates)
-        {
-            vm.columnToSearch = null;
-            vm.operator = null;
-            vm.valueToSearch = null;
-            vm.textBoxSearchValue = null;
-            filters = null;
-
-            if (cleanParams)
-            {
-                if (!value)
-                {
-                    vm.searchArray = [];
-                    vm.pager.page = 1;
-                    if (vm.queryParams.get())
-                        $state.go('.', { customSearch: null, chips: null, page: vm.pager.page }, {notify: false});
-                }
-                else if (vm.queryParams.get())
-                    $state.go('.', { customSearch: null, chips: null, searchText: null }, {notify: false});
-                vm.textBoxSearchValueChips = [];
-            }
-
-            if (cleanDates)
-            {
-                if (vm.queryDetails.constantFilters)
-                    vm.queryDetails.constantFilters.getter = () => { return []; };
-                vm.startDate = null;
-                vm.endDate = null;
-                vm.notApplied = false;
-                $state.go('.', { customSearch: null, chips: null, searchText: null, page: vm.pager.page, itemsPerPage: vm.pager.size, startDate: null, endDate: null }, {notify: false});
-            }
-        }
-
-        vm.cleanFilters = function()
-        {
-            cleanCustomSearchValues(true, false, true);
-            vm.connectionComponent.pager.reload();
         }
 
         function setParametersAddChip()
@@ -1400,6 +1444,48 @@
             vm.pager.page = 1;
             if (vm.queryParams.get())
                 $state.go('.', { customSearch: JSON.stringify(vm.searchArray), chips: JSON.stringify(vm.textBoxSearchValueChips), page: vm.pager.page }, {notify: false});
+        }
+
+        function cleanCustomSearchValues(cleanedParams, switchValue, cleanedDates)
+        {
+            vm.columnToSearch = null;
+            vm.operator = null;
+            vm.valueToSearch = null;
+            vm.textBoxSearchValue = null;
+            filters = null;
+
+            if (cleanedParams)
+                cleanParams(switchValue);
+
+            if (cleanedDates)
+                cleanDates();
+        }
+
+        function cleanParams(switchValue) {
+            if (!switchValue) {
+                vm.searchArray = [];
+                vm.pager.page = 1;
+                if (vm.queryParams.get())
+                    $state.go('.', { customSearch: null, chips: null, page: vm.pager.page }, {notify: false});
+            }
+            else if (vm.queryParams.get())
+                $state.go('.', { customSearch: null, chips: null, searchText: null }, {notify: false});
+            vm.textBoxSearchValueChips = [];
+        }
+
+        function cleanDates() {
+            if (vm.queryDetails.constantFilters)
+                vm.queryDetails.constantFilters.getter = () => { return []; };
+            vm.startDate = null;
+            vm.endDate = null;
+            vm.notApplied = false;
+            $state.go('.', { customSearch: null, chips: null, searchText: null, page: vm.pager.page, itemsPerPage: vm.pager.size, startDate: null, endDate: null }, {notify: false});
+        }
+
+        vm.cleanFilters = () =>
+        {
+            cleanCustomSearchValues(true, false, true);
+            vm.connectionComponent.pager.reload();
         }
 
         function getDisplay(property)
@@ -1416,24 +1502,24 @@
             return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length).toLowerCase();
         }
 
-        vm.searchItemsDate = function(skipReload)
+        vm.searchItemsDate = (skipReload) =>
         {
             vm.queryDetails.constantFilters.getter = () => { return [ { property: vm.startDateProperty.get(), value: transformDate(vm.startDate, 'datetime'), operator: '>=', type: 'fixed_filter' }, { property: vm.endDateProperty.get(), value: transformDate(vm.endDate, 'datetime'), operator: '<=', type: 'fixed_filter' } ]; };
             if (!skipReload)
                 vm.connectionComponent.pager.reload();
         }
 
-        vm.onChangeDateStart = function(value)
+        vm.onChangeDateStart = (value) =>
         {
             $state.go('.', { startDate: transformDate(vm.startDate, 'datetime') }, {notify: false});
         }
 
-        vm.onChangeDateEnd = function(value)
+        vm.onChangeDateEnd = (value) =>
         {
             $state.go('.', { endDate: transformDate(vm.endDate, 'datetime') }, {notify: false});
         }
 
-        vm.onChangeNotApplied = function(value)
+        vm.onChangeNotApplied = (value) =>
         {
             vm.queryDetails.constantFilters = {};
             var constantFilters = [];
@@ -1445,80 +1531,99 @@
             vm.connectionComponent.pager.reload();
         }
 
-        vm.selectAllItems = function()
+        vm.selectAllItems = () =>
         {
             onLoading = false;
-            if (cont % 2 == 0)
-            {
+            if (cont % 2 == 0) {
                 vm.columnsSelected = [];
                 vm.resourceMembers.forEach((property) => { vm.columnsSelected.push(getDisplay(property))});
-            }
-            else
-            {
+            } else {
                 vm.columnsSelected = [];
                 vm.resourceMembers.forEach((property) => { if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property))});
             }
             cont++;
         };
 
-        vm.reloadAllSelected = function()
+        vm.reloadAllSelected = () =>
         {
             if (!onLoading && cont % 2 != 0)
                 vm.columnsSelected.push(vm.selectAllText.get());
-            else if (!onLoading)
-            {
+            else if (!onLoading) {
                 var index = vm.columnsSelected.indexOf(vm.selectAllText.get());
                 if (index > 0)
                     vm.columnsSelected.splice(index, 1);
             }
         };
 
-        var originatorEv;
-        vm.openSheetMenu = function($mdMenu, ev)
+        vm.openExcelSheetMenu = ($mdMenu, ev) =>
         {
-            originatorEv = ev;
+            originatorEvExcel = ev;
             $mdMenu.open(ev);
         }
 
-        var filters, templateUrl;
-        vm.fil = filters;
-        vm.downloadSheet = function(allPages)
+        vm.openPdfMenu = ($mdMenu, ev) =>
         {
-            if (!filters)
-                filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
+            originatorEvPdf = ev;
+            $mdMenu.open(ev);
+        }
+
+        vm.downloadFileSimplePage = (type) =>
+        {
+            if (type == 'pdf') {
+                _pdfResource.getFile({ type: type, contentType: 'application/pdf', columns: getMembersSelected(), data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            } else if (type == 'excel') {
+                _excelSheetResource.getFile({ type: type, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', columns: vm.resourceMembers, data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            }
+        }
+
+        function getMembersSelected() {
+            let columns = [];
+            vm.columnsSelected.forEach(columnSelected => vm.resourceMembers.forEach(resourceMember => { if ((resourceMember.display || getDisplay(resourceMember.name)) == columnSelected) columns.push(resourceMember); } ));
+            return columns;
+        }
+
+        // var filters, templateUrl;
+        // vm.fil = filters;
+
+        // vm.downloadFileAllPages = function(type)
+        // {
+        //     if (!filters)
+        //         filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
             
-            templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
+        //     templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
 
-            if (allPages)
-                templateUrl += filters;
-            else 
-                templateUrl += '/' + ((vm.pager.page - 1) * vm.pager.size) + '/' + vm.pager.size + filters;
+        //     if (allPages)
+        //         templateUrl += filters;
+        //     else 
+        //         templateUrl += '/' + ((vm.pager.page - 1) * vm.pager.size) + '/' + vm.pager.size + filters;
 
-            vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        }
+        //     vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // }
 
-        vm.getConstantFilters = function()
-        {
-            var filters = [];
-            if (vm.pager.getConstantFilters())
-                filters = filters.concat(vm.pager.getConstantFilters());
-            if (vm.queryDetails.sort)
-                filters = filters.concat(vm.queryDetails.sort);
-            return filters;
-        }
+        // vm.getConstantFilters = function()
+        // {
+        //     var filters = [];
+        //     if (vm.pager.getConstantFilters())
+        //         filters = filters.concat(vm.pager.getConstantFilters());
+        //     if (vm.queryDetails.sort)
+        //         filters = filters.concat(vm.queryDetails.sort);
+        //     return filters;
+        // }
 
         function checkPermissions()
         {
-            if (vm.hasPermissions.get())
-            {
-                if (!vm.hasAllPermission.get())
-                {
+            if (vm.hasPermissions.get()) {
+                if (!vm.hasAllPermission.get()) {
                     if (!vm.hasAddPermission.get())
-                        vm.componentConstruction.add = undefined;
+                        delete vm.componentConstruction.add;
                     if (!vm.hasEditPermission.get())
-                        vm.componentConstruction.edit = undefined;
+                        delete vm.componentConstruction.edit;
                     if (!vm.hasRemovePermission.get())
-                        vm.componentConstruction.remove = undefined;
+                        delete vm.componentConstruction.remove;
+                    if (!vm.hasExcelSheetPermission.get())
+                        vm.componentConstruction.canDownloadExcelSheet = false;
+                    if (!vm.hasPdfPermission.get())
+                        vm.componentConstruction.canDownloadPdf = false;
                 }
             }
         }
@@ -1563,7 +1668,7 @@
                                                 ng-model="bindCtrl.columnToSearch" \
                                                 aria-label="{{bindCtrl.columnsText.get()}}" \
                                                 ng-change="bindCtrl.onChangeColumn()"> \
-                                                <md-option ng-repeat="item in bindCtrl.tablePropertiesNavigation" ng-value="item">{{item.display}}</md-option> \
+                                                <md-option ng-repeat="item in bindCtrl.resourceMembers" ng-value="item">{{item.display}}</md-option> \
                                             </md-select> \
                                         </md-input-container> \
                                     </div> \
@@ -1637,21 +1742,42 @@
                                                     <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
                                                         <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                                     </md-button> \
-                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()"> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openExcelSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadExcelSheet.get()"> \
                                                         <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
-                                                            <md-tooltip>{{bindCtrl.sheetText.get()}}</md-tooltip> \
-                                                            <md-icon class="material-icons">{{bindCtrl.sheetIcon.get()}}</md-icon> \
+                                                            <md-tooltip>{{bindCtrl.excelSheetText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.excelSheetIcon.get()}}</md-icon> \
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadSheet(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadExcelSheet(true)"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
                                                             </md-menu-item> \
                                                             <md-menu-divider></md-menu-divider> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadSheet()"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'excel\')"> \
+                                                                    <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
+                                                                </md-button> \
+                                                            </md-menu-item> \
+                                                        </md-menu-content> \
+                                                    </md-menu> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openPdfMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadPdf.get()"> \
+                                                        <md-button class="md-primary md-warn text-danger md-fab md-mini" ng-click="bindCtrl.ds()"> \
+                                                            <md-tooltip>{{bindCtrl.pdfText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.pdfIcon.get()}}</md-icon> \
+                                                        </md-button> \
+                                                        <md-menu-content> \
+                                                            <md-menu-item> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadPdf(true)"> \
+                                                                    <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
+                                                                </md-button> \
+                                                            </md-menu-item> \
+                                                            <md-menu-divider></md-menu-divider> \
+                                                            <md-menu-item> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'pdf\')()"> \
                                                                     <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
                                                                 </md-button> \
@@ -1671,7 +1797,7 @@
                                                         aria-label="{{bindCtrl.columnsText.get()}}" \
                                                         ng-change="bindCtrl.reloadAllSelected()"> \
                                                         <md-option ng-click="bindCtrl.selectAllItems()">{{bindCtrl.selectAllText.get()}}</md-option> \
-                                                        <md-option ng-repeat="item in bindCtrl.tableProperties">{{item.display}}</md-option> \
+                                                        <md-option ng-repeat="item in bindCtrl.resourceMembers">{{item.display}}</md-option> \
                                                     </md-select> \
                                                 </md-input-container> \
                                             </div> \

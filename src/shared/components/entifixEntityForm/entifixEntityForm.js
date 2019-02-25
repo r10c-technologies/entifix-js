@@ -420,7 +420,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save))
+                if (!vm.componentConstruction.permissions.save || (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)))
                     return true;
 
                 //Default value
@@ -432,7 +432,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit))
+                if (!vm.componentConstruction.permissions.edit || (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)))
                     return true;
 
                 //Default value
@@ -444,7 +444,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove))
+                if (!vm.componentConstruction.permissions.remove || (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)))
                     return true;
 
                 //Default value
@@ -456,7 +456,7 @@
         {
             get: () =>
             {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process))
+                if (!vm.componentConstruction.permissions.process || (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)))
                     return true;
 
                 //Default value
@@ -776,13 +776,13 @@
                 if (!vm.hasAllPermission.get())
                 {
                     if (!vm.hasSavePermission.get())
-                        vm.componentConstruction.save = undefined;
+                        delete vm.componentConstruction.save;
                     if (!vm.hasEditPermission.get())
-                        vm.componentConstruction.edit = undefined;
+                        delete vm.componentConstruction.edit;
                     if (!vm.hasRemovePermission.get())
-                        vm.componentConstruction.remove = undefined;
+                        delete vm.componentConstruction.remove;
                     if (!vm.hasProcessPermission.get())
-                        vm.componentConstruction.process = undefined;
+                        delete vm.componentConstruction.process;
                 }
             }
         }

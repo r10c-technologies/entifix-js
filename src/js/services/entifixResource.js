@@ -409,7 +409,7 @@
             {
                 get: () =>
                 {
-                    return EntifixMetadata.getResourceProperties(resourceName).filter((rp)=>{ return !rp.notDisplay});
+                    return EntifixMetadata.getDefinedMembers(resourceName).filter((member)=>{ return !member.notDisplay; });
                 }
             }
 
@@ -850,14 +850,18 @@
                 var resPagFilters = [];
                 if (searchText && (!searchArray || searchArray.length <= 0))
                 {
-                    var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected).map( (p)=>{ return (p.pageProperty ? p.pageProperty : p.name); } );
+                    var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected);
                     var joinProperties = filterProperties(EntifixMetadata.getJoinProperties(resourceName), columnsSelected);
-                    
-                    for (var prop in pagProperties)
-                        resPagFilters.push({ property: pagProperties[prop], value: searchText, operator: "lk" });
 
-                    for (var prop in joinProperties)
-                    {
+                    for (var prop of pagProperties) {
+                        if (prop.type == "text" || prop.type == "date" || prop.type == "datetime") {
+                            resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "lk" });
+                        } else if (prop.type == "boolean" || prop.type == "number") {
+                            resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "eq" });
+                        }
+                    }
+
+                    for (var prop of joinProperties) {
                         resPagFilters.push({property: joinProperties[prop].propertySearch, value: searchText});
                         resPagFilters.push({property: joinProperties[prop].name, value: 'join;' + joinProperties[prop].propertyJoin});
                     }
@@ -866,18 +870,18 @@
                 else if (searchArray)
                 {
                     var type = 'fixed_filter';
-                    searchArray.forEach((element) => { resPagFilters.push({property: element.property.pageProperty || element.property.name, value: element.value, type: type, operator: element.operator}); });
+                    searchArray.forEach((element) => { resPagFilters.push({ property: element.property, value: element.value, type: type, operator: element.operator}); });
                 }
 
                 return resPagFilters;
             };
 
-            vm.getFile = function (url, typeFile, fileName)
+            vm.getFile = function (options)
             {
-                var actionSuccess = (response) => { createDownloadFile(response, typeFile, fileName); }
+                var actionSuccess = (response) => { createDownloadFile(response, options); }
                 var actionError = (response) => { _checkActionErrors(response); }
 
-                var config = { method: 'GET', url: url, responseType : 'arraybuffer' };
+                var config = { method: 'POST', url: getBaseUrl(), responseType : 'arraybuffer', data: EntifixMetadata.bodyDataFile(options) };
 
                 $http(config).then(actionSuccess, actionError);
             }
@@ -930,9 +934,10 @@
             {
                 var filterProp = [];
                 columnsSelected.forEach((cs) => { 
-                                                    var filter = properties.filter((p) => { return getDisplay(p) == cs });
-                                                    if (filter.length > 0 && !filter[0].alwaysExclude && (!filter[0].type || filter[0].type == "string"))
+                                                    var filter = properties.filter((property) => { return property.display === cs });
+                                                    if (filter.length > 0 && !filter[0].alwaysExclude) {
                                                         filterProp.push(filter[0]);
+                                                    }
                                                 });
                 properties.forEach((property) => {
                                                     if (property.alwaysInclude) {
@@ -945,27 +950,13 @@
                 return filterProp;
             }
 
-            function getDisplay(property)
+            function createDownloadFile(response, options)
             {
-                if (property.display)
-                    return property.display;
-                if (property.name)
-                    return getCleanedString(property.name);
-                return null;
-            }
-
-            function getCleanedString(stringToClean)
-            {
-                return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length).toLowerCase();
-            }
-
-            function createDownloadFile(response, typeFile, fileName)
-            {
-                var type = typeFile || null;
+                var type = options.contentType || null;
                 var blob = new Blob([response.data], {type: type});
                 var blobURL = (window.URL || window.webkitURL).createObjectURL(blob);
                 var anchor = document.createElement("a");
-                anchor.download = fileName || resourceName;
+                anchor.download = options.title;
                 anchor.href = blobURL;
                 document.body.appendChild(anchor);
                 anchor.click();

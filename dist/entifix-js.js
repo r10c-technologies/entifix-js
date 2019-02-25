@@ -523,6 +523,161 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
+    angular.module('entifix-js').service('EntifixDateGenerator', service);
+
+    service.$inject = [];
+
+    function service() {
+        var vm = this;
+
+        // Properties and fields
+        // =========================================================================================================================
+
+        // Fields
+
+        // Properties
+
+        // =========================================================================================================================
+
+
+        // Methods
+        // =========================================================================================================================
+
+        function activate() {};
+
+        vm.transformStringToDate = function (value) {
+            if (isInvalidDate(value)) {
+                var dayOrYear = value.split("-");
+                if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
+
+                if (value.length > 10) var isDateTime = true;else var isDateTime = false;
+
+                if (value && !(value instanceof Date)) {
+                    if (isDateTime) {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
+                        } else {
+                            var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
+                        }
+                    } else {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        } else {
+                            var reggie = /(\d{4})-(\d{2})-(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        }
+                    }
+                } else if (value) {
+                    return value;
+                } else return null;
+            } else return new Date(value);
+        };
+
+        vm.transformDateToString = function (value, type, isToDisplay) {
+            var valueToReturn;
+            var type = type.toUpperCase();
+            if (value instanceof Date) {
+                if (type == 'DATE' || type == 'DATETIME') {
+                    var year = value.getFullYear();
+                    var month = (value.getMonth() + 1).toString();
+                    var day = value.getDate().toString();
+
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+
+                    if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
+                }
+
+                if (type == 'DATETIME' || type == 'TIME') {
+                    var hours = value.getHours().toString();
+                    var minutes = value.getMinutes().toString();
+                    var seconds = value.getSeconds().toString();
+
+                    if (hours.length < 2) hours = '0' + hours;
+                    if (minutes.length < 2) minutes = '0' + minutes;
+                    if (seconds.length < 2) seconds = '0' + seconds;
+
+                    if (type == 'DATETIME') valueToReturn += ' ';
+
+                    valueToReturn += hours + ':' + minutes + ':' + seconds;
+                }
+                return valueToReturn;
+            }
+            return value;
+        };
+
+        function isInvalidDate(value) {
+            var valueDate = new Date(value);
+            if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
+            return false;
+        }
+
+        // =========================================================================================================================
+
+        // Constructor call
+        activate();
+    };
+})();
+'use strict';
+
+(function () {
+        'use strict';
+
+        angular.module('entifix-js').service('EntifixStringUtils', service);
+
+        service.$inject = [];
+
+        function service() {
+                var vm = this;
+
+                // Properties and fields
+                // =========================================================================================================================
+
+                // Fields
+                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+                // Properties
+
+                // =========================================================================================================================
+
+
+                // Methods
+                // =========================================================================================================================
+
+                function activate() {};
+
+                vm.getCleanedString = function (stringToClean) {
+                        for (var i = 0; i < specialChars.length; i++) {
+                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+                        }stringToClean = stringToClean.toLowerCase();
+                        stringToClean = stringToClean.replace(/ /g, "");
+                        stringToClean = stringToClean.replace(/á/gi, "a");
+                        stringToClean = stringToClean.replace(/é/gi, "e");
+                        stringToClean = stringToClean.replace(/í/gi, "i");
+                        stringToClean = stringToClean.replace(/ó/gi, "o");
+                        stringToClean = stringToClean.replace(/ú/gi, "u");
+                        stringToClean = stringToClean.replace(/ñ/gi, "n");
+                        return stringToClean;
+                };
+
+                // =========================================================================================================================
+
+                // Constructor call
+                activate();
+        };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
     angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
         return {
             restrict: 'A',
@@ -863,7 +1018,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $systemOwnerEntityName,
             $systemOwnerEntitySwapName,
             $systemOwnerDisplayName,
-            $idSystemOwnerPropertyName;
+            $idSystemOwnerPropertyName,
+            $excelSheetResourceName,
+            $pdfResourceName;
 
         prov.setAuthUrl = function (value) {
             $authUrl = value;
@@ -931,6 +1088,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         prov.setIdSystemOwnerPropertyName = function (value) {
             $idSystemOwnerPropertyName = value;
+        };
+
+        prov.setExcelSheetResourceName = function (value) {
+            $excelSheetResourceName = value;
+        };
+
+        prov.setpdfResourceName = function (value) {
+            $pdfResourceName = value;
         };
 
         prov.checkAuth = function () {
@@ -1055,6 +1220,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
+            sv.excelSheetResourceName = {
+                get: function get() {
+                    return $excelSheetResourceName;
+                }
+            };
+
+            sv.pdfResourceName = {
+                get: function get() {
+                    return $pdfResourceName;
+                }
+            };
+
             return sv;
         }];
     }]);
@@ -1170,10 +1347,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return vm.getDefinedMembers(resourceName).filter(function (p) {
                 return p.joinable;
             });
-        };
-
-        vm.getResourceProperties = function (resourceName) {
-            return vm.getDefinedMembers(resourceName);
         };
 
         vm.getKeyProperty = function (resourceName) {
@@ -1344,6 +1517,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return false;
         };
 
+        vm.bodyDataFile = function (options) {
+            return {
+                title: options.title,
+                columns: getBodyDataFileColumns(options),
+                tableStriped: "true",
+                pageSize: "Letter",
+                data: getBodyDataFilePdfExcel(options)
+            };
+        };
+
         //==============================================================================================================================================================================
         // Utilities ===================================================================================================================================================================
         //==============================================================================================================================================================================
@@ -1365,6 +1548,30 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return r.name == resourceName;
             })[0];
         };
+
+        function getBodyDataFileColumns(options) {
+            var columns = [];
+
+            options.columns.forEach(function (column, index) {
+                columns.push({ description: column.display, columnName: "Field_" + (index + 1) });
+            });
+
+            return columns;
+        }
+
+        function getBodyDataFilePdfExcel(options) {
+            var data = [];
+
+            options.data.forEach(function (row) {
+                var dataRow = {};
+                options.columns.forEach(function (column, index) {
+                    dataRow["Field_" + (index + 1)] = row[column.name] || "";
+                });
+                data.push(dataRow);
+            });
+
+            return data;
+        }
 
         //==============================================================================================================================================================================
     };
@@ -2182,8 +2389,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             vm.getMembersResource = {
                 get: function get() {
-                    return EntifixMetadata.getResourceProperties(resourceName).filter(function (rp) {
-                        return !rp.notDisplay;
+                    return EntifixMetadata.getDefinedMembers(resourceName).filter(function (member) {
+                        return !member.notDisplay;
                     });
                 }
             };
@@ -2501,36 +2708,82 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             vm.getPagFilters = function (searchText, searchArray, columnsSelected) {
                 var resPagFilters = [];
                 if (searchText && (!searchArray || searchArray.length <= 0)) {
-                    var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected).map(function (p) {
-                        return p.pageProperty ? p.pageProperty : p.name;
-                    });
+                    var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected);
                     var joinProperties = filterProperties(EntifixMetadata.getJoinProperties(resourceName), columnsSelected);
 
-                    for (var prop in pagProperties) {
-                        resPagFilters.push({ property: pagProperties[prop], value: searchText, operator: "lk" });
-                    }for (var prop in joinProperties) {
-                        resPagFilters.push({ property: joinProperties[prop].propertySearch, value: searchText });
-                        resPagFilters.push({ property: joinProperties[prop].name, value: 'join;' + joinProperties[prop].propertyJoin });
+                    var _iteratorNormalCompletion = true;
+                    var _didIteratorError = false;
+                    var _iteratorError = undefined;
+
+                    try {
+                        for (var _iterator = pagProperties[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                            var prop = _step.value;
+
+                            if (prop.type == "text" || prop.type == "date" || prop.type == "datetime") {
+                                resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "lk" });
+                            } else if (prop.type == "boolean" || prop.type == "number") {
+                                resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "eq" });
+                            }
+                        }
+                    } catch (err) {
+                        _didIteratorError = true;
+                        _iteratorError = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion && _iterator.return) {
+                                _iterator.return();
+                            }
+                        } finally {
+                            if (_didIteratorError) {
+                                throw _iteratorError;
+                            }
+                        }
+                    }
+
+                    var _iteratorNormalCompletion2 = true;
+                    var _didIteratorError2 = false;
+                    var _iteratorError2 = undefined;
+
+                    try {
+                        for (var _iterator2 = joinProperties[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                            var prop = _step2.value;
+
+                            resPagFilters.push({ property: joinProperties[prop].propertySearch, value: searchText });
+                            resPagFilters.push({ property: joinProperties[prop].name, value: 'join;' + joinProperties[prop].propertyJoin });
+                        }
+                    } catch (err) {
+                        _didIteratorError2 = true;
+                        _iteratorError2 = err;
+                    } finally {
+                        try {
+                            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                                _iterator2.return();
+                            }
+                        } finally {
+                            if (_didIteratorError2) {
+                                throw _iteratorError2;
+                            }
+                        }
                     }
                 } else if (searchArray) {
                     var type = 'fixed_filter';
                     searchArray.forEach(function (element) {
-                        resPagFilters.push({ property: element.property.pageProperty || element.property.name, value: element.value, type: type, operator: element.operator });
+                        resPagFilters.push({ property: element.property, value: element.value, type: type, operator: element.operator });
                     });
                 }
 
                 return resPagFilters;
             };
 
-            vm.getFile = function (url, typeFile, fileName) {
+            vm.getFile = function (options) {
                 var actionSuccess = function actionSuccess(response) {
-                    createDownloadFile(response, typeFile, fileName);
+                    createDownloadFile(response, options);
                 };
                 var actionError = function actionError(response) {
                     _checkActionErrors(response);
                 };
 
-                var config = { method: 'GET', url: url, responseType: 'arraybuffer' };
+                var config = { method: 'POST', url: getBaseUrl(), responseType: 'arraybuffer', data: EntifixMetadata.bodyDataFile(options) };
 
                 $http(config).then(actionSuccess, actionError);
             };
@@ -2571,10 +2824,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             function filterProperties(properties, columnsSelected) {
                 var filterProp = [];
                 columnsSelected.forEach(function (cs) {
-                    var filter = properties.filter(function (p) {
-                        return getDisplay(p) == cs;
+                    var filter = properties.filter(function (property) {
+                        return property.display === cs;
                     });
-                    if (filter.length > 0 && !filter[0].alwaysExclude && (!filter[0].type || filter[0].type == "string")) filterProp.push(filter[0]);
+                    if (filter.length > 0 && !filter[0].alwaysExclude) {
+                        filterProp.push(filter[0]);
+                    }
                 });
                 properties.forEach(function (property) {
                     if (property.alwaysInclude) {
@@ -2587,22 +2842,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return filterProp;
             }
 
-            function getDisplay(property) {
-                if (property.display) return property.display;
-                if (property.name) return getCleanedString(property.name);
-                return null;
-            }
-
-            function getCleanedString(stringToClean) {
-                return stringToClean.charAt(0).toUpperCase() + stringToClean.substring(1, stringToClean.length).toLowerCase();
-            }
-
-            function createDownloadFile(response, typeFile, fileName) {
-                var type = typeFile || null;
+            function createDownloadFile(response, options) {
+                var type = options.contentType || null;
                 var blob = new Blob([response.data], { type: type });
                 var blobURL = (window.URL || window.webkitURL).createObjectURL(blob);
                 var anchor = document.createElement("a");
-                anchor.download = fileName || resourceName;
+                anchor.download = options.title;
                 anchor.href = blobURL;
                 document.body.appendChild(anchor);
                 anchor.click();
@@ -2798,155 +3043,310 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').service('EntifixDateGenerator', service);
-
-    service.$inject = [];
-
-    function service() {
+    function componentcontroller($mdConstant) {
         var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
 
-        // Properties and fields
-        // =========================================================================================================================
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
 
-        // Fields
-
-        // Properties
-
-        // =========================================================================================================================
-
-
-        // Methods
-        // =========================================================================================================================
-
-        function activate() {};
-
-        vm.transformStringToDate = function (value) {
-            if (isInvalidDate(value)) {
-                var dayOrYear = value.split("-");
-                if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
-
-                if (value.length > 10) var isDateTime = true;else var isDateTime = false;
-
-                if (value && !(value instanceof Date)) {
-                    if (isDateTime) {
-                        if (isToDisplay) {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
-                        } else {
-                            var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
-                        }
-                    } else {
-                        if (isToDisplay) {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                        } else {
-                            var reggie = /(\d{4})-(\d{2})-(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                        }
-                    }
-                } else if (value) {
-                    return value;
-                } else return null;
-            } else return new Date(value);
-        };
-
-        vm.transformDateToString = function (value, type, isToDisplay) {
-            var valueToReturn;
-            var type = type.toUpperCase();
-            if (value instanceof Date) {
-                if (type == 'DATE' || type == 'DATETIME') {
-                    var year = value.getFullYear();
-                    var month = (value.getMonth() + 1).toString();
-                    var day = value.getDate().toString();
-
-                    if (month.length < 2) month = '0' + month;
-                    if (day.length < 2) day = '0' + day;
-
-                    if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
-                }
-
-                if (type == 'DATETIME' || type == 'TIME') {
-                    var hours = value.getHours().toString();
-                    var minutes = value.getMinutes().toString();
-                    var seconds = value.getSeconds().toString();
-
-                    if (hours.length < 2) hours = '0' + hours;
-                    if (minutes.length < 2) minutes = '0' + minutes;
-                    if (seconds.length < 2) seconds = '0' + seconds;
-
-                    if (type == 'DATETIME') valueToReturn += ' ';
-
-                    valueToReturn += hours + ':' + minutes + ':' + seconds;
-                }
-                return valueToReturn;
+                return false;
             }
-            return value;
         };
 
-        function isInvalidDate(value) {
-            var valueDate = new Date(value);
-            if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
-            return false;
-        }
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
 
-        // =========================================================================================================================
+                return false;
+            }
+        };
 
-        // Constructor call
-        activate();
+        //Error validations
+        vm.maxChips = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxChipsMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
+                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
+
+                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
+                }
+
+                //Default value
+                return 'Ha alcanzado el número máximo de elementos';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                return 'entifixchip' + randomNumber;
+            }
+        };
+
+        vm.transformChip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
+            }
+        };
+
+        vm.onAdd = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
+            }
+        };
+
+        vm.onRemove = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
+            }
+        };
+
+        vm.onSelect = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
+            }
+        };
+
+        vm.placeholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.secondaryPlaceholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
+
+                //Default value
+                return vm.placeholder.get();
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.removable = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.readOnly = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.enableChipEdit = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
+
+                //Default value
+                return 'true';
+            }
+        };
+
+        vm.addOnBlur = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.separators = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
+
+                //Default value
+                return vm.separatorsDefault;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.getStringValue = function () {
+            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
+                var value = '';
+                vm.valueModel.forEach(function (element) {
+                    value += element + ' ';
+                });
+                return value;
+            }
+            return '';
+        };
+
+        vm.tC = function (chip, index) {
+            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
+        };
+
+        vm.oAdd = function (chip, index) {
+            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
+        };
+
+        vm.oRemove = function (chip, index) {
+            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
+        };
+
+        vm.oSelect = function (chip, index) {
+            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
+        };
+
+        //=======================================================================================================================================================================
+
     };
-})();
-'use strict';
 
-(function () {
-        'use strict';
+    componentcontroller.$inject = ['$mdConstant'];
 
-        angular.module('entifix-js').service('EntifixStringUtils', service);
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
+        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-chips \
+                            ng-if="vm.canShowEditableFields.get()" \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd$chip()" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.placeholder.get()}}</label><br/> \
+                            <strong>{{vm.getStringValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-chips \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd($chip, $index)" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                    </div> \
+                    <br/>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
 
-        service.$inject = [];
-
-        function service() {
-                var vm = this;
-
-                // Properties and fields
-                // =========================================================================================================================
-
-                // Fields
-                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-                // Properties
-
-                // =========================================================================================================================
-
-
-                // Methods
-                // =========================================================================================================================
-
-                function activate() {};
-
-                vm.getCleanedString = function (stringToClean) {
-                        for (var i = 0; i < specialChars.length; i++) {
-                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-                        }stringToClean = stringToClean.toLowerCase();
-                        stringToClean = stringToClean.replace(/ /g, "");
-                        stringToClean = stringToClean.replace(/á/gi, "a");
-                        stringToClean = stringToClean.replace(/é/gi, "e");
-                        stringToClean = stringToClean.replace(/í/gi, "i");
-                        stringToClean = stringToClean.replace(/ó/gi, "o");
-                        stringToClean = stringToClean.replace(/ú/gi, "u");
-                        stringToClean = stringToClean.replace(/ñ/gi, "n");
-                        return stringToClean;
-                };
-
-                // =========================================================================================================================
-
-                // Constructor call
-                activate();
-        };
+    angular.module('entifix-js').component('entifixChip', component);
 })();
 'use strict';
 
@@ -4357,316 +4757,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
-(function () {
-    'use strict';
-
-    function componentcontroller($mdConstant) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.maxChips = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxChipsMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
-                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
-
-                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
-                }
-
-                //Default value
-                return 'Ha alcanzado el número máximo de elementos';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                return 'entifixchip' + randomNumber;
-            }
-        };
-
-        vm.transformChip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
-            }
-        };
-
-        vm.onAdd = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
-            }
-        };
-
-        vm.onRemove = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
-            }
-        };
-
-        vm.onSelect = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
-            }
-        };
-
-        vm.placeholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.secondaryPlaceholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
-
-                //Default value
-                return vm.placeholder.get();
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.removable = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.readOnly = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.enableChipEdit = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
-
-                //Default value
-                return 'true';
-            }
-        };
-
-        vm.addOnBlur = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.separators = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
-
-                //Default value
-                return vm.separatorsDefault;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.getStringValue = function () {
-            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
-                var value = '';
-                vm.valueModel.forEach(function (element) {
-                    value += element + ' ';
-                });
-                return value;
-            }
-            return '';
-        };
-
-        vm.tC = function (chip, index) {
-            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
-        };
-
-        vm.oAdd = function (chip, index) {
-            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
-        };
-
-        vm.oRemove = function (chip, index) {
-            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
-        };
-
-        vm.oSelect = function (chip, index) {
-            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$mdConstant'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
-        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <md-chips \
-                            ng-if="vm.canShowEditableFields.get()" \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd$chip()" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.placeholder.get()}}</label><br/> \
-                            <strong>{{vm.getStringValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-chips \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd($chip, $index)" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                    </div> \
-                    <br/>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixChip', component);
-})();
-'use strict';
-
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 (function () {
@@ -5525,7 +5615,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasSavePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
+                if (!vm.componentConstruction.permissions.save || vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
 
                 //Default value
                 return false;
@@ -5534,7 +5624,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
+                if (!vm.componentConstruction.permissions.edit || vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -5543,7 +5633,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
+                if (!vm.componentConstruction.permissions.remove || vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
 
                 //Default value
                 return false;
@@ -5552,7 +5642,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasProcessPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
+                if (!vm.componentConstruction.permissions.process || vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
 
                 //Default value
                 return false;
@@ -5842,10 +5932,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
-                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
-                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
-                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
-                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
+                    if (!vm.hasSavePermission.get()) delete vm.componentConstruction.save;
+                    if (!vm.hasEditPermission.get()) delete vm.componentConstruction.edit;
+                    if (!vm.hasRemovePermission.get()) delete vm.componentConstruction.remove;
+                    if (!vm.hasProcessPermission.get()) delete vm.componentConstruction.process;
                 }
             }
         }
@@ -7245,20 +7335,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 (function () {
     'use strict';
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession) {
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig) {
         var vm = this;
         var cont = 0;
         var onLoading = true;
         var isFirstLoad = true;
+        var filters;
+
         // Properties & Fields ===================================================================================================================================================
 
         //Fields
@@ -7266,6 +7356,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var _total = 0;
         var _canShowSearchText = true;
         var _transformValues;
+        var _excelSheetResource = new EntifixResource(EntifixConfig.excelSheetResourceName.get());
+        var _pdfResource = new EntifixResource(EntifixConfig.pdfResourceName.get());
+        var originatorEvExcel = void 0;
+        var originatorEvPdf = void 0;
 
         // Main
         vm.isLoading = {
@@ -7463,27 +7557,54 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.sheetIcon = {
+        vm.excelSheetIcon = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.sheetIcon && vm.componentConstruction.sheetIcon.icon) return vm.componentConstruction.sheetIcon.icon;
+                if (vm.componentConstruction && vm.componentConstruction.excelSheetIcon && vm.componentConstruction.excelSheetIcon.icon) return vm.componentConstruction.excelSheetIcon.icon;
 
                 //Default value
                 return 'poll';
             }
         };
 
-        vm.sheetText = {
+        vm.excelSheetText = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.sheetText && vm.componentConstruction.sheetText.text) return vm.componentConstruction.sheetText.text;
+                if (vm.componentConstruction && vm.componentConstruction.excelSheetText && vm.componentConstruction.excelSheetText.text) return vm.componentConstruction.excelSheetText.text;
 
                 //Default value
                 return 'Descargar Excel';
             }
         };
 
-        vm.canDownloadSheet = {
+        vm.canDownloadExcelSheet = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.canDownloadSheet != null) return vm.componentConstruction.canDownloadSheet;
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadExcelSheet != null) return vm.componentConstruction.canDownloadExcelSheet;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.pdfIcon = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.pdfIcon && vm.componentConstruction.pdfIcon.icon) return vm.componentConstruction.pdfIcon.icon;
+
+                //Default value
+                return 'picture_as_pdf';
+            }
+        };
+
+        vm.pdfText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.pdfText && vm.componentConstruction.pdfText.text) return vm.componentConstruction.pdfText.text;
+
+                //Default value
+                return 'Descargar Pdf';
+            }
+        };
+
+        vm.canDownloadPdf = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadPdf != null) return vm.componentConstruction.canDownloadPdf;
 
                 //Default value
                 return true;
@@ -7539,6 +7660,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 //Default value
                 return [{ display: 'Igual', operator: '=' }, { display: 'Diferente', operator: '<>' }, { display: 'Incluya', operator: 'lk' }];
+            },
+
+            numbers: function numbers() {
+                if (vm.componentConstruction && vm.componentConstruction.numberOperators) return vm.componentConstruction.numberOperators;
+
+                //Default value
+                return [{ display: 'Igual', operator: '=' }, { display: 'Mayor que', operator: '>' }, { display: 'Menor que', operator: '<' }, { display: 'Mayor o igual que', operator: '>=' }, { display: 'Menor o igual que', operator: '<=' }, { display: 'Diferente', operator: '<>' }];
+            },
+
+            booleans: function booleans() {
+                if (vm.componentConstruction && vm.componentConstruction.booleanOperators) return vm.componentConstruction.booleanOperators;
+
+                //Default value
+                return [{ display: 'Igual', operator: '=' }, { display: 'Diferente', operator: '<>' }];
             },
 
             enums: function enums() {
@@ -7722,7 +7857,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasAddPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add)) return true;
+                if (!vm.componentConstruction.permissions.add || vm.componentConstruction.permissions.add != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.add)) return true;
 
                 //Default value
                 return false;
@@ -7731,7 +7866,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
+                if (!vm.componentConstruction.permissions.edit || vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -7740,7 +7875,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
+                if (!vm.componentConstruction.permissions.remove || vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasExcelSheetPermission = {
+            get: function get() {
+                if (!vm.componentConstruction.permissions.excelSheet || vm.componentConstruction.permissions.excelSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.excelSheet)) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.hasPdfPermission = {
+            get: function get() {
+                if (!vm.componentConstruction.permissions.pdf || vm.componentConstruction.permissions.pdf != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.pdf)) return true;
 
                 //Default value
                 return false;
@@ -7753,18 +7906,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             setdefaults();
             createconnectioncomponent();
             setDefaultsTable();
+            checkPermissions();
             activate();
             checkoutputs();
-            checkPermissions();
         };
 
         function setdefaults() {
             setProperties();
             createComponents();
-
-            if (vm.isMovement.get()) setDateProperties();
-
-            vm.componentConstruction.reload = vm.$onInit;
+            setDateProperties();
         };
 
         function createconnectioncomponent() {
@@ -7789,8 +7939,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             });
 
             vm.connectionComponent.pager = vm.pager;
-            vm.connectionComponent.tablePropertiesNavigation = { get: function get() {
-                    return vm.tablePropertiesNavigation;
+            vm.connectionComponent.resourceMembers = { get: function get() {
+                    return vm.resourceMembers;
                 } };
             vm.connectionComponent.onChangePageSize = vm.onChangePageSize;
 
@@ -7816,13 +7966,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             vm.connectionComponent.sortTable = function (column) {
                 if (!column.$selected) column.$selected = true;else column.$selected = false;
 
-                vm.tablePropertiesNavigation.filter(function (p) {
+                vm.resourceMembers.filter(function (p) {
                     return p.display != column.display;
                 }).forEach(function (p) {
                     p.$selected = null;
                 });
                 setClassColumn();
-                vm.connectionComponent.pager.sortTableColumns.set([{ sort: column.property.pageProperty || column.property.name, value: column.$selected ? 'asc' : 'desc' }]);
+                vm.connectionComponent.pager.sortTableColumns.set([{ sort: column.pageProperty || column.name, value: column.$selected ? 'asc' : 'desc' }]);
                 vm.connectionComponent.pager.reload();
             };
 
@@ -7950,7 +8100,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 allowedActions: { canEdit: vm.canEdit, canRemove: vm.canRemove, canAdd: vm.canAdd },
                 cleanFilters: function cleanFilters() {
                     vm.cleanFilters();
-                }
+                },
+                reloadComponent: vm.$onInit
             };
         };
 
@@ -8122,26 +8273,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         // Filters control
         function setProperties() {
-            vm.searchArray = [], vm.tableProperties = [], vm.tablePropertiesNavigation = [], vm.columnsSelected = [];
+            vm.searchArray = [], vm.resourceMembers = [], vm.columnsSelected = [];
             vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
             vm.resourceMembers.forEach(function (property) {
-                vm.tableProperties.push({ display: getDisplay(property), type: property.type || 'text', property: property });if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property));
+                property.type ? property.type : property.type = 'text';property.display ? property.display : property.display = getDisplay(property);if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property));
             });
-            vm.tablePropertiesNavigation = vm.tableProperties.filter(function (p) {
-                return p.property.paginable == 'true' || p.property.paginable == true;
-            });
-            setClassColumn();
             vm.operators = vm.propertiesOperators.defaults();
+            setClassColumn();
         }
 
         function setClassColumn() {
-            vm.tablePropertiesNavigation.forEach(function (property) {
+            vm.resourceMembers.forEach(function (property) {
                 if (property.$selected) property.class = 'md-column sortable sort-descent';else if (property.$selected == false) property.class = 'md-column sortable sort-ascent';else property.class = 'md-column sortable';
             });
         }
 
         function setDateProperties() {
-            if (!vm.queryDetails.constantFilters) {
+            if (vm.isMovement.get() && !vm.queryDetails.constantFilters) {
                 vm.queryDetails.constantFilters = {};
                 vm.queryDetails.constantFilters.getter = function () {
                     return [];
@@ -8206,12 +8354,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 isForm: false
             };
 
-            vm.chipsCC = _defineProperty({
+            vm.chipsCC = {
                 isForm: false,
                 transformChip: vm.transformchip,
-                onRemove: vm.onremove,
-                readOnly: true
-            }, 'onRemove', removeChip);
+                readOnly: true,
+                onRemove: removeChip
+            };
 
             vm.startDateCC = {
                 title: { text: vm.startDateText.get() },
@@ -8242,7 +8390,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.columnToSearch) {
                 if (vm.columnToSearch.property && vm.columnToSearch.property.resource) vm.valueToSearchQD = { resource: new EntifixResource(vm.columnToSearch.property.resource) };
 
-                if (vm.columnToSearch.type == 'text') vm.operators = vm.propertiesOperators.strings();else if (vm.columnToSearch.type == 'enum') vm.operators = vm.propertiesOperators.enums();else vm.operators = vm.propertiesOperators.defaults();
+                if (vm.columnToSearch.type == 'text') vm.operators = vm.propertiesOperators.strings();else if (vm.columnToSearch.type == 'number') vm.operators = vm.propertiesOperators.numbers();else if (vm.columnToSearch.type == 'enum') vm.operators = vm.propertiesOperators.enums();else if (vm.columnToSearch.type == 'boolean') vm.operators = vm.propertiesOperators.booleans();else vm.operators = vm.propertiesOperators.defaults();
             }
         };
 
@@ -8274,56 +8422,58 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.columnToSearch.display && vm.operator.operator && vm.valueToSearch) {
                 vm.valueToSearch = transformDate(vm.valueToSearch, vm.columnToSearch.type);
                 vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' ' + vm.operator.operator + ' ' + vm.valueToSearch);
-                vm.searchArray.push({ property: vm.columnToSearch.property, operator: vm.operator.operator, value: vm.valueToSearch });
+                vm.searchArray.push({ property: vm.columnToSearch, operator: vm.operator.operator, value: vm.valueToSearch });
             }
             cleanCustomSearchValues();
             setParametersAddChip();
-            vm.connectionComponent.pager.reload();
         };
 
         function removeChip(chip, index) {
             vm.searchArray.splice(index, 1);
             if (vm.searchArray.length > 0 && vm.textBoxSearchValueChips.length > 0 && vm.queryParams.get()) $state.go('.', { customSearch: JSON.stringify(vm.searchArray), chips: JSON.stringify(vm.textBoxSearchValueChips) }, { notify: false });else if (vm.queryParams.get()) $state.go('.', { customSearch: null, chips: null }, { notify: false });
-            vm.connectionComponent.pager.reload();
             filters = null;
         }
 
-        function cleanCustomSearchValues(cleanParams, value, cleanDates) {
+        function setParametersAddChip() {
+            vm.pager.page = 1;
+            if (vm.queryParams.get()) $state.go('.', { customSearch: JSON.stringify(vm.searchArray), chips: JSON.stringify(vm.textBoxSearchValueChips), page: vm.pager.page }, { notify: false });
+        }
+
+        function cleanCustomSearchValues(cleanedParams, switchValue, cleanedDates) {
             vm.columnToSearch = null;
             vm.operator = null;
             vm.valueToSearch = null;
             vm.textBoxSearchValue = null;
             filters = null;
 
-            if (cleanParams) {
-                if (!value) {
-                    vm.searchArray = [];
-                    vm.pager.page = 1;
-                    if (vm.queryParams.get()) $state.go('.', { customSearch: null, chips: null, page: vm.pager.page }, { notify: false });
-                } else if (vm.queryParams.get()) $state.go('.', { customSearch: null, chips: null, searchText: null }, { notify: false });
-                vm.textBoxSearchValueChips = [];
-            }
+            if (cleanedParams) cleanParams(switchValue);
 
-            if (cleanDates) {
-                if (vm.queryDetails.constantFilters) vm.queryDetails.constantFilters.getter = function () {
-                    return [];
-                };
-                vm.startDate = null;
-                vm.endDate = null;
-                vm.notApplied = false;
-                $state.go('.', { customSearch: null, chips: null, searchText: null, page: vm.pager.page, itemsPerPage: vm.pager.size, startDate: null, endDate: null }, { notify: false });
-            }
+            if (cleanedDates) cleanDates();
+        }
+
+        function cleanParams(switchValue) {
+            if (!switchValue) {
+                vm.searchArray = [];
+                vm.pager.page = 1;
+                if (vm.queryParams.get()) $state.go('.', { customSearch: null, chips: null, page: vm.pager.page }, { notify: false });
+            } else if (vm.queryParams.get()) $state.go('.', { customSearch: null, chips: null, searchText: null }, { notify: false });
+            vm.textBoxSearchValueChips = [];
+        }
+
+        function cleanDates() {
+            if (vm.queryDetails.constantFilters) vm.queryDetails.constantFilters.getter = function () {
+                return [];
+            };
+            vm.startDate = null;
+            vm.endDate = null;
+            vm.notApplied = false;
+            $state.go('.', { customSearch: null, chips: null, searchText: null, page: vm.pager.page, itemsPerPage: vm.pager.size, startDate: null, endDate: null }, { notify: false });
         }
 
         vm.cleanFilters = function () {
             cleanCustomSearchValues(true, false, true);
             vm.connectionComponent.pager.reload();
         };
-
-        function setParametersAddChip() {
-            vm.pager.page = 1;
-            if (vm.queryParams.get()) $state.go('.', { customSearch: JSON.stringify(vm.searchArray), chips: JSON.stringify(vm.textBoxSearchValueChips), page: vm.pager.page }, { notify: false });
-        }
 
         function getDisplay(property) {
             if (property.display) return property.display;
@@ -8384,37 +8534,70 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        var originatorEv;
-        vm.openSheetMenu = function ($mdMenu, ev) {
-            originatorEv = ev;
+        vm.openExcelSheetMenu = function ($mdMenu, ev) {
+            originatorEvExcel = ev;
             $mdMenu.open(ev);
         };
 
-        var filters, templateUrl;
-        vm.fil = filters;
-        vm.downloadSheet = function (allPages) {
-            if (!filters) filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
-
-            templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
-
-            if (allPages) templateUrl += filters;else templateUrl += '/' + (vm.pager.page - 1) * vm.pager.size + '/' + vm.pager.size + filters;
-
-            vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        vm.openPdfMenu = function ($mdMenu, ev) {
+            originatorEvPdf = ev;
+            $mdMenu.open(ev);
         };
 
-        vm.getConstantFilters = function () {
-            var filters = [];
-            if (vm.pager.getConstantFilters()) filters = filters.concat(vm.pager.getConstantFilters());
-            if (vm.queryDetails.sort) filters = filters.concat(vm.queryDetails.sort);
-            return filters;
+        vm.downloadFileSimplePage = function (type) {
+            if (type == 'pdf') {
+                _pdfResource.getFile({ type: type, contentType: 'application/pdf', columns: getMembersSelected(), data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            } else if (type == 'excel') {
+                _excelSheetResource.getFile({ type: type, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', columns: vm.resourceMembers, data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            }
         };
+
+        function getMembersSelected() {
+            var columns = [];
+            vm.columnsSelected.forEach(function (columnSelected) {
+                return vm.resourceMembers.forEach(function (resourceMember) {
+                    if ((resourceMember.display || getDisplay(resourceMember.name)) == columnSelected) columns.push(resourceMember);
+                });
+            });
+            return columns;
+        }
+
+        // var filters, templateUrl;
+        // vm.fil = filters;
+
+        // vm.downloadFileAllPages = function(type)
+        // {
+        //     if (!filters)
+        //         filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
+
+        //     templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
+
+        //     if (allPages)
+        //         templateUrl += filters;
+        //     else 
+        //         templateUrl += '/' + ((vm.pager.page - 1) * vm.pager.size) + '/' + vm.pager.size + filters;
+
+        //     vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        // }
+
+        // vm.getConstantFilters = function()
+        // {
+        //     var filters = [];
+        //     if (vm.pager.getConstantFilters())
+        //         filters = filters.concat(vm.pager.getConstantFilters());
+        //     if (vm.queryDetails.sort)
+        //         filters = filters.concat(vm.queryDetails.sort);
+        //     return filters;
+        // }
 
         function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
-                    if (!vm.hasAddPermission.get()) vm.componentConstruction.add = undefined;
-                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
-                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
+                    if (!vm.hasAddPermission.get()) delete vm.componentConstruction.add;
+                    if (!vm.hasEditPermission.get()) delete vm.componentConstruction.edit;
+                    if (!vm.hasRemovePermission.get()) delete vm.componentConstruction.remove;
+                    if (!vm.hasExcelSheetPermission.get()) vm.componentConstruction.canDownloadExcelSheet = false;
+                    if (!vm.hasPdfPermission.get()) vm.componentConstruction.canDownloadPdf = false;
                 }
             }
         }
@@ -8458,7 +8641,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                 ng-model="bindCtrl.columnToSearch" \
                                                 aria-label="{{bindCtrl.columnsText.get()}}" \
                                                 ng-change="bindCtrl.onChangeColumn()"> \
-                                                <md-option ng-repeat="item in bindCtrl.tablePropertiesNavigation" ng-value="item">{{item.display}}</md-option> \
+                                                <md-option ng-repeat="item in bindCtrl.resourceMembers" ng-value="item">{{item.display}}</md-option> \
                                             </md-select> \
                                         </md-input-container> \
                                     </div> \
@@ -8532,21 +8715,42 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                     <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
                                                         <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                                     </md-button> \
-                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()"> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openExcelSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadExcelSheet.get()"> \
                                                         <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
-                                                            <md-tooltip>{{bindCtrl.sheetText.get()}}</md-tooltip> \
-                                                            <md-icon class="material-icons">{{bindCtrl.sheetIcon.get()}}</md-icon> \
+                                                            <md-tooltip>{{bindCtrl.excelSheetText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.excelSheetIcon.get()}}</md-icon> \
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadSheet(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadExcelSheet(true)"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
                                                             </md-menu-item> \
                                                             <md-menu-divider></md-menu-divider> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadSheet()"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'excel\')"> \
+                                                                    <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
+                                                                </md-button> \
+                                                            </md-menu-item> \
+                                                        </md-menu-content> \
+                                                    </md-menu> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openPdfMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadPdf.get()"> \
+                                                        <md-button class="md-primary md-warn text-danger md-fab md-mini" ng-click="bindCtrl.ds()"> \
+                                                            <md-tooltip>{{bindCtrl.pdfText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.pdfIcon.get()}}</md-icon> \
+                                                        </md-button> \
+                                                        <md-menu-content> \
+                                                            <md-menu-item> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadPdf(true)"> \
+                                                                    <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
+                                                                    <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
+                                                                </md-button> \
+                                                            </md-menu-item> \
+                                                            <md-menu-divider></md-menu-divider> \
+                                                            <md-menu-item> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'pdf\')()"> \
                                                                     <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
                                                                 </md-button> \
@@ -8566,7 +8770,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                         aria-label="{{bindCtrl.columnsText.get()}}" \
                                                         ng-change="bindCtrl.reloadAllSelected()"> \
                                                         <md-option ng-click="bindCtrl.selectAllItems()">{{bindCtrl.selectAllText.get()}}</md-option> \
-                                                        <md-option ng-repeat="item in bindCtrl.tableProperties">{{item.display}}</md-option> \
+                                                        <md-option ng-repeat="item in bindCtrl.resourceMembers">{{item.display}}</md-option> \
                                                     </md-select> \
                                                 </md-input-container> \
                                             </div> \
@@ -9035,7 +9239,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasSavePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
+                if (!vm.componentConstruction.permissions.save || vm.componentConstruction.permissions.save != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.save)) return true;
 
                 //Default value
                 return false;
@@ -9044,7 +9248,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasEditPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
+                if (!vm.componentConstruction.permissions.edit || m.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)) return true;
 
                 //Default value
                 return false;
@@ -9053,7 +9257,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasRemovePermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
+                if (!vm.componentConstruction.permissions.remove || vm.componentConstruction.permissions.remove != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.remove)) return true;
 
                 //Default value
                 return false;
@@ -9062,7 +9266,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.hasProcessPermission = {
             get: function get() {
-                if (vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
+                if (!vm.componentConstruction.permissions.process || vm.componentConstruction.permissions.process != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.process)) return true;
 
                 //Default value
                 return false;
@@ -9353,10 +9557,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         function checkPermissions() {
             if (vm.hasPermissions.get()) {
                 if (!vm.hasAllPermission.get()) {
-                    if (!vm.hasSavePermission.get()) vm.componentConstruction.save = undefined;
-                    if (!vm.hasEditPermission.get()) vm.componentConstruction.edit = undefined;
-                    if (!vm.hasRemovePermission.get()) vm.componentConstruction.remove = undefined;
-                    if (!vm.hasProcessPermission.get()) vm.componentConstruction.process = undefined;
+                    if (!vm.hasSavePermission.get()) delete vm.componentConstruction.save;
+                    if (!vm.hasEditPermission.get()) delete vm.componentConstruction.edit;
+                    if (!vm.hasRemovePermission.get()) delete vm.componentConstruction.remove;
+                    if (!vm.hasProcessPermission.get()) delete vm.componentConstruction.process;
                 }
             }
         }

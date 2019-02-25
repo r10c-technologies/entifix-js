@@ -266,8 +266,7 @@
                         return true;
                     return false;
                 } else if (permission instanceof Array) {
-                    return permission.filter(p => sv.currentPermissions.get().filter(e => e == p).length > 0).length > 0;
-                    
+                    return permission.filter(p => sv.currentPermissions.get().filter(e => e == p).length > 0).length > 0; 
                 }
             };
 

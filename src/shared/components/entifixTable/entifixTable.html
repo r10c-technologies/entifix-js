@@ -32,7 +32,7 @@
                             ng-model="bindCtrl.columnToSearch"
                             aria-label="{{bindCtrl.columnsText.get()}}"
                             ng-change="bindCtrl.onChangeColumn()">
-                            <md-option ng-repeat="item in bindCtrl.tablePropertiesNavigation" ng-value="item">{{item.display}}</md-option>
+                            <md-option ng-repeat="item in bindCtrl.resourceMembers" ng-value="item">{{item.display}}</md-option>
                         </md-select>
                     </md-input-container>
                 </div>
@@ -116,21 +116,42 @@
                                 <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit">
                                     <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}}
                                 </md-button>
-                                <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadSheet.get()">
+                                <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openExcelSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadExcelSheet.get()">
                                     <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()">
-                                        <md-tooltip>{{bindCtrl.sheetText.get()}}</md-tooltip>
-                                        <md-icon class="material-icons">{{bindCtrl.sheetIcon.get()}}</md-icon>
+                                        <md-tooltip>{{bindCtrl.excelSheetText.get()}}</md-tooltip>
+                                        <md-icon class="material-icons">{{bindCtrl.excelSheetIcon.get()}}</md-icon>
                                     </md-button>
                                     <md-menu-content>
                                         <md-menu-item>
-                                            <md-button aria-label="" ng-click="bindCtrl.downloadSheet(true)">
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadExcelSheet(true)">
                                                 <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip>
                                                 <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}}
                                             </md-button>
                                         </md-menu-item>
                                         <md-menu-divider></md-menu-divider>
                                         <md-menu-item>
-                                            <md-button aria-label="" ng-click="bindCtrl.downloadSheet()">
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage('excel')">
+                                                <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip>
+                                                <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}}
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                                <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openPdfMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadPdf.get()">
+                                    <md-button class="md-primary md-warn text-danger md-fab md-mini" ng-click="bindCtrl.ds()">
+                                        <md-tooltip>{{bindCtrl.pdfText.get()}}</md-tooltip>
+                                        <md-icon class="material-icons">{{bindCtrl.pdfIcon.get()}}</md-icon>
+                                    </md-button>
+                                    <md-menu-content>
+                                        <md-menu-item>
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadPdf(true)">
+                                                <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip>
+                                                <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}}
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-divider></md-menu-divider>
+                                        <md-menu-item>
+                                            <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage('pdf')">
                                                 <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip>
                                                 <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}}
                                             </md-button>
@@ -150,7 +171,7 @@
                                     aria-label="{{bindCtrl.columnsText.get()}}"
                                     ng-change="bindCtrl.reloadAllSelected()">
                                     <md-option ng-click="bindCtrl.selectAllItems()">{{bindCtrl.selectAllText.get()}}</md-option>
-                                    <md-option ng-repeat="item in bindCtrl.tableProperties">{{item.display}}</md-option>
+                                    <md-option ng-repeat="item in bindCtrl.resourceMembers">{{item.display}}</md-option>
                                 </md-select>
                             </md-input-container>
                         </div>
