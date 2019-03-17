@@ -81,6 +81,9 @@
 .text-bold{
   font-weight: bold;
 }
+.md-black:not([disabled]):hover {
+  background-color: rgba(158,158,158,0.2);
+}
 
 /*********************************************************/
 /************** State Transition Animations **************/

@@ -1,11 +1,11 @@
 (function () {
     'use strict';
    
-    function componentcontroller($timeout, EntifixStringUtils)
+    function componentcontroller($timeout, EntifixStringUtils, $scope)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
-        var _defaultTitle;
+        var _defaultTitle, plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -225,7 +225,7 @@
         {
             get: () =>
             {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                if (vm.title.get() != '')
                     return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixautocomplete' + randomNumber;
             }
@@ -284,18 +284,6 @@
 
                 //Default value
                 return false; 
-            }
-        }
-
-        vm.floating = 
-        {
-            get: () =>
-            {
-                if (vm.componentConstruction && vm.componentConstruction.floating != null)
-                    return vm.componentConstruction.floating;
-
-                //Default value
-                return true; 
             }
         }
 
@@ -429,12 +417,13 @@
         //Methods________________________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
 
-        vm.$onInit = function()
+        vm.$onInit = () =>
         {
             if (vm.loadAllItems.get())
                 loadCollection();
             checkoutputs();
             _defaultTitle = vm.title.get();
+            setValues();
         }
        
         function loadCollection()
@@ -463,7 +452,7 @@
             vm.loadingFirstRequest = false;
         }
 
-        vm.getDisplayValue = function()
+        vm.getDisplayValue = () =>
         {
             if (vm.valueModel && vm.selectedItem)
                 return vm.selectedItem;
@@ -474,7 +463,7 @@
             return vm.nullValueLabel.get();
         };
 
-        vm.getValue = function()
+        vm.getValue = () =>
         {
             if (vm.valueModel)
                 return vm.valueModel;
@@ -509,7 +498,7 @@
             }
         }
 
-        vm.updateData = function(data)
+        vm.updateData = (data) =>
         {
             var typedText = data.search;
 
@@ -614,7 +603,7 @@
             planedUpdate = $timeout(getInitialData, 500, true, { search: searchText, resolve: resolve, reject: reject }); 
         }
         
-        vm.searchItems = function(searchText)
+        vm.searchItems = (searchText) =>
         {
             if (searchText && vm.loadAllItems.get())
             {
@@ -638,7 +627,7 @@
             });
         };
 
-        vm.changeSelectedItem = function()
+        vm.changeSelectedItem = () =>
         {
             var entity = vm.entityList.filter( D_entity => { return vm.selectedItem == vm.mappingMethod.get()(D_entity); } )[0];
             if (!vm.canCreateNewEntity.get())
@@ -656,13 +645,49 @@
                 if (entity && vm.selectedItem)
                     setValueModel(vm.queryDetails.resource.getId(entity), entity);
             }
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         }
 
-        vm.onFocus = function($event)
+        vm.onFocus = ($event) =>
         {
             if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click')
                 $event.target.select();
         }
+
+        function cleanPlannedRecharge()
+        {
+            if (plannedRecharge)
+            {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues()
+        {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.requiredMatch.value = vm.requiredMatch.get();
+            vm.requiredMatchMessage.value = vm.requiredMatchMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.minLengthRequest.value = vm.minLengthRequest.get();
+            vm.createNewEntityMessage.value = vm.createNewEntityMessage.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.placeholder.value = vm.placeholder.get();
+            vm.disabled.value = vm.disabled.get();
+            vm.noCache.value = vm.noCache.get();
+            vm.notFoundText.value = vm.notFoundText.get();
+        }
+
+        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
  
         //=======================================================================================================================================================================
 
@@ -670,7 +695,7 @@
 
     };
 
-    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils', '$scope'];
 
     var component = 
     {
@@ -686,76 +711,76 @@
         },
         //templateUrl: 'src/shared/components/entifixAutocomplete/entifixAutocomplete.html',
         template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                        <div ng-if="vm.isForm.value"> \
                             <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
                                 <md-autocomplete \
-                                    md-floating-label={{vm.title.get()}} \
-                                    md-input-name={{vm.name.get()}} \
-                                    md-min-length="vm.minLengthRequest.get()" \
-                                    md-input-minlength="{{vm.minLength.get()}}" \
-                                    md-input-maxlength="{{vm.maxLength.get()}}" \
-                                    md-no-cache="vm.noCache.get()" \
+                                    md-floating-label={{vm.title.value}} \
+                                    md-input-name={{vm.name.value}} \
+                                    md-min-length="vm.minLengthRequest.value" \
+                                    md-input-minlength="{{vm.minLength.value}}" \
+                                    md-input-maxlength="{{vm.maxLength.value}}" \
+                                    md-no-cache="vm.noCache.value" \
                                     md-selected-item="vm.selectedItem" \
                                     md-search-text="vm.searchText" \
                                     md-items="item in vm.searchItems(vm.searchText)" \
                                     md-item-text="item" \
                                     md-selected-item-change="vm.changeSelectedItem()" \
-                                    ng-required="vm.isRequired.get()" \
-                                    md-require-match="vm.requiredMatch.get()" \
-                                    placeholder="{{vm.placeholder.get()}}" \
-                                    ng-disabled="vm.disabled.get()" \
+                                    ng-required="vm.isRequired.value" \
+                                    md-require-match="vm.requiredMatch.value" \
+                                    placeholder="{{vm.placeholder.value}}" \
+                                    ng-disabled="vm.disabled.value" \
                                     md-clear-button="true"> \
                                     <md-item-template> \
                                         <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                     </md-item-template> \
                                     <md-not-found> \
                                         <div> \
-                                            {{vm.notFoundText.get()}} \
+                                            {{vm.notFoundText.value}} \
                                         </div> \
                                     </md-not-found> \
                                     <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                        <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                        <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                        <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                        <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                        <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                        <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
                                     </div> \
                                 </md-autocomplete> \
                             </div> \
                             <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
+                                <label>{{vm.title.value}}</label><br/> \
+                                <strong>{{vm.display}}</strong> \
                             </div> \
                         </div> \
-                        <div ng-if="!vm.isForm.get()" ng-click="vm.onFocus($event)"> \
+                        <div ng-if="!vm.isForm.value" ng-click="vm.onFocus($event)"> \
                             <md-autocomplete \
-                                md-floating-label={{vm.title.get()}} \
-                                md-input-name={{vm.name.get()}} \
-                                md-min-length="vm.minLengthRequest.get()" \
-                                md-input-minlength="{{vm.minLength.get()}}" \
-                                md-input-maxlength="{{vm.maxLength.get()}}" \
-                                md-no-cache="vm.noCache.get()" \
+                                md-floating-label={{vm.title.value}} \
+                                md-input-name={{vm.name.value}} \
+                                md-min-length="vm.minLengthRequest.value" \
+                                md-input-minlength="{{vm.minLength.value}}" \
+                                md-input-maxlength="{{vm.maxLength.value}}" \
+                                md-no-cache="vm.noCache.value" \
                                 md-selected-item="vm.selectedItem" \
                                 md-search-text="vm.searchText" \
                                 md-items="item in vm.searchItems(vm.searchText)" \
                                 md-item-text="item" \
                                 md-selected-item-change="vm.changeSelectedItem()" \
-                                ng-required="vm.isRequired.get()" \
-                                md-require-match="vm.requiredMatch.get()" \
-                                placeholder="{{vm.placeholder.get()}}" \
-                                ng-disabled="vm.disabled.get()" \
+                                ng-required="vm.isRequired.value" \
+                                md-require-match="vm.requiredMatch.value" \
+                                placeholder="{{vm.placeholder.value}}" \
+                                ng-disabled="vm.disabled.value" \
                                 md-clear-button="true"> \
                                 <md-item-template> \
                                     <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                 </md-item-template> \
                                 <md-not-found> \
-                                    {{vm.notFoundText.get()}} \
+                                    {{vm.notFoundText.value}} \
                                 </md-not-found> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
                                 </div> \
                             </md-autocomplete> \
                         </div> \

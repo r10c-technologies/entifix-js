@@ -98,7 +98,7 @@
         {
             get: () =>
             {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                if (vm.title.get() != '')
                     return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixradiobutton' + randomNumber;
             }

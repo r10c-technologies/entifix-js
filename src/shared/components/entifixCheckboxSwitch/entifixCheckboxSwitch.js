@@ -1,7 +1,7 @@
 (function () {
     'use strict';
    
-    function componentcontroller(EntifixStringUtils)
+    function componentcontroller(EntifixStringUtils, $scope)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
@@ -66,7 +66,7 @@
         {
             get: () =>
             {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                if (vm.title.get() != '')
                     return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixcheckboxswitch' + randomNumber;
             }
@@ -160,14 +160,35 @@
             if (vm.onChange)
                 vm.onChange({ value: vm.valueModel });
         }
+
+        function cleanPlannedRecharge()
+        {
+            if (plannedRecharge)
+            {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues()
+        {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.name.value = vm.name.get();
+            vm.isSwitch.value = vm.isSwitch.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.requiredMatch.value = vm.requiredMatch.get();
+
+        }
+
+        //$scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
  
         //=======================================================================================================================================================================
-
-
         
     };
 
-    componentcontroller.$inject = ['EntifixStringUtils'];
+    componentcontroller.$inject = ['EntifixStringUtils', '$scope'];
 
     var component = 
     {

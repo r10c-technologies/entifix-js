@@ -5,9 +5,9 @@
         .module('entifix-js')
         .factory('EntifixResource', resource);
 
-    resource.$inject = ['$http', 'AppResources', 'EntifixMetadata', 'EntifixErrorManager', 'EntifixDateGenerator'];
+    resource.$inject = ['$http', 'EntifixMetadata', 'EntifixErrorManager', 'EntifixDateGenerator'];
 
-    function resource($http, AppResources, EntifixMetadata, EntifixErrorManager, EntifixDateGenerator)
+    function resource($http, EntifixMetadata, EntifixErrorManager, EntifixDateGenerator)
     {
         var resource = function(resourceName)
         {
@@ -878,10 +878,18 @@
 
             vm.getFile = function (options)
             {
-                var actionSuccess = (response) => { createDownloadFile(response, options); }
-                var actionError = (response) => { _checkActionErrors(response); }
+                let actionSuccess = (response) => { createDownloadFile(response, options); }
+                let actionError = (response) => { _checkActionErrors(response); }
+                let config;
 
-                var config = { method: 'POST', url: getBaseUrl(), responseType : 'arraybuffer', data: EntifixMetadata.bodyDataFile(options) };
+                if (options.allPages) {
+                    config = { method: 'GET', url: getBaseUrl() + manageUriFilter(vm.getPagFilters(options.searchText, options.searchArray, options.columnsSelected).concat(options.constantFilters)), responseType: 'arraybuffer' };
+                } else {
+                    config = { method: 'POST', url: getBaseUrl(), data: EntifixMetadata.getBodyDataFile(options), responseType: 'arraybuffer' };
+                }
+
+                if (options.headers)
+                    config.headers = options.headers;
 
                 $http(config).then(actionSuccess, actionError);
             }
@@ -891,7 +899,7 @@
                 if (entity && entity instanceof Object && entity[_keyProperty])
                 {
                     var valuekey = entity[_keyProperty];                
-                    if ( isNaN(valuekey) )
+                    if (isNaN(valuekey))
                         return valuekey;
                     else
                         return parseInt(valuekey);
@@ -934,19 +942,20 @@
             {
                 var filterProp = [];
                 columnsSelected.forEach((cs) => { 
-                                                    var filter = properties.filter((property) => { return property.display === cs });
-                                                    if (filter.length > 0 && !filter[0].alwaysExclude) {
-                                                        filterProp.push(filter[0]);
-                                                    }
-                                                });
+                                var filter = properties.filter((property) => { return property.display === cs });
+                                if (filter.length > 0 && !filter[0].alwaysExclude) {
+                                    filterProp.push(filter[0]);
+                                }
+                            });
+
                 properties.forEach((property) => {
-                                                    if (property.alwaysInclude) {
-                                                        var contains = filterProp.includes(property);
-                                                        if (!contains) {
-                                                            filterProp.push(property);
-                                                        }
-                                                    }
-                                                });
+                                if (property.alwaysInclude) {
+                                    var contains = filterProp.includes(property);
+                                    if (!contains) {
+                                        filterProp.push(property);
+                                    }
+                                }
+                            });
                 return filterProp;
             }
 
@@ -956,7 +965,7 @@
                 var blob = new Blob([response.data], {type: type});
                 var blobURL = (window.URL || window.webkitURL).createObjectURL(blob);
                 var anchor = document.createElement("a");
-                anchor.download = options.title;
+                anchor.download = options.fileName;
                 anchor.href = blobURL;
                 document.body.appendChild(anchor);
                 anchor.click();

@@ -1,10 +1,11 @@
 (function () {
     'use strict';
    
-    function componentcontroller(mdcDateTimeDialog, $scope, EntifixDateGenerator, EntifixStringUtils)
+    function componentcontroller(mdcDateTimeDialog, $scope, EntifixDateGenerator, EntifixStringUtils, $timeout)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
+        var plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -117,7 +118,7 @@
         {
             get: () =>
             {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                if (vm.title.get() != '')
                     return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixdatetimepicker' + randomNumber;
             }
@@ -253,14 +254,14 @@
                 if (vm.componentConstruction && vm.componentConstruction.minDate)
                 {
                     if (vm.componentConstruction.minDate.getter)
-                        return vm.componentConstruction.minDate.getter();
+                        return moment(vm.componentConstruction.minDate.getter(), vm.format.value);
                     
                     if (vm.componentConstruction.minDate.text)
-                        return vm.componentConstruction.minDate.text;
+                        return moment(vm.componentConstruction.minDate.text, vm.format.value);
                 }
 
                 //Default value
-                return '01/01/1900';
+                return moment('01/01/1900', vm.format.value);
             }
         };
         
@@ -271,14 +272,14 @@
                 if (vm.componentConstruction && vm.componentConstruction.maxDate)
                 {
                     if (vm.componentConstruction.maxDate.getter)
-                        return vm.componentConstruction.maxDate.getter();
+                        return moment(vm.componentConstruction.maxDate.getter(), vm.format.value);
                     
                     if (vm.componentConstruction.maxDate.text)
-                        return vm.componentConstruction.maxDate.text;
+                        return moment(vm.componentConstruction.maxDate.text, vm.format.value);
                 }
 
                 //Default value
-                return '01/01/2100';
+                return moment('01/01/2100', vm.format.value);
             }
         };
         
@@ -297,7 +298,7 @@
 
                 //Default value
                 var format = '';
-                if (vm.hasDate.get()) format += 'DD/MM/YYYY';
+                if (vm.hasDate.get()) format += 'DD-MM-YYYY';
                 if (vm.hasTime.get() && vm.hasDate.get()) format += ' HH'; else if (vm.hasTime.get()) format += 'HH';
                 if (vm.hasTime.get() && vm.shortTime.get()) format += ':mm a'; else if (vm.hasTime.get()) format += ':mm';
                 return format;
@@ -433,20 +434,7 @@
 
         vm.$onInit = function()
         {
-            setDefauts();
-            init();
-        };
-
-        //Default values
-        function setDefauts() 
-        {
-            
-        };
-        
-        //Constructor
-        function init() 
-        {
-            
+            setValues();
         };
 
         function updateDateString() 
@@ -485,18 +473,14 @@
             vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
         }
 
-        vm.getDateString = function(skip)
+        vm.getDateString = function()
         {
             if (vm.valueModel)
             {
-                if (!vm.dateString) {
-                    updateDateString();
-                    return vm.dateString;
-                } else {
-                    return vm.dateString;
-                }
+                updateDateString();
+                return vm.dateString;
             }
-            else if (!skip) return vm.nullValueLabel.get();
+            else if (!vm.canShowEditableFields.get()) return vm.nullValueLabel.get();
         }
 
         vm.displayDialogEdit = function () {
@@ -514,6 +498,8 @@
                     cancelText: vm.cancelText.get(),
                     todayText: vm.todayText.get(),
                     okText: vm.okText.get(),
+                    maxDate: vm.maxDate.get(),
+                    minDate: vm.minDate.get(),
                     amText: 'am',
                     pmText: 'pm',
                     showTodaysDate: '',
@@ -543,6 +529,8 @@
                     cancelText: vm.cancelText.get(),
                     todayText: vm.todayText.get(),
                     okText: vm.okText.get(),
+                    maxDate: vm.maxDate.get(),
+                    minDate: vm.minDate.get(),
                     amText: 'am',
                     pmText: 'pm',
                     showTodaysDate: '',
@@ -565,6 +553,9 @@
             updateDateString();
             if (vm.onChange)
                 vm.onChange( { value: vm.valueModel } );
+
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         }
 
         function transformStringToDate(value)
@@ -572,11 +563,52 @@
             return EntifixDateGenerator.transformStringToDate(value);
         }
 
-        $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); } )
+        $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); cleanPlannedRecharge(); plannedRecharge = $timeout(setValues, 1500); vm.dateString = vm.getDateString(); } );
+
+        function cleanPlannedRecharge()
+        {
+            if (plannedRecharge)
+            {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues()
+        {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.format.value = vm.format.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.isDisabled.value = vm.isDisabled.get();
+            vm.disableParentScroll.value = vm.disableParentScroll.get();
+            vm.autoOk.value = vm.autoOk.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.editInput.value = vm.editInput.get();
+            vm.parseMessage.value = vm.parseMessage.get();
+            vm.clickOutsideToClose.value = vm.clickOutsideToClose.get();
+            vm.hasDate.value = vm.hasDate.get();
+            vm.placeholder.value = vm.placeholder.get();
+            vm.minDate.value = vm.minDate.get();
+            vm.maxDate.value = vm.maxDate.get();
+            vm.okText.value = vm.okText.get();
+            vm.todayText.value = vm.todayText.get();
+            vm.cancelText.value = vm.cancelText.get();
+            vm.weekStart.vale = vm.weekStart.get();
+            vm.weekDays.value = vm.weekDays.get();
+            vm.weekDays.value = vm.weekDays.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.hasTime.value = vm.hasTime.get();
+            vm.hasMinutes.vale = vm.hasMinutes.get();
+            vm.shortTime.value = vm.shortTime.get();
+            vm.dateString = vm.getDateString();
+        }
         //=======================================================================================================================================================================        
     };
 
-    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope', 'EntifixDateGenerator', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope', 'EntifixDateGenerator', 'EntifixStringUtils', '$timeout'];
 
     var component = 
     {
@@ -589,39 +621,39 @@
             onChange: '&'
         },
         //templateUrl: 'src/shared/components/entifixDateTimePicker/entifixDateTimePicker.html',
-        template: '<div ng-if="vm.isForm.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+        template: '<div ng-if="vm.isForm.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
                     <div ng-if="vm.canShowEditableFields.get()" layout layout-align="center center" class="datetimepicker"> \
                         <md-input-container flex> \
-                            <label>{{vm.title.get() + ": " + vm.getDateString(true)}}</label> \
+                            <label>{{vm.title.value + ": " + vm.dateString}}</label> \
                             <input mdc-datetime-picker \
                                 type="text" \
                                 ng-model="vm.valueModel" \
-                                id="{{vm.name.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                format="{{vm.format.get()}}" \
-                                short-time="vm.shortTime.get()" \
-                                min-date="vm.minDate.get()" \
-                                max-date="vm.maxDate.get()" \
-                                date="vm.hasDate.get()" \
-                                time="vm.hasTime.get()" \
-                                minutes="vm.hasMinutes.get()" \
-                                cancel-text="{{vm.cancelText.get()}}" \
-                                today-text="{{vm.todayText.get()}}" \
-                                ok-text="{{vm.okText.get()}}" \
-                                week-start="vm.weekStart.get()" \
-                                weeks-days="vm.weeksDays.get()" \
+                                id="{{vm.name.value}}" \
+                                name="{{vm.name.value}}" \
+                                format="{{vm.format.value}}" \
+                                short-time="vm.shortTime.value" \
+                                min-date="vm.minDate.value" \
+                                max-date="vm.maxDate.value" \
+                                date="vm.hasDate.value" \
+                                time="vm.hasTime.value" \
+                                minutes="vm.hasMinutes.value" \
+                                cancel-text="{{vm.cancelText.value}}" \
+                                today-text="{{vm.todayText.value}}" \
+                                ok-text="{{vm.okText.value}}" \
+                                week-start="vm.weekStart.value" \
+                                weeks-days="vm.weeksDays.value" \
                                 show-todays-date \
-                                disable-parent-scroll="vm.disableParentScroll.get()" \
-                                auto-ok="vm.autoOk.get()" \
-                                edit-input="vm.editInput.get()" \
-                                click-outside-to-close="vm.clickOutsideToClose.get()" \
+                                disable-parent-scroll="vm.disableParentScroll.value" \
+                                auto-ok="vm.autoOk.value" \
+                                edit-input="vm.editInput.value" \
+                                click-outside-to-close="vm.clickOutsideToClose.value" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-disabled="vm.isDisabled.get()" \
-                                ng-required="vm.isRequired.get()"/> \
+                                ng-disabled="vm.isDisabled.value" \
+                                ng-required="vm.isRequired.value"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="parse">{{vm.parseMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="parse">{{vm.parseMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div flex="5"> \
@@ -631,43 +663,43 @@
                         </div> \
                     </div> \
                     <div ng-if="!vm.canShowEditableFields.get()"> \
-                        <label>{{vm.title.get()}}</label><br/> \
-                        <strong>{{vm.getDateString()}}</strong> \
+                        <label>{{vm.title.value}}</label><br/> \
+                        <strong>{{vm.dateString}}</strong> \
                     </div> \
                 </div> \
-                <div ng-if="!vm.isForm.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                <div ng-if="!vm.isForm.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
                     <div layout layout-align="center center" layout- class="datetimepicker"> \
                         <md-input-container flex> \
-                            <label>{{vm.title.get() + ": " + vm.getDateString(true)}}</label> \
+                            <label>{{vm.title.value + ": " + vm.dateString}}</label> \
                             <input mdc-datetime-picker \
                                 type="text" \
                                 ng-model="vm.valueModel" \
-                                id="{{vm.name.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                format="{{vm.format.get()}}" \
-                                short-time="vm.shortTime.get()" \
-                                min-date="vm.minDate.get()" \
-                                max-date="vm.maxDate.get()" \
-                                date="vm.hasDate.get()" \
-                                time="vm.hasTime.get()" \
-                                minutes="vm.hasMinutes.get()" \
-                                cancel-text="{{vm.cancelText.get()}}" \
-                                today-text="{{vm.todayText.get()}}" \
-                                ok-text="{{vm.okText.get()}}" \
-                                week-start="vm.weekStart.get()" \
-                                weeks-days="vm.weeksDays.get()" \
+                                id="{{vm.name.value}}" \
+                                name="{{vm.name.value}}" \
+                                format="{{vm.format.value}}" \
+                                short-time="vm.shortTime.value" \
+                                min-date="vm.minDate.value" \
+                                max-date="vm.maxDate.value" \
+                                date="vm.hasDate.value" \
+                                time="vm.hasTime.value" \
+                                minutes="vm.hasMinutes.value" \
+                                cancel-text="{{vm.cancelText.value}}" \
+                                today-text="{{vm.todayText.value}}" \
+                                ok-text="{{vm.okText.value}}" \
+                                week-start="vm.weekStart.value" \
+                                weeks-days="vm.weeksDays.value" \
                                 show-todays-date \
-                                disable-parent-scroll="vm.disableParentScroll.get()" \
-                                auto-ok="vm.autoOk.get()" \
-                                edit-input="vm.editInput.get()" \
-                                click-outside-to-close="vm.clickOutsideToClose.get()" \
+                                disable-parent-scroll="vm.disableParentScroll.value" \
+                                auto-ok="vm.autoOk.value" \
+                                edit-input="vm.editInput.value" \
+                                click-outside-to-close="vm.clickOutsideToClose.value" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-disabled="vm.isDisabled.get()" \
-                                ng-required="vm.isRequired.get()"/> \
+                                ng-disabled="vm.isDisabled.value" \
+                                ng-required="vm.isRequired.value"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="parse">{{vm.parseMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="parse">{{vm.parseMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div flex="5"> \

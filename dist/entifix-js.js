@@ -343,10 +343,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             sv.checkPermissions = function (permission) {
                 if (permission instanceof String) {
-                    if (sv.currentPermissions.get().filter(function (e) {
+                    return sv.currentPermissions.get().filter(function (e) {
                         return e == permission;
-                    }).length > 0) return true;
-                    return false;
+                    }).length > 0;
                 } else if (permission instanceof Array) {
                     return permission.filter(function (p) {
                         return sv.currentPermissions.get().filter(function (e) {
@@ -523,340 +522,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').service('EntifixDateGenerator', service);
-
-    service.$inject = [];
-
-    function service() {
-        var vm = this;
-
-        // Properties and fields
-        // =========================================================================================================================
-
-        // Fields
-
-        // Properties
-
-        // =========================================================================================================================
-
-
-        // Methods
-        // =========================================================================================================================
-
-        function activate() {};
-
-        vm.transformStringToDate = function (value) {
-            if (isInvalidDate(value)) {
-                var dayOrYear = value.split("-");
-                if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
-
-                if (value.length > 10) var isDateTime = true;else var isDateTime = false;
-
-                if (value && !(value instanceof Date)) {
-                    if (isDateTime) {
-                        if (isToDisplay) {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
-                        } else {
-                            var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
-                        }
-                    } else {
-                        if (isToDisplay) {
-                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                        } else {
-                            var reggie = /(\d{4})-(\d{2})-(\d{2})/;
-                            var dateArray = reggie.exec(value);
-                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
-                        }
-                    }
-                } else if (value) {
-                    return value;
-                } else return null;
-            } else return new Date(value);
-        };
-
-        vm.transformDateToString = function (value, type, isToDisplay) {
-            var valueToReturn;
-            var type = type.toUpperCase();
-            if (value instanceof Date) {
-                if (type == 'DATE' || type == 'DATETIME') {
-                    var year = value.getFullYear();
-                    var month = (value.getMonth() + 1).toString();
-                    var day = value.getDate().toString();
-
-                    if (month.length < 2) month = '0' + month;
-                    if (day.length < 2) day = '0' + day;
-
-                    if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
-                }
-
-                if (type == 'DATETIME' || type == 'TIME') {
-                    var hours = value.getHours().toString();
-                    var minutes = value.getMinutes().toString();
-                    var seconds = value.getSeconds().toString();
-
-                    if (hours.length < 2) hours = '0' + hours;
-                    if (minutes.length < 2) minutes = '0' + minutes;
-                    if (seconds.length < 2) seconds = '0' + seconds;
-
-                    if (type == 'DATETIME') valueToReturn += ' ';
-
-                    valueToReturn += hours + ':' + minutes + ':' + seconds;
-                }
-                return valueToReturn;
-            }
-            return value;
-        };
-
-        function isInvalidDate(value) {
-            var valueDate = new Date(value);
-            if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
-            return false;
-        }
-
-        // =========================================================================================================================
-
-        // Constructor call
-        activate();
-    };
-})();
-'use strict';
-
-(function () {
-        'use strict';
-
-        angular.module('entifix-js').service('EntifixStringUtils', service);
-
-        service.$inject = [];
-
-        function service() {
-                var vm = this;
-
-                // Properties and fields
-                // =========================================================================================================================
-
-                // Fields
-                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
-
-                // Properties
-
-                // =========================================================================================================================
-
-
-                // Methods
-                // =========================================================================================================================
-
-                function activate() {};
-
-                vm.getCleanedString = function (stringToClean) {
-                        for (var i = 0; i < specialChars.length; i++) {
-                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-                        }stringToClean = stringToClean.toLowerCase();
-                        stringToClean = stringToClean.replace(/ /g, "");
-                        stringToClean = stringToClean.replace(/á/gi, "a");
-                        stringToClean = stringToClean.replace(/é/gi, "e");
-                        stringToClean = stringToClean.replace(/í/gi, "i");
-                        stringToClean = stringToClean.replace(/ó/gi, "o");
-                        stringToClean = stringToClean.replace(/ú/gi, "u");
-                        stringToClean = stringToClean.replace(/ñ/gi, "n");
-                        return stringToClean;
-                };
-
-                // =========================================================================================================================
-
-                // Constructor call
-                activate();
-        };
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
-        return {
-            restrict: 'A',
-            link: function link($scope, element) {
-                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
-                var resize = function resize() {
-                    if ($scope.initialHeight != '') {
-                        element[0].style.height = $scope.initialHeight;
-                        $scope.initialHeight = '';
-                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
-                };
-                element.on("input change", resize);
-                $timeout(resize, 0);
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixFileRead", [function () {
-        return {
-            require: "ngModel",
-            link: function postLink(scope, elem, attrs, ngModel) {
-                elem.on("change", function (e) {
-                    if (!attrs.multiple) {
-                        var files = elem[0].files[0];
-                        ngModel.$setViewValue(files);
-                    } else {
-                        var files = elem[0].files;
-                        ngModel.$setViewValue(files);
-                    }
-                });
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNextFocus', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-
-                elem.bind('keydown', function (e) {
-                    var code = e.keyCode || e.which;
-                    if (code === 13 || code === 39 || code === 9) {
-                        var focusNext;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusNext = false, len = pageElems.length;
-                        for (var i = 0; i < len; i++) {
-                            var pe = pageElems[i];
-                            if (focusNext) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusNext = true;
-                            }
-                        }
-                    }
-                    if (code === 37) {
-                        var focusPrevious;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusPrevious = false, len = pageElems.length;
-                        for (var i = len - 1; i >= 0; i--) {
-                            var pe = pageElems[i];
-                            if (focusPrevious) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusPrevious = true;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberBlock', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-                if (attrs.numberValidation == "true") {
-                    elem.bind('keydown', function (e) {
-                        var code = e.keyCode || e.which;
-                        if (!(code === 8 || // backspace
-                        code === 46 || // delete
-                        code === 110 || code === 190 || // decimal point
-                        code === 9 || // tab
-                        code === 37 || // left arrow
-                        code === 39 || // right arrow
-                        code >= 48 && code <= 57 || code >= 96 && code <= 105)) {
-                            // numbers
-                            e.preventDefault();
-                        }
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberValidation', function () {
-        return {
-            require: 'ngModel',
-            link: function link(scope, element, attrs, ctrl) {
-                if (attrs.numberValidation == "true") {
-                    ctrl.$parsers.push(function (value) {
-                        if (ctrl.$isEmpty(value)) {
-                            ctrl.$setValidity('number', true);
-                            return null;
-                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
-                            ctrl.$setValidity('number', true);
-                            return value;
-                        } else ctrl.$setValidity('number', false);
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
-        return {
-            restrict: 'A',
-            priority: 1001,
-            terminal: true,
-            scope: {
-                perm: "&permission"
-            },
-            compile: function compile(element, attributes) {
-                var permission = attributes.entifixSecurityContext;
-
-                element.removeAttr('entifix-security-context');
-
-                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
-
-                var fn = $compile(element);
-                return function (scope) {
-                    fn(scope);
-                };
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     angular.module('entifix-js').factory('EntifixCollectionFormatter', factory);
 
     factory.$inject = ['EntifixDateGenerator'];
@@ -1019,7 +684,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $systemOwnerEntitySwapName,
             $systemOwnerDisplayName,
             $idSystemOwnerPropertyName,
-            $excelSheetResourceName,
+            $xlsSheetResourceName,
             $pdfResourceName;
 
         prov.setAuthUrl = function (value) {
@@ -1090,8 +755,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             $idSystemOwnerPropertyName = value;
         };
 
-        prov.setExcelSheetResourceName = function (value) {
-            $excelSheetResourceName = value;
+        prov.setXlsSheetResourceName = function (value) {
+            $xlsSheetResourceName = value;
         };
 
         prov.setpdfResourceName = function (value) {
@@ -1220,9 +885,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }
             };
 
-            sv.excelSheetResourceName = {
+            sv.xlsSheetResourceName = {
                 get: function get() {
-                    return $excelSheetResourceName;
+                    return $xlsSheetResourceName;
                 }
             };
 
@@ -1517,13 +1182,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return false;
         };
 
-        vm.bodyDataFile = function (options) {
+        vm.getBodyDataFile = function (options) {
             return {
                 title: options.title,
                 columns: getBodyDataFileColumns(options),
-                tableStriped: "true",
-                pageSize: "Letter",
-                data: getBodyDataFilePdfExcel(options)
+                tableStriped: options.tableStriped || "true",
+                pageSize: options.pageSize || "Letter",
+                pageOrientation: options.pageOrientation || "Landscape",
+                data: getBodyDataFilePdfXls(options)
             };
         };
 
@@ -1559,7 +1225,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return columns;
         }
 
-        function getBodyDataFilePdfExcel(options) {
+        function getBodyDataFilePdfXls(options) {
             var data = [];
 
             options.data.forEach(function (row) {
@@ -2046,9 +1712,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     angular.module('entifix-js').factory('EntifixResource', resource);
 
-    resource.$inject = ['$http', 'AppResources', 'EntifixMetadata', 'EntifixErrorManager', 'EntifixDateGenerator'];
+    resource.$inject = ['$http', 'EntifixMetadata', 'EntifixErrorManager', 'EntifixDateGenerator'];
 
-    function resource($http, AppResources, EntifixMetadata, EntifixErrorManager, EntifixDateGenerator) {
+    function resource($http, EntifixMetadata, EntifixErrorManager, EntifixDateGenerator) {
         var resource = function resource(resourceName) {
             var vm = this;
 
@@ -2782,8 +2448,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 var actionError = function actionError(response) {
                     _checkActionErrors(response);
                 };
+                var config = void 0;
 
-                var config = { method: 'POST', url: getBaseUrl(), responseType: 'arraybuffer', data: EntifixMetadata.bodyDataFile(options) };
+                if (options.allPages) {
+                    config = { method: 'GET', url: getBaseUrl() + manageUriFilter(vm.getPagFilters(options.searchText, options.searchArray, options.columnsSelected).concat(options.constantFilters)), responseType: 'arraybuffer' };
+                } else {
+                    config = { method: 'POST', url: getBaseUrl(), data: EntifixMetadata.getBodyDataFile(options), responseType: 'arraybuffer' };
+                }
+
+                if (options.headers) config.headers = options.headers;
 
                 $http(config).then(actionSuccess, actionError);
             };
@@ -2831,6 +2504,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         filterProp.push(filter[0]);
                     }
                 });
+
                 properties.forEach(function (property) {
                     if (property.alwaysInclude) {
                         var contains = filterProp.includes(property);
@@ -2847,7 +2521,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 var blob = new Blob([response.data], { type: type });
                 var blobURL = (window.URL || window.webkitURL).createObjectURL(blob);
                 var anchor = document.createElement("a");
-                anchor.download = options.title;
+                anchor.download = options.fileName;
                 anchor.href = blobURL;
                 document.body.appendChild(anchor);
                 anchor.click();
@@ -3043,320 +2717,344 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller($mdConstant) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
+    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
+        return {
+            restrict: 'A',
+            link: function link($scope, element) {
+                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
+                var resize = function resize() {
+                    if ($scope.initialHeight != '') {
+                        element[0].style.height = $scope.initialHeight;
+                        $scope.initialHeight = '';
+                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
+                };
+                element.on("input change", resize);
+                $timeout(resize, 0);
             }
         };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.maxChips = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxChipsMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
-                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
-
-                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
-                }
-
-                //Default value
-                return 'Ha alcanzado el número máximo de elementos';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                return 'entifixchip' + randomNumber;
-            }
-        };
-
-        vm.transformChip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
-            }
-        };
-
-        vm.onAdd = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
-            }
-        };
-
-        vm.onRemove = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
-            }
-        };
-
-        vm.onSelect = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
-            }
-        };
-
-        vm.placeholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.secondaryPlaceholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
-
-                //Default value
-                return vm.placeholder.get();
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.removable = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.readOnly = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.enableChipEdit = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
-
-                //Default value
-                return 'true';
-            }
-        };
-
-        vm.addOnBlur = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.separators = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
-
-                //Default value
-                return vm.separatorsDefault;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.getStringValue = function () {
-            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
-                var value = '';
-                vm.valueModel.forEach(function (element) {
-                    value += element + ' ';
-                });
-                return value;
-            }
-            return '';
-        };
-
-        vm.tC = function (chip, index) {
-            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
-        };
-
-        vm.oAdd = function (chip, index) {
-            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
-        };
-
-        vm.oRemove = function (chip, index) {
-            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
-        };
-
-        vm.oSelect = function (chip, index) {
-            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$mdConstant'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
-        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <md-chips \
-                            ng-if="vm.canShowEditableFields.get()" \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd$chip()" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.placeholder.get()}}</label><br/> \
-                            <strong>{{vm.getStringValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-chips \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd($chip, $index)" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                    </div> \
-                    <br/>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixChip', component);
+    }]);
 })();
 'use strict';
 
 (function () {
     'use strict';
 
-    function componentcontroller($timeout, EntifixStringUtils) {
+    angular.module('entifix-js').directive("entifixFileRead", [function () {
+        return {
+            require: "ngModel",
+            link: function postLink(scope, elem, attrs, ngModel) {
+                elem.on("change", function (e) {
+                    if (!attrs.multiple) {
+                        var files = elem[0].files[0];
+                        ngModel.$setViewValue(files);
+                    } else {
+                        var files = elem[0].files;
+                        ngModel.$setViewValue(files);
+                    }
+                });
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNextFocus', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+
+                elem.bind('keydown', function (e) {
+                    var code = e.keyCode || e.which;
+                    if (code === 13 || code === 39 || code === 9) {
+                        var focusNext;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusNext = false, len = pageElems.length;
+                        for (var i = 0; i < len; i++) {
+                            var pe = pageElems[i];
+                            if (focusNext) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusNext = true;
+                            }
+                        }
+                    }
+                    if (code === 37) {
+                        var focusPrevious;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusPrevious = false, len = pageElems.length;
+                        for (var i = len - 1; i >= 0; i--) {
+                            var pe = pageElems[i];
+                            if (focusPrevious) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusPrevious = true;
+                            }
+                        }
+                    }
+                });
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberBlock', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+                if (attrs.numberValidation == "true") {
+                    elem.bind('keydown', function (e) {
+                        var code = e.keyCode || e.which;
+                        if (!(code === 8 || // backspace
+                        code === 46 || // delete
+                        code === 110 || code === 190 || // decimal point
+                        code === 9 || // tab
+                        code === 37 || // left arrow
+                        code === 39 || // right arrow
+                        code >= 48 && code <= 57 || code >= 96 && code <= 105)) {
+                            // numbers
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberValidation', function () {
+        return {
+            require: 'ngModel',
+            link: function link(scope, element, attrs, ctrl) {
+                if (attrs.numberValidation == "true") {
+                    ctrl.$parsers.push(function (value) {
+                        if (ctrl.$isEmpty(value)) {
+                            ctrl.$setValidity('number', true);
+                            return null;
+                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+                            ctrl.$setValidity('number', true);
+                            return value;
+                        } else ctrl.$setValidity('number', false);
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
+        return {
+            restrict: 'A',
+            priority: 1001,
+            terminal: true,
+            scope: {
+                perm: "&permission"
+            },
+            compile: function compile(element, attributes) {
+                var permission = attributes.entifixSecurityContext;
+
+                element.removeAttr('entifix-security-context');
+
+                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
+
+                var fn = $compile(element);
+                return function (scope) {
+                    fn(scope);
+                };
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').service('EntifixDateGenerator', service);
+
+    service.$inject = [];
+
+    function service() {
+        var vm = this;
+
+        // Properties and fields
+        // =========================================================================================================================
+
+        // Fields
+
+        // Properties
+
+        // =========================================================================================================================
+
+
+        // Methods
+        // =========================================================================================================================
+
+        function activate() {};
+
+        vm.transformStringToDate = function (value) {
+            if (isInvalidDate(value)) {
+                var dayOrYear = value.split("-");
+                if (dayOrYear.length > 0 && dayOrYear[0].length > 2) var isToDisplay = false;else var isToDisplay = true;
+
+                if (value.length > 10) var isDateTime = true;else var isDateTime = false;
+
+                if (value && !(value instanceof Date)) {
+                    if (isDateTime) {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1], +dateArray[4], +dateArray[5], +dateArray[6]);
+                        } else {
+                            var reggie = /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[1], +dateArray[2] - 1, +dateArray[3], +dateArray[4], +dateArray[5], +dateArray[6]);
+                        }
+                    } else {
+                        if (isToDisplay) {
+                            var reggie = /(\d{2})-(\d{2})-(\d{4})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        } else {
+                            var reggie = /(\d{4})-(\d{2})-(\d{2})/;
+                            var dateArray = reggie.exec(value);
+                            return new Date(+dateArray[3], +dateArray[2] - 1, +dateArray[1]);
+                        }
+                    }
+                } else if (value) {
+                    return value;
+                } else return null;
+            } else return new Date(value);
+        };
+
+        vm.transformDateToString = function (value, type, isToDisplay) {
+            var valueToReturn;
+            var type = type.toUpperCase();
+            if (value instanceof Date) {
+                if (type == 'DATE' || type == 'DATETIME') {
+                    var year = value.getFullYear();
+                    var month = (value.getMonth() + 1).toString();
+                    var day = value.getDate().toString();
+
+                    if (month.length < 2) month = '0' + month;
+                    if (day.length < 2) day = '0' + day;
+
+                    if (isToDisplay) valueToReturn = day + '-' + month + '-' + year;else valueToReturn = year + '-' + month + '-' + day;
+                }
+
+                if (type == 'DATETIME' || type == 'TIME') {
+                    var hours = value.getHours().toString();
+                    var minutes = value.getMinutes().toString();
+                    var seconds = value.getSeconds().toString();
+
+                    if (hours.length < 2) hours = '0' + hours;
+                    if (minutes.length < 2) minutes = '0' + minutes;
+                    if (seconds.length < 2) seconds = '0' + seconds;
+
+                    if (type == 'DATETIME') valueToReturn += ' ';
+
+                    valueToReturn += hours + ':' + minutes + ':' + seconds;
+                }
+                return valueToReturn;
+            }
+            return value;
+        };
+
+        function isInvalidDate(value) {
+            var valueDate = new Date(value);
+            if (valueDate === 'Invalid Date' || isNaN(valueDate)) return true;
+            return false;
+        }
+
+        // =========================================================================================================================
+
+        // Constructor call
+        activate();
+    };
+})();
+'use strict';
+
+(function () {
+        'use strict';
+
+        angular.module('entifix-js').service('EntifixStringUtils', service);
+
+        service.$inject = [];
+
+        function service() {
+                var vm = this;
+
+                // Properties and fields
+                // =========================================================================================================================
+
+                // Fields
+                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+
+                // Properties
+
+                // =========================================================================================================================
+
+
+                // Methods
+                // =========================================================================================================================
+
+                function activate() {};
+
+                vm.getCleanedString = function (stringToClean) {
+                        for (var i = 0; i < specialChars.length; i++) {
+                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+                        }stringToClean = stringToClean.toLowerCase();
+                        stringToClean = stringToClean.replace(/ /g, "");
+                        stringToClean = stringToClean.replace(/á/gi, "a");
+                        stringToClean = stringToClean.replace(/é/gi, "e");
+                        stringToClean = stringToClean.replace(/í/gi, "i");
+                        stringToClean = stringToClean.replace(/ó/gi, "o");
+                        stringToClean = stringToClean.replace(/ú/gi, "u");
+                        stringToClean = stringToClean.replace(/ñ/gi, "n");
+                        return stringToClean;
+                };
+
+                // =========================================================================================================================
+
+                // Constructor call
+                activate();
+        };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller($timeout, EntifixStringUtils, $scope) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
-        var _defaultTitle;
+        var _defaultTitle, plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -3518,7 +3216,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixautocomplete' + randomNumber;
             }
         };
@@ -3562,15 +3260,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 //Default value
                 return false;
-            }
-        };
-
-        vm.floating = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.floating != null) return vm.componentConstruction.floating;
-
-                //Default value
-                return true;
             }
         };
 
@@ -3673,6 +3362,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.loadAllItems.get()) loadCollection();
             checkoutputs();
             _defaultTitle = vm.title.get();
+            setValues();
         };
 
         function loadCollection() {
@@ -3834,17 +3524,54 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
             }
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         };
 
         vm.onFocus = function ($event) {
             if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click') $event.target.select();
         };
 
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.requiredMatch.value = vm.requiredMatch.get();
+            vm.requiredMatchMessage.value = vm.requiredMatchMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.minLengthRequest.value = vm.minLengthRequest.get();
+            vm.createNewEntityMessage.value = vm.createNewEntityMessage.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.placeholder.value = vm.placeholder.get();
+            vm.disabled.value = vm.disabled.get();
+            vm.noCache.value = vm.noCache.get();
+            vm.notFoundText.value = vm.notFoundText.get();
+        }
+
+        $scope.$watch(function () {
+            return vm.valueModel;
+        }, function (newValue, oldValue) {
+            vm.display = vm.getDisplayValue();
+        });
+
         //=======================================================================================================================================================================
 
     };
 
-    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils', '$scope'];
 
     var component = {
         bindings: {
@@ -3858,76 +3585,76 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         },
         //templateUrl: 'dist/shared/components/entifixAutocomplete/entifixAutocomplete.html',
         template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                        <div ng-if="vm.isForm.value"> \
                             <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
                                 <md-autocomplete \
-                                    md-floating-label={{vm.title.get()}} \
-                                    md-input-name={{vm.name.get()}} \
-                                    md-min-length="vm.minLengthRequest.get()" \
-                                    md-input-minlength="{{vm.minLength.get()}}" \
-                                    md-input-maxlength="{{vm.maxLength.get()}}" \
-                                    md-no-cache="vm.noCache.get()" \
+                                    md-floating-label={{vm.title.value}} \
+                                    md-input-name={{vm.name.value}} \
+                                    md-min-length="vm.minLengthRequest.value" \
+                                    md-input-minlength="{{vm.minLength.value}}" \
+                                    md-input-maxlength="{{vm.maxLength.value}}" \
+                                    md-no-cache="vm.noCache.value" \
                                     md-selected-item="vm.selectedItem" \
                                     md-search-text="vm.searchText" \
                                     md-items="item in vm.searchItems(vm.searchText)" \
                                     md-item-text="item" \
                                     md-selected-item-change="vm.changeSelectedItem()" \
-                                    ng-required="vm.isRequired.get()" \
-                                    md-require-match="vm.requiredMatch.get()" \
-                                    placeholder="{{vm.placeholder.get()}}" \
-                                    ng-disabled="vm.disabled.get()" \
+                                    ng-required="vm.isRequired.value" \
+                                    md-require-match="vm.requiredMatch.value" \
+                                    placeholder="{{vm.placeholder.value}}" \
+                                    ng-disabled="vm.disabled.value" \
                                     md-clear-button="true"> \
                                     <md-item-template> \
                                         <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                     </md-item-template> \
                                     <md-not-found> \
                                         <div> \
-                                            {{vm.notFoundText.get()}} \
+                                            {{vm.notFoundText.value}} \
                                         </div> \
                                     </md-not-found> \
                                     <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                        <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                        <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                        <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                        <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                        <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                        <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
                                     </div> \
                                 </md-autocomplete> \
                             </div> \
                             <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
+                                <label>{{vm.title.value}}</label><br/> \
+                                <strong>{{vm.display}}</strong> \
                             </div> \
                         </div> \
-                        <div ng-if="!vm.isForm.get()" ng-click="vm.onFocus($event)"> \
+                        <div ng-if="!vm.isForm.value" ng-click="vm.onFocus($event)"> \
                             <md-autocomplete \
-                                md-floating-label={{vm.title.get()}} \
-                                md-input-name={{vm.name.get()}} \
-                                md-min-length="vm.minLengthRequest.get()" \
-                                md-input-minlength="{{vm.minLength.get()}}" \
-                                md-input-maxlength="{{vm.maxLength.get()}}" \
-                                md-no-cache="vm.noCache.get()" \
+                                md-floating-label={{vm.title.value}} \
+                                md-input-name={{vm.name.value}} \
+                                md-min-length="vm.minLengthRequest.value" \
+                                md-input-minlength="{{vm.minLength.value}}" \
+                                md-input-maxlength="{{vm.maxLength.value}}" \
+                                md-no-cache="vm.noCache.value" \
                                 md-selected-item="vm.selectedItem" \
                                 md-search-text="vm.searchText" \
                                 md-items="item in vm.searchItems(vm.searchText)" \
                                 md-item-text="item" \
                                 md-selected-item-change="vm.changeSelectedItem()" \
-                                ng-required="vm.isRequired.get()" \
-                                md-require-match="vm.requiredMatch.get()" \
-                                placeholder="{{vm.placeholder.get()}}" \
-                                ng-disabled="vm.disabled.get()" \
+                                ng-required="vm.isRequired.value" \
+                                md-require-match="vm.requiredMatch.value" \
+                                placeholder="{{vm.placeholder.value}}" \
+                                ng-disabled="vm.disabled.value" \
                                 md-clear-button="true"> \
                                 <md-item-template> \
                                     <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
                                 </md-item-template> \
                                 <md-not-found> \
-                                    {{vm.notFoundText.get()}} \
+                                    {{vm.notFoundText.value}} \
                                 </md-not-found> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="maxlength">{{vm.maxLengthMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
                                 </div> \
                             </md-autocomplete> \
                         </div> \
@@ -4556,7 +4283,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller(EntifixStringUtils) {
+    function componentcontroller(EntifixStringUtils, $scope) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
 
@@ -4604,7 +4331,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixcheckboxswitch' + randomNumber;
             }
         };
@@ -4672,11 +4399,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (vm.onChange) vm.onChange({ value: vm.valueModel });
         };
 
-        //=======================================================================================================================================================================
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
 
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.name.value = vm.name.get();
+            vm.isSwitch.value = vm.isSwitch.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.requiredMatch.value = vm.requiredMatch.get();
+        }
+
+        //$scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
+
+        //=======================================================================================================================================================================
     };
 
-    componentcontroller.$inject = ['EntifixStringUtils'];
+    componentcontroller.$inject = ['EntifixStringUtils', '$scope'];
 
     var component = {
         bindings: {
@@ -4757,14 +4502,325 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
+(function () {
+    'use strict';
+
+    function componentcontroller($mdConstant) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.maxChips = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxChipsMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
+                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
+
+                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
+                }
+
+                //Default value
+                return 'Ha alcanzado el número máximo de elementos';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                return 'entifixchip' + randomNumber;
+            }
+        };
+
+        vm.transformChip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
+            }
+        };
+
+        vm.onAdd = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
+            }
+        };
+
+        vm.onRemove = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
+            }
+        };
+
+        vm.onSelect = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
+            }
+        };
+
+        vm.placeholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.secondaryPlaceholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
+
+                //Default value
+                return vm.placeholder.get();
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.removable = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.readOnly = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.enableChipEdit = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
+
+                //Default value
+                return 'true';
+            }
+        };
+
+        vm.addOnBlur = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.separators = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
+
+                //Default value
+                return vm.separatorsDefault;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.getStringValue = function () {
+            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
+                var value = '';
+                vm.valueModel.forEach(function (element) {
+                    value += element + ' ';
+                });
+                return value;
+            }
+            return '';
+        };
+
+        vm.tC = function (chip, index) {
+            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
+        };
+
+        vm.oAdd = function (chip, index) {
+            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
+        };
+
+        vm.oRemove = function (chip, index) {
+            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
+        };
+
+        vm.oSelect = function (chip, index) {
+            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$mdConstant'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
+        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-chips \
+                            ng-if="vm.canShowEditableFields.get()" \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd$chip()" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.placeholder.get()}}</label><br/> \
+                            <strong>{{vm.getStringValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-chips \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd($chip, $index)" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                    </div> \
+                    <br/>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixChip', component);
+})();
+'use strict';
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 (function () {
     'use strict';
 
-    function componentcontroller(mdcDateTimeDialog, $scope, EntifixDateGenerator, EntifixStringUtils) {
+    function componentcontroller(mdcDateTimeDialog, $scope, EntifixDateGenerator, EntifixStringUtils, $timeout) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
+        var plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -4843,7 +4899,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixdatetimepicker' + randomNumber;
             }
         };
@@ -4942,26 +4998,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         vm.minDate = {
             get: function get() {
                 if (vm.componentConstruction && vm.componentConstruction.minDate) {
-                    if (vm.componentConstruction.minDate.getter) return vm.componentConstruction.minDate.getter();
+                    if (vm.componentConstruction.minDate.getter) return moment(vm.componentConstruction.minDate.getter(), vm.format.value);
 
-                    if (vm.componentConstruction.minDate.text) return vm.componentConstruction.minDate.text;
+                    if (vm.componentConstruction.minDate.text) return moment(vm.componentConstruction.minDate.text, vm.format.value);
                 }
 
                 //Default value
-                return '01/01/1900';
+                return moment('01/01/1900', vm.format.value);
             }
         };
 
         vm.maxDate = {
             get: function get() {
                 if (vm.componentConstruction && vm.componentConstruction.maxDate) {
-                    if (vm.componentConstruction.maxDate.getter) return vm.componentConstruction.maxDate.getter();
+                    if (vm.componentConstruction.maxDate.getter) return moment(vm.componentConstruction.maxDate.getter(), vm.format.value);
 
-                    if (vm.componentConstruction.maxDate.text) return vm.componentConstruction.maxDate.text;
+                    if (vm.componentConstruction.maxDate.text) return moment(vm.componentConstruction.maxDate.text, vm.format.value);
                 }
 
                 //Default value
-                return '01/01/2100';
+                return moment('01/01/2100', vm.format.value);
             }
         };
 
@@ -4975,7 +5031,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 //Default value
                 var format = '';
-                if (vm.hasDate.get()) format += 'DD/MM/YYYY';
+                if (vm.hasDate.get()) format += 'DD-MM-YYYY';
                 if (vm.hasTime.get() && vm.hasDate.get()) format += ' HH';else if (vm.hasTime.get()) format += 'HH';
                 if (vm.hasTime.get() && vm.shortTime.get()) format += ':mm a';else if (vm.hasTime.get()) format += ':mm';
                 return format;
@@ -5077,15 +5133,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //=======================================================================================================================================================================
 
         vm.$onInit = function () {
-            setDefauts();
-            init();
+            setValues();
         };
-
-        //Default values
-        function setDefauts() {};
-
-        //Constructor
-        function init() {};
 
         function updateDateString() {
             if (!(vm.valueModel instanceof Date)) {
@@ -5112,15 +5161,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
         }
 
-        vm.getDateString = function (skip) {
+        vm.getDateString = function () {
             if (vm.valueModel) {
-                if (!vm.dateString) {
-                    updateDateString();
-                    return vm.dateString;
-                } else {
-                    return vm.dateString;
-                }
-            } else if (!skip) return vm.nullValueLabel.get();
+                updateDateString();
+                return vm.dateString;
+            } else if (!vm.canShowEditableFields.get()) return vm.nullValueLabel.get();
         };
 
         vm.displayDialogEdit = function () {
@@ -5139,6 +5184,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     cancelText: vm.cancelText.get(),
                     todayText: vm.todayText.get(),
                     okText: vm.okText.get(),
+                    maxDate: vm.maxDate.get(),
+                    minDate: vm.minDate.get(),
                     amText: 'am',
                     pmText: 'pm',
                     showTodaysDate: '',
@@ -5159,6 +5206,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     cancelText: vm.cancelText.get(),
                     todayText: vm.todayText.get(),
                     okText: vm.okText.get(),
+                    maxDate: vm.maxDate.get(),
+                    minDate: vm.minDate.get(),
                     amText: 'am',
                     pmText: 'pm',
                     showTodaysDate: '',
@@ -5176,6 +5225,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         vm.runOnChangeTrigger = function () {
             updateDateString();
             if (vm.onChange) vm.onChange({ value: vm.valueModel });
+
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         };
 
         function transformStringToDate(value) {
@@ -5185,12 +5237,50 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         $scope.$watch(function () {
             return vm.valueModel;
         }, function (newValue, oldValue) {
-            if (vm.onChange) vm.onChange({ value: newValue });
+            if (vm.onChange) vm.onChange({ value: newValue });cleanPlannedRecharge();plannedRecharge = $timeout(setValues, 1500);vm.dateString = vm.getDateString();
         });
+
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.format.value = vm.format.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.isDisabled.value = vm.isDisabled.get();
+            vm.disableParentScroll.value = vm.disableParentScroll.get();
+            vm.autoOk.value = vm.autoOk.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.editInput.value = vm.editInput.get();
+            vm.parseMessage.value = vm.parseMessage.get();
+            vm.clickOutsideToClose.value = vm.clickOutsideToClose.get();
+            vm.hasDate.value = vm.hasDate.get();
+            vm.placeholder.value = vm.placeholder.get();
+            vm.minDate.value = vm.minDate.get();
+            vm.maxDate.value = vm.maxDate.get();
+            vm.okText.value = vm.okText.get();
+            vm.todayText.value = vm.todayText.get();
+            vm.cancelText.value = vm.cancelText.get();
+            vm.weekStart.vale = vm.weekStart.get();
+            vm.weekDays.value = vm.weekDays.get();
+            vm.weekDays.value = vm.weekDays.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.hasTime.value = vm.hasTime.get();
+            vm.hasMinutes.vale = vm.hasMinutes.get();
+            vm.shortTime.value = vm.shortTime.get();
+            vm.dateString = vm.getDateString();
+        }
         //=======================================================================================================================================================================        
     };
 
-    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope', 'EntifixDateGenerator', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['mdcDateTimeDialog', '$scope', 'EntifixDateGenerator', 'EntifixStringUtils', '$timeout'];
 
     var component = {
         bindings: {
@@ -5201,39 +5291,39 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             onChange: '&'
         },
         //templateUrl: 'dist/shared/components/entifixDateTimePicker/entifixDateTimePicker.html',
-        template: '<div ng-if="vm.isForm.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+        template: '<div ng-if="vm.isForm.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
                     <div ng-if="vm.canShowEditableFields.get()" layout layout-align="center center" class="datetimepicker"> \
                         <md-input-container flex> \
-                            <label>{{vm.title.get() + ": " + vm.getDateString(true)}}</label> \
+                            <label>{{vm.title.value + ": " + vm.dateString}}</label> \
                             <input mdc-datetime-picker \
                                 type="text" \
                                 ng-model="vm.valueModel" \
-                                id="{{vm.name.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                format="{{vm.format.get()}}" \
-                                short-time="vm.shortTime.get()" \
-                                min-date="vm.minDate.get()" \
-                                max-date="vm.maxDate.get()" \
-                                date="vm.hasDate.get()" \
-                                time="vm.hasTime.get()" \
-                                minutes="vm.hasMinutes.get()" \
-                                cancel-text="{{vm.cancelText.get()}}" \
-                                today-text="{{vm.todayText.get()}}" \
-                                ok-text="{{vm.okText.get()}}" \
-                                week-start="vm.weekStart.get()" \
-                                weeks-days="vm.weeksDays.get()" \
+                                id="{{vm.name.value}}" \
+                                name="{{vm.name.value}}" \
+                                format="{{vm.format.value}}" \
+                                short-time="vm.shortTime.value" \
+                                min-date="vm.minDate.value" \
+                                max-date="vm.maxDate.value" \
+                                date="vm.hasDate.value" \
+                                time="vm.hasTime.value" \
+                                minutes="vm.hasMinutes.value" \
+                                cancel-text="{{vm.cancelText.value}}" \
+                                today-text="{{vm.todayText.value}}" \
+                                ok-text="{{vm.okText.value}}" \
+                                week-start="vm.weekStart.value" \
+                                weeks-days="vm.weeksDays.value" \
                                 show-todays-date \
-                                disable-parent-scroll="vm.disableParentScroll.get()" \
-                                auto-ok="vm.autoOk.get()" \
-                                edit-input="vm.editInput.get()" \
-                                click-outside-to-close="vm.clickOutsideToClose.get()" \
+                                disable-parent-scroll="vm.disableParentScroll.value" \
+                                auto-ok="vm.autoOk.value" \
+                                edit-input="vm.editInput.value" \
+                                click-outside-to-close="vm.clickOutsideToClose.value" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-disabled="vm.isDisabled.get()" \
-                                ng-required="vm.isRequired.get()"/> \
+                                ng-disabled="vm.isDisabled.value" \
+                                ng-required="vm.isRequired.value"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="parse">{{vm.parseMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="parse">{{vm.parseMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div flex="5"> \
@@ -5243,43 +5333,43 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         </div> \
                     </div> \
                     <div ng-if="!vm.canShowEditableFields.get()"> \
-                        <label>{{vm.title.get()}}</label><br/> \
-                        <strong>{{vm.getDateString()}}</strong> \
+                        <label>{{vm.title.value}}</label><br/> \
+                        <strong>{{vm.dateString}}</strong> \
                     </div> \
                 </div> \
-                <div ng-if="!vm.isForm.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                <div ng-if="!vm.isForm.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
                     <div layout layout-align="center center" layout- class="datetimepicker"> \
                         <md-input-container flex> \
-                            <label>{{vm.title.get() + ": " + vm.getDateString(true)}}</label> \
+                            <label>{{vm.title.value + ": " + vm.dateString}}</label> \
                             <input mdc-datetime-picker \
                                 type="text" \
                                 ng-model="vm.valueModel" \
-                                id="{{vm.name.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                format="{{vm.format.get()}}" \
-                                short-time="vm.shortTime.get()" \
-                                min-date="vm.minDate.get()" \
-                                max-date="vm.maxDate.get()" \
-                                date="vm.hasDate.get()" \
-                                time="vm.hasTime.get()" \
-                                minutes="vm.hasMinutes.get()" \
-                                cancel-text="{{vm.cancelText.get()}}" \
-                                today-text="{{vm.todayText.get()}}" \
-                                ok-text="{{vm.okText.get()}}" \
-                                week-start="vm.weekStart.get()" \
-                                weeks-days="vm.weeksDays.get()" \
+                                id="{{vm.name.value}}" \
+                                name="{{vm.name.value}}" \
+                                format="{{vm.format.value}}" \
+                                short-time="vm.shortTime.value" \
+                                min-date="vm.minDate.value" \
+                                max-date="vm.maxDate.value" \
+                                date="vm.hasDate.value" \
+                                time="vm.hasTime.value" \
+                                minutes="vm.hasMinutes.value" \
+                                cancel-text="{{vm.cancelText.value}}" \
+                                today-text="{{vm.todayText.value}}" \
+                                ok-text="{{vm.okText.value}}" \
+                                week-start="vm.weekStart.value" \
+                                weeks-days="vm.weeksDays.value" \
                                 show-todays-date \
-                                disable-parent-scroll="vm.disableParentScroll.get()" \
-                                auto-ok="vm.autoOk.get()" \
-                                edit-input="vm.editInput.get()" \
-                                click-outside-to-close="vm.clickOutsideToClose.get()" \
+                                disable-parent-scroll="vm.disableParentScroll.value" \
+                                auto-ok="vm.autoOk.value" \
+                                edit-input="vm.editInput.value" \
+                                click-outside-to-close="vm.clickOutsideToClose.value" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-disabled="vm.isDisabled.get()" \
-                                ng-required="vm.isRequired.get()"/> \
+                                ng-disabled="vm.isDisabled.value" \
+                                ng-required="vm.isRequired.value"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="parse">{{vm.parseMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="parse">{{vm.parseMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div flex="5"> \
@@ -5294,6 +5384,234 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixDateTimePicker', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller(EntifixStringUtils) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixinput' + randomNumber;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.isMultiple = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultiple != null) return vm.componentConstruction.isMultiple;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.selectFileText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.selectFileText) {
+                    if (vm.componentConstruction.selectFileText.getter) return vm.componentConstruction.selectFileText.getter();
+
+                    if (vm.componentConstruction.selectFileText.text) return vm.componentConstruction.selectFileText.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Seleccionar Archivos...';
+                return 'Seleccionar Archivo';
+            }
+        };
+
+        vm.deleteFileLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.deleteFileLabel) {
+                    if (vm.componentConstruction.deleteFileLabel.getter) return vm.componentConstruction.deleteFileLabel.getter();
+
+                    if (vm.componentConstruction.deleteFileLabel.text) return vm.componentConstruction.deleteFileLabel.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Eliminar archivos...';
+                return 'Eliminar archivo...';
+            }
+        };
+
+        vm.fileNameLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.fileNameLabel) {
+                    if (vm.componentConstruction.fileNameLabel.getter) return vm.componentConstruction.fileNameLabel.getter();
+
+                    if (vm.componentConstruction.fileNameLabel.text) return vm.componentConstruction.fileNameLabel.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Nombre de los archivos: ';
+                return 'Nombre del archivo: ';
+            }
+        };
+
+        vm.showSelectedMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.showSelectedMessage != null) return vm.componentConstruction.showSelectedMessage;
+
+                //Default value
+                return true;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.runOnChangeTrigger = function () {
+            if (vm.onChange) vm.onChange({ value: vm.valueModel });
+        };
+
+        vm.getDisplay = function () {
+            if (vm.valueModel) {
+                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
+                return vm.valueModel;
+            } else return vm.nullValueLabel.get();
+        };
+
+        vm.cleanFile = function () {
+            delete vm.valueModel;
+        };
+
+        //=======================================================================================================================================================================
+    };
+
+    componentcontroller.$inject = ['EntifixStringUtils'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixFile/entifixFile.html',
+        template: '<div ng-show="vm.canShowEditableFields.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="!vm.isMultiple.get()"> \
+                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
+                            <input type="file" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                entifix-file-read \
+                                ng-change="vm.runOnChangeTrigger()"/> \
+                        </label> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                        </div> \
+                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
+                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
+                            <strong>{{vm.fileNameLabel.get()}}</strong> \
+                            {{vm.valueModel.name + " "}} \
+                        </h4> \
+                    </div> \
+                    <div ng-if="vm.isMultiple.get()"> \
+                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
+                            <input type="file" \
+                                ng-model="vm.valueModel" \
+                                multiple \
+                                ng-required="vm.isRequired.get()" \
+                                entifix-file-read \
+                                ng-change="vm.runOnChangeTrigger()"/> \
+                        </label> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                        </div> \
+                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
+                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
+                            <strong>{{vm.fileNameLabel.get()}}</strong> \
+                            <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
+                        </h4> \
+                    </div> \
+                    <br hide-gt-sm><br hide-gt-sm> \
+                   </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixFile', component);
 })();
 'use strict';
 
@@ -5957,7 +6275,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
                             </md-card-content> \
                             <md-card-actions layout="row" layout-align="end center" ng-if="bindCtrl.allowActions.get()"> \
-                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()"> \
+                                <md-button ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon> &nbsp;{{bindCtrl.cancelText.get()}} \
                                 </md-button> \
                                 <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()"> \
@@ -5970,7 +6288,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                 </md-button> \
-                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()"> \
+                                <md-button ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon> &nbsp;{{bindCtrl.okText.get()}} \
                                 </md-button> \
                                 <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid || !bindCtrl.isValidEntity.get()"> \
@@ -5997,237 +6315,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller(EntifixStringUtils) {
+    function componentcontroller($filter, EntifixStringUtils, $timeout, $scope) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixinput' + randomNumber;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.isMultiple = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultiple != null) return vm.componentConstruction.isMultiple;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.selectFileText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.selectFileText) {
-                    if (vm.componentConstruction.selectFileText.getter) return vm.componentConstruction.selectFileText.getter();
-
-                    if (vm.componentConstruction.selectFileText.text) return vm.componentConstruction.selectFileText.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Seleccionar Archivos...';
-                return 'Seleccionar Archivo';
-            }
-        };
-
-        vm.deleteFileLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.deleteFileLabel) {
-                    if (vm.componentConstruction.deleteFileLabel.getter) return vm.componentConstruction.deleteFileLabel.getter();
-
-                    if (vm.componentConstruction.deleteFileLabel.text) return vm.componentConstruction.deleteFileLabel.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Eliminar archivos...';
-                return 'Eliminar archivo...';
-            }
-        };
-
-        vm.fileNameLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.fileNameLabel) {
-                    if (vm.componentConstruction.fileNameLabel.getter) return vm.componentConstruction.fileNameLabel.getter();
-
-                    if (vm.componentConstruction.fileNameLabel.text) return vm.componentConstruction.fileNameLabel.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Nombre de los archivos: ';
-                return 'Nombre del archivo: ';
-            }
-        };
-
-        vm.showSelectedMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.showSelectedMessage != null) return vm.componentConstruction.showSelectedMessage;
-
-                //Default value
-                return true;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.runOnChangeTrigger = function () {
-            if (vm.onChange) vm.onChange({ value: vm.valueModel });
-        };
-
-        vm.getDisplay = function () {
-            if (vm.valueModel) {
-                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
-                return vm.valueModel;
-            } else return vm.nullValueLabel.get();
-        };
-
-        vm.cleanFile = function () {
-            delete vm.valueModel;
-        };
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = ['EntifixStringUtils'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixFile/entifixFile.html',
-        template: '<div ng-show="vm.canShowEditableFields.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="!vm.isMultiple.get()"> \
-                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
-                            <input type="file" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
-                        </label> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                        </div> \
-                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
-                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
-                            <strong>{{vm.fileNameLabel.get()}}</strong> \
-                            {{vm.valueModel.name + " "}} \
-                        </h4> \
-                    </div> \
-                    <div ng-if="vm.isMultiple.get()"> \
-                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
-                            <input type="file" \
-                                ng-model="vm.valueModel" \
-                                multiple \
-                                ng-required="vm.isRequired.get()" \
-                                entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
-                        </label> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                        </div> \
-                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
-                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
-                            <strong>{{vm.fileNameLabel.get()}}</strong> \
-                            <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
-                        </h4> \
-                    </div> \
-                    <br hide-gt-sm><br hide-gt-sm> \
-                   </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixFile', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller($filter, EntifixStringUtils) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        var plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -6414,7 +6505,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixinput' + randomNumber;
             }
         };
@@ -6513,11 +6604,14 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             //=======================================================================================================================================================================
 
         };vm.$onInit = function () {
-            if (vm.init) vm.init();
+            setValues();
         };
 
         vm.runOnChangeTrigger = function () {
             if (vm.onChange) vm.onChange({ value: vm.valueModel });
+
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         };
 
         vm.getDisplay = function () {
@@ -6527,11 +6621,53 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             } else return vm.nullValueLabel.get();
         };
 
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.isTextArea.value = vm.isTextArea.get();
+            vm.title.value = vm.title.get();
+            vm.display = vm.getDisplay();
+            vm.type.value = vm.type.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.emailMessage.value = vm.emailMessage.get();
+            vm.urlMessage.value = vm.urlMessage.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.max.value = vm.max.get();
+            vm.maxMessage.value = vm.maxMessage.get();
+            vm.min.value = vm.min.get();
+            vm.minMessage.value = vm.minMessage.get();
+            vm.modelOptions.value = vm.modelOptions.get();
+            vm.numberMessage.value = vm.numberMessage.get();
+            vm.numberValidation.vale = vm.numberValidation.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.rows.value = vm.rows.get();
+            vm.format.value = vm.format.get();
+            vm.currency.value = vm.currency.get();
+        }
+
+        $scope.$watch(function () {
+            return vm.valueModel;
+        }, function (newValue, oldValue) {
+            vm.display = vm.getDisplay();
+        });
+
         //=======================================================================================================================================================================
 
     };
 
-    componentcontroller.$inject = ['$filter', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['$filter', 'EntifixStringUtils', '$timeout', '$scope'];
 
     var component = {
         bindings: {
@@ -6542,138 +6678,138 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             onChange: '&'
         },
         //templateUrl: 'dist/shared/components/entifixInput/entifixInput.html',
-        template: '<div ng-if="!vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
+        template: '<div ng-if="!vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
                         <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <input \
-                                type="{{vm.type.get()}}" \
+                                type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
                         </div> \
                     </div> \
-                    <div ng-if="!vm.isForm.get()"> \
+                    <div ng-if="!vm.isForm.value"> \
                         <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <input \
-                                type="{{vm.type.get()}}" \
+                                type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \
                 </div> \
-                <div ng-if="vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
+                <div ng-if="vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
                         <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <textarea \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
                         </div> \
                     </div> \
-                    <div ng-if="!vm.isForm.get()"> \
+                    <div ng-if="!vm.isForm.value"> \
                         <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <textarea \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \
@@ -6761,7 +6897,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixradiobutton' + randomNumber;
             }
         };
@@ -7034,7 +7170,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.name = {
             get: function get() {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
                 return 'entifixselect' + randomNumber;
             }
         };
@@ -7340,9 +7476,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig'];
+    componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig', 'EntifixDownloadReportSettings'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig) {
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig, EntifixDownloadReportSettings) {
         var vm = this;
         var cont = 0;
         var onLoading = true;
@@ -7356,9 +7492,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         var _total = 0;
         var _canShowSearchText = true;
         var _transformValues;
-        var _excelSheetResource = new EntifixResource(EntifixConfig.excelSheetResourceName.get());
-        var _pdfResource = new EntifixResource(EntifixConfig.pdfResourceName.get());
-        var originatorEvExcel = void 0;
+        var _xlsSheetResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.xlsSheetResourceName.get()) : "";
+        var _pdfResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.pdfResourceName.get()) : "";
+        var originatorEvXls = void 0;
         var originatorEvPdf = void 0;
 
         // Main
@@ -7557,27 +7693,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.excelSheetIcon = {
+        vm.xlsSheetIcon = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.excelSheetIcon && vm.componentConstruction.excelSheetIcon.icon) return vm.componentConstruction.excelSheetIcon.icon;
+                if (vm.componentConstruction && vm.componentConstruction.xlsSheetIcon && vm.componentConstruction.xlsSheetIcon.icon) return vm.componentConstruction.xlsSheetIcon.icon;
 
                 //Default value
                 return 'poll';
             }
         };
 
-        vm.excelSheetText = {
+        vm.xlsSheetText = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.excelSheetText && vm.componentConstruction.excelSheetText.text) return vm.componentConstruction.excelSheetText.text;
+                if (vm.componentConstruction && vm.componentConstruction.xlsSheetText && vm.componentConstruction.xlsSheetText.text) return vm.componentConstruction.xlsSheetText.text;
 
                 //Default value
                 return 'Descargar Excel';
             }
         };
 
-        vm.canDownloadExcelSheet = {
+        vm.canDownloadXlsSheet = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.canDownloadExcelSheet != null) return vm.componentConstruction.canDownloadExcelSheet;
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadXlsSheet != null) return vm.componentConstruction.canDownloadXlsSheet;
 
                 //Default value
                 return true;
@@ -7882,9 +8018,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.hasExcelSheetPermission = {
+        vm.hasXlsSheetPermission = {
             get: function get() {
-                if (!vm.componentConstruction.permissions.excelSheet || vm.componentConstruction.permissions.excelSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.excelSheet)) return true;
+                if (!vm.componentConstruction.permissions.xlsSheet || vm.componentConstruction.permissions.xlsSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.xlsSheet)) return true;
 
                 //Default value
                 return false;
@@ -8534,8 +8670,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.openExcelSheetMenu = function ($mdMenu, ev) {
-            originatorEvExcel = ev;
+        vm.openXlsSheetMenu = function ($mdMenu, ev) {
+            originatorEvXls = ev;
             $mdMenu.open(ev);
         };
 
@@ -8545,11 +8681,71 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         vm.downloadFileSimplePage = function (type) {
-            if (type == 'pdf') {
-                _pdfResource.getFile({ type: type, contentType: 'application/pdf', columns: getMembersSelected(), data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
-            } else if (type == 'excel') {
-                _excelSheetResource.getFile({ type: type, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', columns: vm.resourceMembers, data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            new EntifixDownloadReportSettings().chooseDownloadReportSettings(function (defaults) {
+                vm.downloadFileSimplePageResource(type, defaults);
+            });
+        };
+
+        vm.downloadFileSimplePageResource = function (type, defaults) {
+            var options = {
+                type: type,
+                data: vm.connectionComponent.pager.currentData,
+                title: vm.queryDetails.resource.resourceName.get(),
+                fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
+                pageSize: defaults.pageSize || "Letter",
+                tableStriped: defaults.tableStriped || true,
+                pageOrientation: defaults.pageOrientation || "Landscape"
+            };
+
+            switch (type) {
+                case 'pdf':
+                    options.contentType = 'application/pdf';
+                    options.columns = getMembersSelected();
+                    _pdfResource.getFile(options);
+                    break;
+
+                case 'xls':
+                    options.contentType = 'application/vnd.ms-excel';
+                    options.columns = vm.resourceMembers;
+                    _xlsSheetResource.getFile(options);
+                    break;
+
+                // add more types of download
             }
+        };
+
+        vm.downloadFileAllPages = function (type) {
+            new EntifixDownloadReportSettings().chooseDownloadReportSettings(function (defaults) {
+                vm.downloadFileAllPagesResource(type, defaults);
+            });
+        };
+
+        vm.downloadFileAllPagesResource = function (type, defaults) {
+            var options = {
+                type: type,
+                allPages: true,
+                searchText: vm.textBoxSearchValue,
+                searchArray: vm.searchArray,
+                columnsSelected: vm.columnsSelected,
+                constantFilters: vm.getConstantFilters(),
+                title: vm.queryDetails.resource.resourceName.get(),
+                fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
+                headers: { "X-Requested-Type": type, "X-Page-Size": defaults.pageSize || "Letter", "X-Table-Striped": defaults.tableStriped || true, "X-Page-Orientation": defaults.pageOrientation || "Landscape" }
+            };
+
+            switch (type) {
+                case 'pdf':
+                    options.contentType = 'application/pdf';
+                    break;
+
+                case 'xls':
+                    options.contentType = 'application/vnd.ms-excel';
+                    break;
+
+                // add more types of download
+            }
+
+            vm.queryDetails.resource.getFile(options);
         };
 
         function getMembersSelected() {
@@ -8562,33 +8758,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return columns;
         }
 
-        // var filters, templateUrl;
-        // vm.fil = filters;
-
-        // vm.downloadFileAllPages = function(type)
-        // {
-        //     if (!filters)
-        //         filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
-
-        //     templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
-
-        //     if (allPages)
-        //         templateUrl += filters;
-        //     else 
-        //         templateUrl += '/' + ((vm.pager.page - 1) * vm.pager.size) + '/' + vm.pager.size + filters;
-
-        //     vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // }
-
-        // vm.getConstantFilters = function()
-        // {
-        //     var filters = [];
-        //     if (vm.pager.getConstantFilters())
-        //         filters = filters.concat(vm.pager.getConstantFilters());
-        //     if (vm.queryDetails.sort)
-        //         filters = filters.concat(vm.queryDetails.sort);
-        //     return filters;
-        // }
+        vm.getConstantFilters = function () {
+            var filters = [];
+            if (vm.pager.getConstantFilters()) filters = filters.concat(vm.pager.getConstantFilters());
+            if (vm.queryDetails.sort) filters = filters.concat(vm.queryDetails.sort);
+            return filters;
+        };
 
         function checkPermissions() {
             if (vm.hasPermissions.get()) {
@@ -8596,7 +8771,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     if (!vm.hasAddPermission.get()) delete vm.componentConstruction.add;
                     if (!vm.hasEditPermission.get()) delete vm.componentConstruction.edit;
                     if (!vm.hasRemovePermission.get()) delete vm.componentConstruction.remove;
-                    if (!vm.hasExcelSheetPermission.get()) vm.componentConstruction.canDownloadExcelSheet = false;
+                    if (!vm.hasXlsSheetPermission.get()) vm.componentConstruction.canDownloadXlsSheet = false;
                     if (!vm.hasPdfPermission.get()) vm.componentConstruction.canDownloadPdf = false;
                 }
             }
@@ -8715,21 +8890,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                     <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
                                                         <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                                     </md-button> \
-                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openExcelSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadExcelSheet.get()"> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openXlsSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadXlsSheet.get()"> \
                                                         <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
-                                                            <md-tooltip>{{bindCtrl.excelSheetText.get()}}</md-tooltip> \
-                                                            <md-icon class="material-icons">{{bindCtrl.excelSheetIcon.get()}}</md-icon> \
+                                                            <md-tooltip>{{bindCtrl.xlsSheetText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.xlsSheetIcon.get()}}</md-icon> \
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadExcelSheet(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileAllPages(\'xls\')"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
                                                             </md-menu-item> \
                                                             <md-menu-divider></md-menu-divider> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'excel\')"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'xls\')"> \
                                                                     <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
                                                                 </md-button> \
@@ -8743,7 +8918,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadPdf(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileAllPages(\'pdf\')"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
@@ -8822,6 +8997,165 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotification'];
+
+    function controller($mdDialog, EntifixNotification) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.tableStripedComponentConstruction = {
+                title: { text: 'Tabla Rayada' },
+                isSwitch: true
+            };
+
+            vm.pageSizeComponentConstruction = {
+                title: { text: 'Tamaño de la hoja' },
+                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
+            };
+
+            vm.pageOrientationComponentConstruction = {
+                title: { text: 'Orientación de la hoja' },
+                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
+            };
+        }
+
+        function setDefaults() {
+            vm.header = "Configuración del reporte";
+            vm.entity = {};
+            vm.entity.tableStriped = true;
+            vm.entity.pageSize = "Letter";
+            vm.entity.pageOrientation = "Landscape";
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel();
+        };
+
+        vm.ok = function () {
+            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
+                $mdDialog.hide(vm.entity);
+            } else {
+                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
+            }
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
+
+    downloadReportSettingsFactory.$inject = ['$mdDialog'];
+
+    function downloadReportSettingsFactory($mdDialog) {
+        var downloadReportSettingsController = function downloadReportSettingsController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
+                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-sm"> \
+                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
+                                                                <h2>&nbsp {{vm.header}}</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageSize"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageSizeComponentConstruction"  \
+                                                                        component-binding-out="vm.pageSizeInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-checkbox-switch  \
+                                                                        value-model="vm.entity.tableStriped"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.tableStripedComponentConstruction"> \
+                                                                    </entifix-checkbox-switch> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageOrientation"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
+                                                                        component-binding-out="vm.pageOrientationInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button  ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixDownloadReportSettingsController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (result) {
+                    if (callbackSuccess) callbackSuccess(result);
+                }, function (result) {
+                    if (callbackError) callbackError(result);
+                });
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return downloadReportSettingsController;
+    };
 })();
 'use strict';
 
@@ -9633,7 +9967,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                             </md-content> \
                                                         </md-dialog-content> \
                                                         <md-dialog-actions layout="row" ng-if="bindCtrl.allowActions.get()"> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
+                                                            <md-button ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.cancelHref.get()}}"> \
                                                                 <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon>&nbsp;{{bindCtrl.cancelText.get()}} \
                                                             </md-button> \
                                                             <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.removeHref.get()}}"> \
@@ -9646,7 +9980,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                             <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.editHref.get()}}"> \
                                                                 <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon>&nbsp;{{bindCtrl.editText.get()}} \
                                                             </md-button> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
+                                                            <md-button ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()" ng-href="{{bindCtrl.okHref.get()}}"> \
                                                                 <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon>&nbsp;{{bindCtrl.okText.get()}} \
                                                             </md-button> \
                                                             <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid"> \
@@ -9729,6 +10063,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         function setDefaults() {
             vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
+            vm.header = "Elija un(a) " + EntifixConfig.systemOwnerDisplayName.get();
         }
 
         vm.cancel = function () {
@@ -9782,15 +10117,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             // Methods _____________________________________________________________________________________________________________________________________________________________________
             //==============================================================================================================================================================================
-            vm.chooseSystemOwner = function (callback) {
+            vm.chooseSystemOwner = function (callbackSuccess, callbackError) {
                 $mdDialog.show({
                     //templateUrl: 'dist/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
-                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-md"> \
-                                                    <md-toolbar md-colors="{background:\'default-primary-500\'}"> \
+                    template: '<md-dialog aria-label="{{vm.header}}" class="md-md"> \
+                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
                                                         <div class="md-toolbar-tools" layout> \
                                                             <div flex layout layout-align="start center"> \
                                                                 <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
-                                                                <h2>&nbsp Elija una Clínica Médica</h2> \
+                                                                <h2>&nbsp {{vm.header}}</h2> \
                                                             </div> \
                                                         </div> \
                                                     </md-toolbar> \
@@ -9798,21 +10133,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                         <md-dialog-content> \
                                                             <md-content layout-padding> \
                                                                 <div flex> \
-                                                                    <entifix-select \
-                                                                        value-model="vm.systemOwner" \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.systemOwner"  \
                                                                         show-editable-fields="true" \
-                                                                        query-details="vm.systemOwnerQueryDetails" \
-                                                                        component-construction="vm.systemOwnerComponentConstruction" \
+                                                                        query-details="vm.systemOwnerQueryDetails"  \
+                                                                        component-construction="vm.systemOwnerComponentConstruction"  \
                                                                         component-binding-out="vm.systemOwnerInstance"> \
                                                                     </entifix-select> \
                                                                 </div> \
                                                             </md-content> \
                                                         </md-dialog-content> \
                                                         <md-dialog-actions layout="row"> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.cancel()"> \
+                                                            <md-button ng-click="vm.cancel()"> \
                                                                 <md-icon class="material-icons">clear</md-icon> Cancelar \
                                                             </md-button> \
-                                                            <md-button md-colors="{background: \'default-primary-50\'}" ng-click="vm.ok()"> \
+                                                            <md-button  ng-click="vm.ok()"> \
                                                                 <md-icon class="material-icons">done</md-icon> Ok \
                                                             </md-button> \
                                                         </md-dialog-actions> \
@@ -9824,9 +10159,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     escapeToClose: false,
                     fullscreen: true,
                     controllerAs: 'vm'
-                }).then(function (results) {
-                    if (callback) callback(results);
-                }, function () {});
+                }).then(function (result) {
+                    if (callbackSuccess) callbackSuccess(result);
+                }, function (result) {
+                    if (callbackError) callbackError(result);
+                });
             };
 
             //==============================================================================================================================================================================

@@ -261,12 +261,14 @@
 
             sv.checkPermissions = function(permission)
             {
-                if (permission instanceof String) {
-                    if (sv.currentPermissions.get().filter(e => e == permission).length > 0)
-                        return true;
+                if (sv.currentPermissions.get()) {
+                    if (permission instanceof String) {
+                        return (sv.currentPermissions.get().filter(e => e == permission).length > 0);
+                    } else if (permission instanceof Array) {
+                        return permission.filter(p => sv.currentPermissions.get().filter(e => e == p).length > 0).length > 0; 
+                    }    
+                } else {
                     return false;
-                } else if (permission instanceof Array) {
-                    return permission.filter(p => sv.currentPermissions.get().filter(e => e == p).length > 0).length > 0; 
                 }
             };
 

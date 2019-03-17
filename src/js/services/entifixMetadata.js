@@ -266,14 +266,15 @@
             return false;
         }
 
-        vm.bodyDataFile = (options) =>
+        vm.getBodyDataFile = (options) =>
         {
             return {
                 title: options.title,
                 columns: getBodyDataFileColumns(options),
-                tableStriped: "true",
-                pageSize: "Letter",
-                data: getBodyDataFilePdfExcel(options)
+                tableStriped: options.tableStriped || "true",
+                pageSize: options.pageSize || "Letter",
+                pageOrientation: options.pageOrientation || "Landscape",
+                data: getBodyDataFilePdfXls(options)
             };
         }
         
@@ -304,7 +305,7 @@
             return columns;
         }
 
-        function getBodyDataFilePdfExcel(options) {
+        function getBodyDataFilePdfXls(options) {
             let data = [];
 
             options.data.forEach((row) => {

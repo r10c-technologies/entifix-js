@@ -806,7 +806,7 @@
                                 <div compile="bindCtrl.stringhtmlcomponent" flex="100"></div> \
                             </md-card-content> \
                             <md-card-actions layout="row" layout-align="end center" ng-if="bindCtrl.allowActions.get()"> \
-                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()"> \
+                                <md-button ng-show="bindCtrl.canCancel.get()" ng-click="bindCtrl.cancel()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.cancelIcon.get()}}</md-icon> &nbsp;{{bindCtrl.cancelText.get()}} \
                                 </md-button> \
                                 <md-button class="md-warn" ng-show="bindCtrl.canRemove.get()" ng-click="bindCtrl.remove()" ng-disabled="bindCtrl.onTask.get()"> \
@@ -819,7 +819,7 @@
                                 <md-button class="md-accent" ng-show="bindCtrl.canEdit.get()" ng-click="bindCtrl.edit()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                 </md-button> \
-                                <md-button md-colors="{background: \'default-primary-50\'}" ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()"> \
+                                <md-button ng-show="bindCtrl.canOk.get()" ng-click="bindCtrl.ok()" ng-disabled="bindCtrl.onTask.get()"> \
                                     <md-icon class="material-icons">{{bindCtrl.okIcon.get()}}</md-icon> &nbsp;{{bindCtrl.okText.get()}} \
                                 </md-button> \
                                 <md-button class="md-primary" ng-show="bindCtrl.canProcess.get()" ng-click="bindCtrl.process()" ng-disabled="bindCtrl.onTask.get() || !bindCtrl.entityForm.$valid || !bindCtrl.isValidEntity.get()"> \

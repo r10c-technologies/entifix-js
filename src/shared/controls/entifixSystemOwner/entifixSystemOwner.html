@@ -1,10 +1,10 @@
-<md-dialog aria-label="Elija una clínica médica" class="md-md">
+<md-dialog aria-label="{{vm.header}}" class="md-md">
     <md-toolbar md-colors="{background: 'default-primary-100'}">
         <div class="md-toolbar-tools" layout>
             <div flex layout layout-align="start center">
                 <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div>      
-                <h2>&nbsp Elija una Clínica Médica</h2>
-            </div>           
+                <h2>&nbsp {{vm.header}}</h2>
+            </div>
         </div>
     </md-toolbar>
     <div>
@@ -22,10 +22,10 @@
             </md-content>
         </md-dialog-content>
         <md-dialog-actions layout="row">
-            <md-button md-colors="{background: 'default-primary-50'}" ng-click="vm.cancel()">
+            <md-button ng-click="vm.cancel()">
                 <md-icon class="material-icons">clear</md-icon> Cancelar
             </md-button>
-            <md-button md-colors="{background: 'default-primary-50'}" ng-click="vm.ok()">
+            <md-button  ng-click="vm.ok()">
                 <md-icon class="material-icons">done</md-icon> Ok
             </md-button>
         </md-dialog-actions>

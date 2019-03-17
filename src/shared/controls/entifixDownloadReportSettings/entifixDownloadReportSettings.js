@@ -1,11 +1,11 @@
 (function () {
     'use strict';
    
-    angular.module('entifix-js').controller('EntifixSystemOwnerController', controller);
+    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
 
-    controller.$inject = ['EntifixSession', 'EntifixResource', 'EntifixConfig', '$mdDialog', 'EntifixNotification', '$state'];
+    controller.$inject = ['$mdDialog', 'EntifixNotification'];
 
-    function controller(EntifixSession, EntifixResource, EntifixConfig, $mdDialog, EntifixNotification, $state)
+    function controller($mdDialog, EntifixNotification)
     {
         var vm = this;
 
@@ -26,22 +26,32 @@
 
         function createComponents()
         {
-            vm.systemOwnerQueryDetails =
+            vm.tableStripedComponentConstruction =
             {
-                resource: vm.resource
+                title: { text: 'Tabla Rayada' },
+                isSwitch: true
             };
 
-            vm.systemOwnerComponentConstruction =
+            vm.pageSizeComponentConstruction =
             {
-                title: { text: EntifixConfig.systemOwnerDisplayName.get() },
-                displayPropertyName: 'systemOwner'
+                title: { text: 'Tamaño de la hoja' },
+                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }]}
+            };
+
+            vm.pageOrientationComponentConstruction =
+            {
+                title: { text: 'Orientación de la hoja' },
+                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }]}
             };
         }
 
         function setDefaults()
         {
-            vm.resource = new EntifixResource(EntifixConfig.systemOwnerEntityName.get());
-            vm.header = "Elija un(a) " + EntifixConfig.systemOwnerDisplayName.get();
+            vm.header = "Configuración del reporte";
+            vm.entity = {};
+            vm.entity.tableStriped = true;
+            vm.entity.pageSize = "Letter";
+            vm.entity.pageOrientation = "Landscape";
         }
 
         vm.cancel = function()
@@ -51,24 +61,10 @@
 
         vm.ok = function()
         {
-            if (vm.systemOwner) {
-                new EntifixResource(EntifixConfig.systemOwnerEntitySwapName.get()).saveEntity(
-                    { [EntifixConfig.idSystemOwnerPropertyName.get()] : vm.systemOwner },
-                    (response, saveSuccess) => {
-                        if (saveSuccess) {
-                            EntifixSession.saveTokens(response.data.data[EntifixConfig.authTokenName.get()], response.data.data[EntifixConfig.refreshTokenName.get()]);
-                            EntifixNotification.success({"body": "La actualización de " + EntifixConfig.systemOwnerDisplayName.get() + " ha sido exitosa.", "isToast": true });
-                            $state.reload();
-                            $mdDialog.hide(vm.systemOwner);
-                        } else {
-                            EntifixNotification.error({"body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo.", "isToast": true });
-                        }
-                    },
-                    error => {
-                        EntifixNotification.error({"body": "Ocurrió un error durante la actualización de " + EntifixConfig.systemOwnerDisplayName.get() + ". Por favor vuelva a intentarlo. " + error.data.message, "isToast": true });
-                    });
+            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
+                $mdDialog.hide(vm.entity);
             } else {
-                EntifixNotification.error({"body": "Por favor, seleccione un " + EntifixConfig.systemOwnerDisplayName.get() + ".", "isToast": true });
+                EntifixNotification.error({"body": "Por favor, seleccione todas las opciones.", "isToast": true });
             }
         };
 
@@ -79,13 +75,13 @@
     // FACTORY ================================================================================================================================================================================
     // ========================================================================================================================================================================================
     // =========================================================================================================================================================================================
-    angular.module('entifix-js').factory('EntifixSystemOwner', systemOwnerFactory);
+    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
     
-    systemOwnerFactory.$inject = ['$mdDialog'];
+    downloadReportSettingsFactory.$inject = ['$mdDialog'];
 
-    function systemOwnerFactory($mdDialog)
+    function downloadReportSettingsFactory($mdDialog)
     {
-        var systemOwnerController = function()
+        var downloadReportSettingsController = function()
         {
             var vm = this;
 
@@ -102,15 +98,15 @@
 
             // Methods _____________________________________________________________________________________________________________________________________________________________________
             //==============================================================================================================================================================================
-            vm.chooseSystemOwner = (callbackSuccess, callbackError) => 
+            vm.chooseDownloadReportSettings = (callbackSuccess, callbackError) => 
             {
                 $mdDialog.show({
-                                    //templateUrl: 'src/shared/controls/entifixSystemOwner/entifixSystemOwner.html',
-                                    template: '<md-dialog aria-label="{{vm.header}}" class="md-md"> \
+                                    //templateUrl: 'src/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
+                                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-sm"> \
                                                     <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
                                                         <div class="md-toolbar-tools" layout> \
                                                             <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">warning</md-icon></div> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
                                                                 <h2>&nbsp {{vm.header}}</h2> \
                                                             </div> \
                                                         </div> \
@@ -120,11 +116,25 @@
                                                             <md-content layout-padding> \
                                                                 <div flex> \
                                                                     <entifix-select  \
-                                                                        value-model="vm.systemOwner"  \
+                                                                        value-model="vm.entity.pageSize"  \
                                                                         show-editable-fields="true" \
-                                                                        query-details="vm.systemOwnerQueryDetails"  \
-                                                                        component-construction="vm.systemOwnerComponentConstruction"  \
-                                                                        component-binding-out="vm.systemOwnerInstance"> \
+                                                                        component-construction="vm.pageSizeComponentConstruction"  \
+                                                                        component-binding-out="vm.pageSizeInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-checkbox-switch  \
+                                                                        value-model="vm.entity.tableStriped"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.tableStripedComponentConstruction"> \
+                                                                    </entifix-checkbox-switch> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageOrientation"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
+                                                                        component-binding-out="vm.pageOrientationInstance"> \
                                                                     </entifix-select> \
                                                                 </div> \
                                                             </md-content> \
@@ -139,13 +149,13 @@
                                                         </md-dialog-actions> \
                                                     </div> \
                                                 </md-dialog>',
-                                    controller: 'EntifixSystemOwnerController',
+                                    controller: 'EntifixDownloadReportSettingsController',
                                     parent: angular.element(document.body),
                                     clickOutsideToClose: false,
                                     escapeToClose: false,
                                     fullscreen: true,
                                     controllerAs: 'vm'
-                                    })
+                                })
                 .then((result) => { if(callbackSuccess) callbackSuccess(result); }, (result) => { if(callbackError) callbackError(result); });
             };
 
@@ -153,7 +163,7 @@
 
         };
 
-        return systemOwnerController;
+        return downloadReportSettingsController;
     };
 
 })();

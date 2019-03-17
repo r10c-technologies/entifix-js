@@ -1,10 +1,11 @@
 (function () {
     'use strict';
    
-    function componentcontroller($filter, EntifixStringUtils)
+    function componentcontroller($filter, EntifixStringUtils, $timeout, $scope)
     {
         var vm = this;
         var randomNumber = Math.floor((Math.random() * 100) + 1);
+        var plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
@@ -259,7 +260,7 @@
         {
             get: () =>
             {
-                if (EntifixStringUtils.getCleanedString(vm.title.get()) != '')
+                if (vm.title.get() != '')
                     return EntifixStringUtils.getCleanedString(vm.title.get())
                 return 'entifixinput' + randomNumber;
             }
@@ -392,19 +393,21 @@
         //Methods________________________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
 
-        vm.$onInit = function()
+        vm.$onInit = () =>
         {
-            if (vm.init)
-                vm.init();
+            setValues();
         };
 
-        vm.runOnChangeTrigger = function()
+        vm.runOnChangeTrigger = () =>
         {
             if (vm.onChange)
                 vm.onChange({ value: vm.valueModel });
+
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
         }
 
-        vm.getDisplay = function()
+        vm.getDisplay = () =>
         {
             if (vm.valueModel)
             {
@@ -415,14 +418,55 @@
             else
                 return vm.nullValueLabel.get();
         }
- 
+
+        function cleanPlannedRecharge()
+        {
+            if (plannedRecharge)
+            {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues()
+        {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.isTextArea.value = vm.isTextArea.get();
+            vm.title.value = vm.title.get();
+            vm.display = vm.getDisplay();
+            vm.type.value = vm.type.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.emailMessage.value = vm.emailMessage.get();
+            vm.urlMessage.value = vm.urlMessage.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.max.value = vm.max.get();
+            vm.maxMessage.value = vm.maxMessage.get();
+            vm.min.value = vm.min.get();
+            vm.minMessage.value = vm.minMessage.get();
+            vm.modelOptions.value = vm.modelOptions.get();
+            vm.numberMessage.value = vm.numberMessage.get();
+            vm.numberValidation.vale = vm.numberValidation.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.rows.value = vm.rows.get();
+            vm.format.value = vm.format.get();
+            vm.currency.value = vm.currency.get();
+        }
+
+        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplay(); } );
+
         //=======================================================================================================================================================================
 
 
         
     };
 
-    componentcontroller.$inject = ['$filter', 'EntifixStringUtils'];
+    componentcontroller.$inject = ['$filter', 'EntifixStringUtils', '$timeout', '$scope'];
 
     var component = 
     {
@@ -435,138 +479,138 @@
             onChange: '&'
         },
         //templateUrl: 'src/shared/components/entifixInput/entifixInput.html',
-        template: '<div ng-if="!vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
+        template: '<div ng-if="!vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
                         <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <input \
-                                type="{{vm.type.get()}}" \
+                                type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
                         </div> \
                     </div> \
-                    <div ng-if="!vm.isForm.get()"> \
+                    <div ng-if="!vm.isForm.value"> \
                         <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <input \
-                                type="{{vm.type.get()}}" \
+                                type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
                                 autocomplete="off"/> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \
                 </div> \
-                <div ng-if="vm.isTextArea.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
+                <div ng-if="vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
                         <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <textarea \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                         <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label><br/> \
-                            <strong>{{vm.getDisplay()}}</strong> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
                         </div> \
                     </div> \
-                    <div ng-if="!vm.isForm.get()"> \
+                    <div ng-if="!vm.isForm.value"> \
                         <md-input-container class="md-block"> \
-                            <label>{{vm.title.get()}}</label> \
+                            <label>{{vm.title.value}}</label> \
                             <textarea \
                                 ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                md-maxlength="{{vm.maxLength.get()}}" \
-                                rows="{{vm.rows.get()}}" \
-                                minlength="{{vm.minLength.get()}}" \
-                                name="{{vm.name.get()}}" \
-                                aria-label="{{vm.name.get()}}" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
                                 ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.get()" \
+                                ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                ng-max="vm.max.get()" \
-                                ng-min="vm.min.get()" \
-                                number-validation="{{vm.numberValidation.get()}}" \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                number-validation="{{vm.numberValidation.value}}" \
                                 number-block></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.get()}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.get()}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.get()}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.get()}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.get()}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.get()}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.get()}}</div> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
                                 </div> \
                         </md-input-container> \
                     </div> \

@@ -4,9 +4,9 @@
 
     var module = angular.module('entifix-js');
 
-    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig'];
+    componentController.$inject = ['BaseComponentFunctions','EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig', 'EntifixDownloadReportSettings'];
 
-    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig)
+    function componentController(BaseComponentFunctions, EntifixNotification, $timeout, EntifixPager, $stateParams, $state, EntifixResource, $mdMenu, EntifixDateGenerator, EntifixSession, EntifixConfig, EntifixDownloadReportSettings)
     {
         var vm = this;
         var cont = 0;
@@ -21,9 +21,9 @@
         var _total = 0;
         var _canShowSearchText = true;
         var _transformValues;
-        let _excelSheetResource = new EntifixResource(EntifixConfig.excelSheetResourceName.get());
-        let _pdfResource = new EntifixResource(EntifixConfig.pdfResourceName.get());
-        let originatorEvExcel;
+        let _xlsSheetResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.xlsSheetResourceName.get()) : "";
+        let _pdfResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.pdfResourceName.get()) : "";
+        let originatorEvXls;
         let originatorEvPdf;
         
         // Main
@@ -285,36 +285,36 @@
             }
         };
 
-        vm.excelSheetIcon =
+        vm.xlsSheetIcon =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.excelSheetIcon && vm.componentConstruction.excelSheetIcon.icon)
-                    return  vm.componentConstruction.excelSheetIcon.icon;
+                if (vm.componentConstruction && vm.componentConstruction.xlsSheetIcon && vm.componentConstruction.xlsSheetIcon.icon)
+                    return  vm.componentConstruction.xlsSheetIcon.icon;
 
                 //Default value
                 return 'poll';
             }
         };
 
-        vm.excelSheetText =
+        vm.xlsSheetText =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.excelSheetText && vm.componentConstruction.excelSheetText.text)
-                    return  vm.componentConstruction.excelSheetText.text;
+                if (vm.componentConstruction && vm.componentConstruction.xlsSheetText && vm.componentConstruction.xlsSheetText.text)
+                    return  vm.componentConstruction.xlsSheetText.text;
 
                 //Default value
                 return 'Descargar Excel';
             }
         };
 
-        vm.canDownloadExcelSheet =
+        vm.canDownloadXlsSheet =
         {
             get: () =>
             {
-                if (vm.componentConstruction && vm.componentConstruction.canDownloadExcelSheet != null)
-                    return vm.componentConstruction.canDownloadExcelSheet;
+                if (vm.componentConstruction && vm.componentConstruction.canDownloadXlsSheet != null)
+                    return vm.componentConstruction.canDownloadXlsSheet;
 
                 //Default value
                 return true;
@@ -732,11 +732,11 @@
             }
         }
 
-        vm.hasExcelSheetPermission = 
+        vm.hasXlsSheetPermission = 
         {
             get: () =>
             {
-                if (!vm.componentConstruction.permissions.excelSheet || (vm.componentConstruction.permissions.excelSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.excelSheet)))
+                if (!vm.componentConstruction.permissions.xlsSheet || (vm.componentConstruction.permissions.xlsSheet != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.xlsSheet)))
                     return true;
 
                 //Default value
@@ -1555,9 +1555,9 @@
             }
         };
 
-        vm.openExcelSheetMenu = ($mdMenu, ev) =>
+        vm.openXlsSheetMenu = ($mdMenu, ev) =>
         {
-            originatorEvExcel = ev;
+            originatorEvXls = ev;
             $mdMenu.open(ev);
         }
 
@@ -1569,11 +1569,70 @@
 
         vm.downloadFileSimplePage = (type) =>
         {
-            if (type == 'pdf') {
-                _pdfResource.getFile({ type: type, contentType: 'application/pdf', columns: getMembersSelected(), data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
-            } else if (type == 'excel') {
-                _excelSheetResource.getFile({ type: type, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', columns: vm.resourceMembers, data: vm.connectionComponent.pager.currentData, resourceName: vm.queryDetails.resource.resourceName.get(), title: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString() });
+            new EntifixDownloadReportSettings().chooseDownloadReportSettings((defaults) => { vm.downloadFileSimplePageResource(type, defaults); });
+        }
+
+        vm.downloadFileSimplePageResource = (type, defaults) =>
+        {
+            let options = {
+                type: type,
+                data: vm.connectionComponent.pager.currentData,
+                title: vm.queryDetails.resource.resourceName.get(),
+                fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
+                pageSize: defaults.pageSize || "Letter", 
+                tableStriped: defaults.tableStriped || true, 
+                pageOrientation: defaults.pageOrientation || "Landscape"
             }
+
+            switch (type) {
+                case 'pdf':
+                    options.contentType = 'application/pdf';
+                    options.columns = getMembersSelected();
+                    _pdfResource.getFile(options);
+                    break;
+
+                case 'xls':
+                    options.contentType = 'application/vnd.ms-excel';
+                    options.columns = vm.resourceMembers;
+                    _xlsSheetResource.getFile(options);
+                    break;
+
+                // add more types of download
+            }
+        }
+
+        vm.downloadFileAllPages = (type) =>
+        {
+            new EntifixDownloadReportSettings().chooseDownloadReportSettings((defaults) => { vm.downloadFileAllPagesResource(type, defaults); });
+        }
+
+        vm.downloadFileAllPagesResource = (type, defaults) =>
+        {
+            let options = {
+                type: type,
+                allPages: true,
+                searchText: vm.textBoxSearchValue,
+                searchArray: vm.searchArray,
+                columnsSelected: vm.columnsSelected,
+                constantFilters: vm.getConstantFilters(),
+                title: vm.queryDetails.resource.resourceName.get(),
+                fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
+                headers: { "X-Requested-Type": type, "X-Page-Size": defaults.pageSize || "Letter", "X-Table-Striped": defaults.tableStriped || true, "X-Page-Orientation": defaults.pageOrientation || "Landscape" }
+            }
+
+            switch (type) {
+                case 'pdf':
+                    options.contentType = 'application/pdf';
+                    break;
+
+                case 'xls':
+                    options.contentType = 'application/vnd.ms-excel';
+                    break;
+
+                // add more types of download
+            }
+
+            vm.queryDetails.resource.getFile(options);
         }
 
         function getMembersSelected() {
@@ -1582,33 +1641,15 @@
             return columns;
         }
 
-        // var filters, templateUrl;
-        // vm.fil = filters;
-
-        // vm.downloadFileAllPages = function(type)
-        // {
-        //     if (!filters)
-        //         filters = vm.queryDetails.resource.getCompleteFiltersUrl.get(vm.textBoxSearchValue, vm.searchArray, vm.columnsSelected, vm.getConstantFilters()) + '&export=true';
-            
-        //     templateUrl = vm.queryDetails.resource.getCompleteResourceUrl.get();
-
-        //     if (allPages)
-        //         templateUrl += filters;
-        //     else 
-        //         templateUrl += '/' + ((vm.pager.page - 1) * vm.pager.size) + '/' + vm.pager.size + filters;
-
-        //     vm.queryDetails.resource.getFile(templateUrl, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        // }
-
-        // vm.getConstantFilters = function()
-        // {
-        //     var filters = [];
-        //     if (vm.pager.getConstantFilters())
-        //         filters = filters.concat(vm.pager.getConstantFilters());
-        //     if (vm.queryDetails.sort)
-        //         filters = filters.concat(vm.queryDetails.sort);
-        //     return filters;
-        // }
+        vm.getConstantFilters = function()
+        {
+            var filters = [];
+            if (vm.pager.getConstantFilters())
+                filters = filters.concat(vm.pager.getConstantFilters());
+            if (vm.queryDetails.sort)
+                filters = filters.concat(vm.queryDetails.sort);
+            return filters;
+        }
 
         function checkPermissions()
         {
@@ -1620,8 +1661,8 @@
                         delete vm.componentConstruction.edit;
                     if (!vm.hasRemovePermission.get())
                         delete vm.componentConstruction.remove;
-                    if (!vm.hasExcelSheetPermission.get())
-                        vm.componentConstruction.canDownloadExcelSheet = false;
+                    if (!vm.hasXlsSheetPermission.get())
+                        vm.componentConstruction.canDownloadXlsSheet = false;
                     if (!vm.hasPdfPermission.get())
                         vm.componentConstruction.canDownloadPdf = false;
                 }
@@ -1742,21 +1783,21 @@
                                                     <md-button class="md-accent text-warning" ng-click="bindCtrl.editElement()" ng-disabled="!(bindCtrl.canEdit.get() && !bindCtrl.multipleEditOptions.get())" ng-if="bindCtrl.componentConstruction.edit"> \
                                                         <md-icon class="material-icons">{{bindCtrl.editIcon.get()}}</md-icon> &nbsp;{{bindCtrl.editText.get()}} \
                                                     </md-button> \
-                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openExcelSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadExcelSheet.get()"> \
+                                                    <md-menu md-position-mode="target-right target" ng-click="bindCtrl.openXlsSheetMenu($mdMenu, $event)" ng-if="bindCtrl.canDownloadXlsSheet.get()"> \
                                                         <md-button class="md-primary text-success md-fab md-mini" ng-click="bindCtrl.ds()"> \
-                                                            <md-tooltip>{{bindCtrl.excelSheetText.get()}}</md-tooltip> \
-                                                            <md-icon class="material-icons">{{bindCtrl.excelSheetIcon.get()}}</md-icon> \
+                                                            <md-tooltip>{{bindCtrl.xlsSheetText.get()}}</md-tooltip> \
+                                                            <md-icon class="material-icons">{{bindCtrl.xlsSheetIcon.get()}}</md-icon> \
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadExcelSheet(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileAllPages(\'xls\')"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
                                                             </md-menu-item> \
                                                             <md-menu-divider></md-menu-divider> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'excel\')"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileSimplePage(\'xls\')"> \
                                                                     <md-tooltip>{{bindCtrl.currentPageText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_1</md-icon>{{bindCtrl.currentPageText.get()}} \
                                                                 </md-button> \
@@ -1770,7 +1811,7 @@
                                                         </md-button> \
                                                         <md-menu-content> \
                                                             <md-menu-item> \
-                                                                <md-button aria-label="" ng-click="bindCtrl.downloadPdf(true)"> \
+                                                                <md-button aria-label="" ng-click="bindCtrl.downloadFileAllPages(\'pdf\')"> \
                                                                     <md-tooltip>{{bindCtrl.allPagesText.get()}}</md-tooltip> \
                                                                     <md-icon class="material-icons">filter_none</md-icon>{{bindCtrl.allPagesText.get()}} \
                                                                 </md-button> \
