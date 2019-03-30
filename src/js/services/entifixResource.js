@@ -22,14 +22,14 @@
                 var tempUrl = getBaseUrl();
 
                 if (suffixUrl)
-                    tempUrl = tempUrl + '/'+ suffixUrl;
+                    tempUrl = tempUrl + "/"+ suffixUrl;
 
                 if (stringQueryParams)
                     tempUrl = tempUrl + stringQueryParams;
 
                 actionError = actionError || _defaultActionError;
 
-                var requestConfig = { method: 'GET', url: tempUrl };
+                var requestConfig = { method: "GET", url: tempUrl };
 
                 if (returnPromise)
                     return $http(requestConfig);
@@ -45,7 +45,7 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'POST', url: tempUrl, data: data };
+                let options = { method: "POST", url: tempUrl, data: data };
                 let extraOptions = getRequestOptions();
 
                 if (extraOptions) {
@@ -62,7 +62,7 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
                 
-                let options = { method: 'PUT', url: tempUrl, data: data };
+                let options = { method: "PUT", url: tempUrl, data: data };
                 let extraOptions = getRequestOptions();
 
                 if (extraOptions) {
@@ -76,10 +76,10 @@
                 //Base URL for the resource
                 var tempUrl = getBaseUrl();
 
-                var tempUrl = tempUrl + '/' + id;
+                var tempUrl = tempUrl + "/" + id;
                 actionError = actionError || _defaultActionError;
 
-                let options = { method: 'DELETE', url: tempUrl };
+                let options = { method: "DELETE", url: tempUrl };
                 $http(options).then(actionSuccess, actionError);
             };
 
@@ -91,7 +91,7 @@
                 actionError = actionError || _defaultActionError;
                 data = transformDataToRequest(data);
 
-                let options = { method: 'PATCH', url: tempUrl, data: data };
+                let options = { method: "PATCH", url: tempUrl, data: data };
                 let extraOptions = getRequestOptions();
 
                 if (extraOptions) {
@@ -111,7 +111,7 @@
                 if (postfix)
                 {
                     if (!_denyBarPrefix)
-                        tempUrl += '/';  
+                        tempUrl += "/";  
                     tempUrl += postfix;                  
                 }
 
@@ -136,7 +136,7 @@
                         if (data[TProperty.name])
                         {
                             // For entity properties
-                            if (TProperty.type == 'entity')
+                            if (TProperty.type == "entity")
                             {
                                 var value = data[TProperty.name];
                                 
@@ -149,7 +149,7 @@
                             }
 
                             // For date properties
-                            if (TProperty.type == 'date' || TProperty.type == 'datetime')
+                            if (TProperty.type == "date" || TProperty.type == "datetime")
                             {
                                 if (!(data[TProperty.name] instanceof Date))
                                     var dateValue = EntifixDateGenerator.transformStringToDate(data[TProperty.name]);
@@ -173,7 +173,7 @@
                 // Remove non persistent and excluded properties/members
                 for(var property in data)
                 {
-                    if (property.substr(0,1) == '$')
+                    if (property.substr(0,1) == "$")
                         delete(data[property]);
                 };
                 var excludedMembers = EntifixMetadata.getExcludedMembers(resourceName);
@@ -211,7 +211,7 @@
                             if (data[TProperty.name])
                             {
                                 //For entity properties
-                                if (TProperty.type == 'entity')
+                                if (TProperty.type == "entity")
                                 {   
                                     var objectValue = data[TProperty.name];
                                     var keyNavigationProperty = TProperty.keyNavigationProperty || EntifixMetadata.getKeyProperty(TProperty.resource);
@@ -226,7 +226,7 @@
                                 }
 
                                 //For date-time properties
-                                if (TProperty.type == 'date' || TProperty.type == 'datetime')
+                                if (TProperty.type == "date" || TProperty.type == "datetime")
                                 {
                                     var objectValue = data[TProperty.name];
                                     if (!(objectValue instanceof Date))
@@ -587,13 +587,13 @@
                     {
                         if (filters.length > 0)
                         {
-                            var querystring= '?';
+                            var querystring= "?";
                             for(var i = 0; i < filters.length; i++)
                             {
                                 var property = filters[i].property;
                                 var value = filters[i].value;
-                                var type = filters[i].type || 'optional_filter';
-                                var operator = filters[i].operator || '=';
+                                var type = filters[i].type || "optional_filter";
+                                var operator = filters[i].operator || "=";
                                 var sort = filters[i].sort;
 
                                 if (value != null && (property != null || sort != null))
@@ -605,13 +605,13 @@
                                         if (possibleValue)
                                         {
                                             if (sort)
-                                                querystring = querystring + 'order_by' + '=' + sort + '|' + possibleValue;
+                                                querystring = querystring + "order_by" + "=" + sort + "|" + possibleValue;
                                             else
                                             {
-                                                if (property == 'skip' || property == 'take')
-                                                    querystring = querystring + property + '=' + possibleValue;
+                                                if (property == "skip" || property == "take")
+                                                    querystring = querystring + property + "=" + possibleValue;
                                                 else
-                                                    querystring = querystring + type + '=' + property + '|' + operator + '|' + possibleValue;
+                                                    querystring = querystring + type + "=" + property + "|" + operator + "|" + possibleValue;
                                             }
                                         }
                                     }
@@ -620,13 +620,13 @@
                                     else 
                                     {
                                         if (sort)
-                                            querystring = querystring + 'order_by' + '=' + sort + '|' + value;
+                                            querystring = querystring + "order_by" + "=" + sort + "|" + value;
                                         else
                                         {
-                                            if (property == 'skip' || property == 'take')
-                                                querystring = querystring + property + '=' + value;
+                                            if (property == "skip" || property == "take")
+                                                querystring = querystring + property + "=" + value;
                                             else
-                                                querystring = querystring + type + '=' + property + '|' + operator + '|' + value;
+                                                querystring = querystring + type + "=" + property + "|" + operator + "|" + value;
                                         }
                                     }
                                     
@@ -640,7 +640,7 @@
                                 }
 
                                 if (i < filters.length-1 )
-                                    querystring = querystring + '&';
+                                    querystring = querystring + "&";
                             }
 
                             return querystring;
@@ -660,10 +660,10 @@
                     var stringfilter = null;
 
                     if (!isNaN(filter))
-                        stringfilter = '/' + filter;
+                        stringfilter = "/" + filter;
                     
-                    else if  (typeof filter == 'string')
-                        stringfilter = '/' + filter;
+                    else if  (typeof filter == "string")
+                        stringfilter = "/" + filter;
                     
                     else if (filter instanceof Array)
                         stringfilter = convertToQueryParams(filter);
@@ -686,12 +686,8 @@
                 
                 var tempSuffix = null;
                 if (suffix_pagination)
-                {
                     if (suffix_pagination instanceof Function)
-                        tempSuffix = suffix_pagination();
-                    //else
-                        //tempSuffix = '?skip=' + suffix_pagination.skip + '&take=' + suffix_pagination.take;                        
-                }                    
+                        tempSuffix = suffix_pagination();                   
 
                 var preSuccess = (response) =>
                 {
@@ -806,18 +802,18 @@
             {
                 _isLoading = true;
 
-                var skip = { property: 'skip', value: pageIndex };
-                var take = { property: 'take', value: pageSize };
-                var pagUrl = '';
+                var skip = { property: "skip", value: pageIndex };
+                var take = { property: "take", value: pageSize };
+                var pagUrl = "";
 
                 var allFilters = [skip, take];
 
                 if (constFilters)
                 {
                     if (constFilters instanceof String)
-                        pagUrl = constFilters + '/' + pagUrl;
+                        pagUrl = constFilters + "/" + pagUrl;
                     if (constFilters instanceof Function)
-                        pagUrl = constFilters() ? constFilters() + '/' + pagUrl : pagUrl;
+                        pagUrl = constFilters() ? constFilters() + "/" + pagUrl : pagUrl;
                     if (constFilters instanceof Array && constFilters.length > 0)
                         allFilters = allFilters.concat(constFilters);
                 }
@@ -863,29 +859,37 @@
 
                     for (var prop of joinProperties) {
                         resPagFilters.push({property: joinProperties[prop].propertySearch, value: searchText});
-                        resPagFilters.push({property: joinProperties[prop].name, value: 'join;' + joinProperties[prop].propertyJoin});
+                        resPagFilters.push({property: joinProperties[prop].name, value: "join;" + joinProperties[prop].propertyJoin});
                     }
                         
                 }
                 else if (searchArray)
                 {
-                    var type = 'fixed_filter';
+                    var type = "fixed_filter";
                     searchArray.forEach((element) => { resPagFilters.push({ property: element.property, value: element.value, type: type, operator: element.operator}); });
                 }
 
                 return resPagFilters;
             };
 
-            vm.getFile = function (options)
+            vm.getFile = function (options, callbackSuccess, callbackError)
             {
-                let actionSuccess = (response) => { createDownloadFile(response, options); }
-                let actionError = (response) => { _checkActionErrors(response); }
+                let actionSuccess = callbackSuccess ? callbackSuccess : (response) => { createDownloadFile(response, options); };
+                let actionError = callbackError ? callbackError : (response) => { _checkActionErrors(response); };
                 let config;
 
-                if (options.allPages) {
-                    config = { method: 'GET', url: getBaseUrl() + manageUriFilter(vm.getPagFilters(options.searchText, options.searchArray, options.columnsSelected).concat(options.constantFilters)), responseType: 'arraybuffer' };
-                } else {
-                    config = { method: 'POST', url: getBaseUrl(), data: EntifixMetadata.getBodyDataFile(options), responseType: 'arraybuffer' };
+                switch (options.requestType) {
+                    case "simple-page": 
+                        config = { method: "POST", url: getBaseUrl(), data: EntifixMetadata.getBodyDataFile(options), responseType: "arraybuffer" };
+                        break;
+
+                    case "all-pages":
+                        config = { method: "GET", url: getBaseUrl() + manageUriFilter(vm.getPagFilters(options.searchText, options.searchArray, options.columnsSelected).concat(options.constantFilters)), responseType: "arraybuffer" };
+                        break;
+
+                    case "custom-report":
+                        config = { method: "POST", url: getBaseUrl(), data: options.data, responseType: "arraybuffer" };
+                        break;
                 }
 
                 if (options.headers)

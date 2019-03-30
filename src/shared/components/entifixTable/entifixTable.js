@@ -1576,6 +1576,7 @@
         {
             let options = {
                 type: type,
+                requestType: "simple-page",
                 data: vm.connectionComponent.pager.currentData,
                 title: vm.queryDetails.resource.resourceName.get(),
                 fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
@@ -1585,14 +1586,14 @@
             }
 
             switch (type) {
-                case 'pdf':
-                    options.contentType = 'application/pdf';
+                case "pdf":
+                    options.contentType = "application/pdf";
                     options.columns = getMembersSelected();
                     _pdfResource.getFile(options);
                     break;
 
-                case 'xls':
-                    options.contentType = 'application/vnd.ms-excel';
+                case "xls":
+                    options.contentType = "application/vnd.ms-excel";
                     options.columns = vm.resourceMembers;
                     _xlsSheetResource.getFile(options);
                     break;
@@ -1610,7 +1611,7 @@
         {
             let options = {
                 type: type,
-                allPages: true,
+                requestType: "all-pages",
                 searchText: vm.textBoxSearchValue,
                 searchArray: vm.searchArray,
                 columnsSelected: vm.columnsSelected,
@@ -1621,12 +1622,12 @@
             }
 
             switch (type) {
-                case 'pdf':
-                    options.contentType = 'application/pdf';
+                case "pdf":
+                    options.contentType = "application/pdf";
                     break;
 
-                case 'xls':
-                    options.contentType = 'application/vnd.ms-excel';
+                case "xls":
+                    options.contentType = "application/vnd.ms-excel";
                     break;
 
                 // add more types of download
