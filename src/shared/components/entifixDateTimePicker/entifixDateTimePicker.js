@@ -212,6 +212,18 @@
                 return 'SIN REGISTROS';
             }
         }
+        
+        vm.defaultValue =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.defaultValue != null)
+                    return vm.componentConstruction.defaultValue;
+
+                //Default value
+                return false;
+            }
+        };
 
         // Date Picker Configuration -------------------------------------------------------------------------------------------------------------------------------------------------
         vm.hasDate =
@@ -240,10 +252,10 @@
                 }
 
                 //Default value
-                var ph = '';
-                if (vm.hasDate.get()) ph += 'dd/mm/aaaa';
-                if (vm.hasTime.get() && vm.hasDate.get()) ph += ' hh:mm'; else if (vm.hasTime.get()) ph += 'hh:mm';
-                return ph;
+                var placeholder = '';
+                if (vm.hasDate.get()) placeholder += 'dd/mm/aaaa';
+                if (vm.hasTime.get() && vm.hasDate.get()) placeholder += ' hh:mm'; else if (vm.hasTime.get()) placeholder += 'hh:mm';
+                return placeholder;
             }
         };
         
@@ -261,7 +273,7 @@
                 }
 
                 //Default value
-                return moment('01/01/1900', vm.format.value);
+                return undefined;
             }
         };
         
@@ -279,7 +291,7 @@
                 }
 
                 //Default value
-                return moment('01/01/2100', vm.format.value);
+                return undefined;
             }
         };
         
@@ -432,9 +444,10 @@
         //Methods________________________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
 
-        vm.$onInit = function()
+        vm.$onInit = () =>
         {
             setValues();
+            if (!vm.valueModel && vm.defaultValue.get()) vm.valueModel = new Date();
         };
 
         function updateDateString() 
@@ -473,7 +486,7 @@
             vm.dateString = date.getDate() + " de " + meses[date.getMonth()] + " de " + date.getFullYear() + " " + hours;
         }
 
-        vm.getDateString = function()
+        vm.getDateString = () =>
         {
             if (vm.valueModel)
             {
@@ -483,72 +496,42 @@
             else if (!vm.canShowEditableFields.get()) return vm.nullValueLabel.get();
         }
 
-        vm.displayDialogEdit = function () {
-
-            if (vm.hasDate.get())
-            {
-                mdcDateTimeDialog.show({
-                    date: vm.hasDate.get(),
-                    time: vm.hasTime.get(),
-                    minutes: vm.hasMinutes.get(),
-                    format: vm.format.get(),
-                    currentDate: vm.valueModel || moment().startOf('day'),
-                    weekStart: vm.weekStart.get(),
-                    shortTime: vm.shortTime.get(),
-                    cancelText: vm.cancelText.get(),
-                    todayText: vm.todayText.get(),
-                    okText: vm.okText.get(),
-                    maxDate: vm.maxDate.get(),
-                    minDate: vm.minDate.get(),
-                    amText: 'am',
-                    pmText: 'pm',
-                    showTodaysDate: '',
-                    weekDays: vm.weekDays.get(),
-                    weekStart: vm.weekStart.get(),
-                    disableParentScroll: vm.disableParentScroll.get(),
-                    autoOk: vm.autoOk.get(),
-                    editInput: vm.editInput.get(),
-                    clickOutsideToClose: vm.clickOutsideToClose.get()
-                })
-                .then(function (date) {
-                    if (!(date instanceof Date))
-                        vm.valueModel = transformStringToDate(value);
-                    else
-                        vm.valueModel = date;
-                }, function(){ console.log('Selección cancelada'); });
-            }
-            else
-            {
-                mdcDateTimeDialog.show({
-                    date: vm.hasDate.get(),
-                    time: vm.hasTime.get(),
-                    minutes: vm.hasMinutes.get(),
-                    format: vm.format.get(),
-                    currentDate: vm.valueModel || moment().startOf('day'),
-                    shortTime: vm.shortTime.get(),
-                    cancelText: vm.cancelText.get(),
-                    todayText: vm.todayText.get(),
-                    okText: vm.okText.get(),
-                    maxDate: vm.maxDate.get(),
-                    minDate: vm.minDate.get(),
-                    amText: 'am',
-                    pmText: 'pm',
-                    showTodaysDate: '',
-                    disableParentScroll: vm.disableParentScroll.get(),
-                    autoOk: vm.autoOk.get(),
-                    clickOutsideToClose: vm.clickOutsideToClose.get()
-                })
-                .then(function (date) {
-                    if (!(date instanceof Date))
-                        vm.valueModel = transformStringToDate(value);    
-                    else
-                        vm.valueModel = date;
-                }, function(){ console.log('Selección cancelada'); });
-            }
+        vm.displayDialogEdit = () =>
+        {
+            mdcDateTimeDialog.show({
+                date: vm.hasDate.get(),
+                time: vm.hasTime.get(),
+                minutes: vm.hasMinutes.get(),
+                format: vm.format.get(),
+                currentDate: vm.valueModel || moment().startOf('day'),
+                weekStart: vm.weekStart.get(),
+                shortTime: vm.shortTime.get(),
+                cancelText: vm.cancelText.get(),
+                todayText: vm.todayText.get(),
+                okText: vm.okText.get(),
+                maxDate: vm.maxDate.get(),
+                minDate: vm.minDate.get(),
+                amText: 'am',
+                pmText: 'pm',
+                showTodaysDate: '',
+                weekDays: vm.weekDays.get(),
+                weekStart: vm.weekStart.get(),
+                disableParentScroll: vm.disableParentScroll.get(),
+                autoOk: vm.autoOk.get(),
+                editInput: vm.editInput.get(),
+                clickOutsideToClose: vm.clickOutsideToClose.get()
+            })
+            .then((date) => {
+                if (!(date instanceof Date))
+                    vm.valueModel = transformStringToDate(value);
+                else
+                    vm.valueModel = date;
+            }, 
+            () => { });
 
         };
 
-        vm.runOnChangeTrigger = function()
+        vm.runOnChangeTrigger = () =>
         {
             updateDateString();
             if (vm.onChange)
@@ -563,7 +546,7 @@
             return EntifixDateGenerator.transformStringToDate(value);
         }
 
-        $scope.$watch(function() { return vm.valueModel; }, function(newValue, oldValue) { if (vm.onChange) vm.onChange({ value: newValue }); cleanPlannedRecharge(); plannedRecharge = $timeout(setValues, 1500); vm.dateString = vm.getDateString(); } );
+        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { if (vm.onChange) vm.onChange({ value: newValue }); cleanPlannedRecharge(); plannedRecharge = $timeout(setValues, 1500); vm.dateString = vm.getDateString(); } );
 
         function cleanPlannedRecharge()
         {

@@ -1581,7 +1581,7 @@
                 title: vm.queryDetails.resource.resourceName.get(),
                 fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
                 pageSize: defaults.pageSize || "Letter", 
-                tableStriped: defaults.tableStriped || true, 
+                tableStriped: defaults.tableStriped != undefined ? defaults.tableStriped : true, 
                 pageOrientation: defaults.pageOrientation || "Landscape"
             }
 

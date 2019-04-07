@@ -2,7 +2,7 @@
 // ============================================================================================================
 // ============================================================================================================ 
 // ============================================================================================================
-(function(){
+(function() {
     'use strict';
 
     var module = angular.module('entifix-js');
@@ -14,7 +14,7 @@
         // SERVICE INSTANCE __________________________________________________________________________________________________________________________________________________________________________
         // ===========================================================================================================================================================================================
         // ===========================================================================================================================================================================================
-        prov.$get = ['EntifixConfig', '$state', '$injector', 'jwtHelper', 'md5', '$window', function (EntifixConfig, $state, $injector, jwtHelper, md5, $window) {
+        prov.$get = ['EntifixConfig', '$state', '$injector', 'jwtHelper', 'md5', '$window', (EntifixConfig, $state, $injector, jwtHelper, md5, $window) => {
 
             var sv = {};
 
@@ -137,7 +137,7 @@
             
             // Public section _____________________________________________________________________
 
-            sv.TryLogIn = function(user, password, actionAccept, actionReject, actionError)
+            sv.TryLogIn = (user, password, actionAccept, actionReject, actionError) =>
             {
                 _inLoginProcess = true;
 
@@ -164,7 +164,7 @@
 
                                             _inLoginProcess = false;
 
-                                            if (!EntifixConfig.devMode.get())
+                                            if (!actionAccept && !EntifixConfig.devMode.get())
                                                 manageAuthRedirectAction();
                                         }
                                         else
@@ -190,7 +190,7 @@
                                     });
             };
 
-            sv.refreshToken = function(actionAccept, actionReject, actionError)
+            sv.refreshToken = (actionAccept, actionReject, actionError) =>
             {
                 if (sv.refreshTokenLS.get() && !jwtHelper.isTokenExpired(sv.refreshTokenLS.get()) && !sv.isRefreshingToken.get()) {
                     _inLoginProcess = true;
@@ -259,7 +259,7 @@
                     }
             };
 
-            sv.checkPermissions = function(permission)
+            sv.checkPermissions = (permission) =>
             {
                 if (sv.currentPermissions.get()) {
                     if (permission instanceof String) {
@@ -272,15 +272,15 @@
                 }
             };
 
-            sv.checkNavigation = function(transition)
+            sv.checkNavigation = (transition) =>
             {
                 checkAuthentication(transition);
                 checkStatePermissions(transition);
             };
 
-            sv.tryLoginAsDeveloper = function()
+            sv.tryLoginAsDeveloper = () =>
             {
-                return new Promise( (resolve, reject)=> 
+                return new Promise((resolve, reject) => 
                 {
                     if (!EntifixConfig.devMode.get())
                     {
@@ -298,7 +298,7 @@
                 });                
             };
 
-            sv.loadPermissions = function()
+            sv.loadPermissions = () =>
             {
                 var $http = $injector.get('$http');
                 $http({ method: 'GET', url: EntifixConfig.permissionsUrl.get() }).then(
@@ -317,13 +317,13 @@
                 );
             }
 
-            sv.saveTokens = function(token, refreshToken)
+            sv.saveTokens = (token, refreshToken) =>
             {
                 sv.authToken.set(token);
                 sv.refreshTokenLS.set(refreshToken);
             }
 
-            sv.logout = function()
+            sv.logout = () =>
             {
                 sv.authToken.remove();
                 sv.refreshTokenLS.remove();
@@ -427,7 +427,7 @@
 // ============================================================================================================
 // ============================================================================================================ 
 // ============================================================================================================
-(function(){
+(function() {
     'use strict';
     
     var component =
@@ -467,7 +467,7 @@
     {
         var vm = this;
 
-        vm.$onInit = function()
+        vm.$onInit = () =>
         {
             vm.nameCurrentUser = EntifixSession.currentUser.get();
             vm.currentUserName = EntifixSession.currentUserName.get();

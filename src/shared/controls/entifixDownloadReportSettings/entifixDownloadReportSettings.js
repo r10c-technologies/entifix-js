@@ -56,7 +56,7 @@
 
         vm.cancel = function()
         {
-            $mdDialog.cancel();
+            $mdDialog.cancel(vm.entity);
         };
 
         vm.ok = function()
@@ -102,7 +102,7 @@
             {
                 $mdDialog.show({
                                     //templateUrl: 'src/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
-                                    template: '<md-dialog aria-label="Elija una clínica médica" class="md-sm"> \
+                                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
                                                     <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
                                                         <div class="md-toolbar-tools" layout> \
                                                             <div flex layout layout-align="start center"> \
