@@ -1618,7 +1618,7 @@
                 constantFilters: vm.getConstantFilters(),
                 title: vm.queryDetails.resource.resourceName.get(),
                 fileName: vm.queryDetails.resource.resourceName.get() + " " + new Date().toLocaleString(),
-                headers: { "X-Requested-Type": type, "X-Page-Size": defaults.pageSize || "Letter", "X-Table-Striped": defaults.tableStriped || true, "X-Page-Orientation": defaults.pageOrientation || "Landscape" }
+                headers: { "X-Requested-Type": type, "X-Page-Size": defaults.pageSize || "Letter", "X-Table-Striped": defaults.tableStriped != undefined ? defaults.tableStriped : true, "X-Page-Orientation": defaults.pageOrientation || "Landscape" }
             }
 
             switch (type) {

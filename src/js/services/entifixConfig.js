@@ -13,6 +13,7 @@
         $unauthorizedStateName,
         $authTokenName,
         $refreshTokenName,
+        $expiredSessionKeyName,
         $redirectName,
         $authAppName,
         $thisApplication, 
@@ -78,6 +79,10 @@
         
         prov.setPermissionsUrl = function(value) {
             $permissionsUrl = value;
+        };
+        
+        prov.setExpiredSessionKeyName = function(value) {
+            $expiredSessionKeyName = value;
         };
         
         prov.setSystemOwnerEntityName = function(value) {
@@ -187,6 +192,11 @@
             sv.permissionsUrl =
             {
                 get: () => { return $permissionsUrl; }
+            }
+
+            sv.expiredSessionKeyName =
+            {
+                get: () => { return $expiredSessionKeyName; }
             }
 
             sv.systemOwnerEntityName =

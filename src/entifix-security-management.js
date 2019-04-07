@@ -77,6 +77,12 @@
                 remove: () => { localStorage.removeItem(EntifixConfig.permissionsTokenName.get()); }
             }
 
+            sv.expiredSessionKey =
+            {
+                set: (value) => { localStorage.setItem(EntifixConfig.expiredSessionKeyName.get(), value); },
+                remove: () => { localStorage.removeItem(EntifixConfig.expiredSessionKeyName.get()); }
+            }
+
             sv.currentUser =
             {
                 get: () =>
@@ -242,8 +248,10 @@
                                                 console.warn('DevMode: Refresh token error');
                                                 sv.tryLoginAsDeveloper();
                                             }
-                                            else
+                                            else {
+                                                sv.expiredSessionKey.set(true);
                                                 manageRedirectAction();
+                                            }
                                         });
                     } else {
                         if (EntifixConfig.devMode.get()) {
@@ -254,8 +262,10 @@
                                 .catch(
                                     (error) => { console.error('Error when trying login as developer ' + error); });                            
                         }
-                        else
+                        else {
+                            sv.expiredSessionKey.set(true);
                             manageRedirectAction();
+                        }
                     }
             };
 
@@ -328,6 +338,7 @@
                 sv.authToken.remove();
                 sv.refreshTokenLS.remove();
                 sv.permissionsToken.remove();
+                sv.expiredSessionKey.remove();
                 sv.redirect.set(EntifixConfig.thisApplication.get());
                 sv.authApp.set(EntifixConfig.authUrl.get());
                 $window.location.href = EntifixConfig.authApplication.get();

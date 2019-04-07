@@ -271,7 +271,7 @@
             return {
                 title: options.title,
                 columns: getBodyDataFileColumns(options),
-                tableStriped: options.tableStriped || "true",
+                tableStriped: options.tableStriped != undefined ? options.tableStriped : "true",
                 pageSize: options.pageSize || "Letter",
                 pageOrientation: options.pageOrientation || "Landscape",
                 data: getBodyDataFilePdfXls(options)
