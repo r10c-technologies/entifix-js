@@ -331,6 +331,7 @@
             {
                 sv.authToken.set(token);
                 sv.refreshTokenLS.set(refreshToken);
+                sv.expiredSessionKey.remove();
             }
 
             sv.logout = () =>
@@ -338,7 +339,6 @@
                 sv.authToken.remove();
                 sv.refreshTokenLS.remove();
                 sv.permissionsToken.remove();
-                sv.expiredSessionKey.remove();
                 sv.redirect.set(EntifixConfig.thisApplication.get());
                 sv.authApp.set(EntifixConfig.authUrl.get());
                 $window.location.href = EntifixConfig.authApplication.get();
