@@ -4537,6 +4537,316 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
+(function () {
+    'use strict';
+
+    function componentcontroller($mdConstant) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.maxChips = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxChipsMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
+                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
+
+                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
+                }
+
+                //Default value
+                return 'Ha alcanzado el número máximo de elementos';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                return 'entifixchip' + randomNumber;
+            }
+        };
+
+        vm.transformChip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
+            }
+        };
+
+        vm.onAdd = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
+            }
+        };
+
+        vm.onRemove = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
+            }
+        };
+
+        vm.onSelect = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
+
+                //Default value
+                return null;
+            },
+
+            invoke: function invoke(chip, index) {
+                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
+            }
+        };
+
+        vm.placeholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.secondaryPlaceholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
+
+                //Default value
+                return vm.placeholder.get();
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.removable = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.readOnly = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.enableChipEdit = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
+
+                //Default value
+                return 'true';
+            }
+        };
+
+        vm.addOnBlur = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.separators = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
+
+                //Default value
+                return vm.separatorsDefault;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.getStringValue = function () {
+            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
+                var value = '';
+                vm.valueModel.forEach(function (element) {
+                    value += element + ' ';
+                });
+                return value;
+            }
+            return '';
+        };
+
+        vm.tC = function (chip, index) {
+            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
+        };
+
+        vm.oAdd = function (chip, index) {
+            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
+        };
+
+        vm.oRemove = function (chip, index) {
+            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
+        };
+
+        vm.oSelect = function (chip, index) {
+            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$mdConstant'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
+        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <md-chips \
+                            ng-if="vm.canShowEditableFields.get()" \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd$chip()" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                        <div ng-if="!vm.canShowEditableFields.get()"> \
+                            <label>{{vm.placeholder.get()}}</label><br/> \
+                            <strong>{{vm.getStringValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-chips \
+                            name="{{vm.name.get()}}" \
+                            ng-model="vm.valueModel" \
+                            md-transform-chip="vm.tC($chip, $index)" \
+                            placeholder="{{vm.placeholder.get()}}" \
+                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
+                            md-removable="vm.removable.get()" \
+                            readonly="vm.readOnly.get()" \
+                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
+                            md-max-chips="{{vm.maxChips.get()}}" \
+                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
+                            md-on-add="vm.oAdd($chip, $index)" \
+                            md-on-remove="vm.oRemove($chip, $index)" \
+                            md-on-select="vm.oSelect($chip, $index)" \
+                            md-separator-keys="vm.separators.get()"> \
+                            <md-chip-template> \
+                                {{$chip}} \
+                                &nbsp&nbsp \
+                                </md-chip-template> \
+                        </md-chips> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
+                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
+                        </div> \
+                    </div> \
+                    <br/>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixChip', component);
+})();
+'use strict';
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 (function () {
@@ -5091,316 +5401,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixDateTimePicker', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller($mdConstant) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-        vm.separatorsDefault = [$mdConstant.KEY_CODE.COMMA, $mdConstant.KEY_CODE.ENTER];
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.maxChips = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChips) return vm.componentConstruction.maxChips;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxChipsMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxChipsMessage) {
-                    if (vm.componentConstruction.maxChipsMessage.getter) return vm.componentConstruction.maxChipsMessage.getter();
-
-                    if (vm.componentConstruction.maxChipsMessage.text) return vm.componentConstruction.maxChipsMessage.text;
-                }
-
-                //Default value
-                return 'Ha alcanzado el número máximo de elementos';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                return 'entifixchip' + randomNumber;
-            }
-        };
-
-        vm.transformChip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) return vm.componentConstruction.transformChip;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.transformChip) vm.componentConstruction.transformChip(chip, index);
-            }
-        };
-
-        vm.onAdd = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) return vm.componentConstruction.onAdd;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onAdd) vm.componentConstruction.onAdd(chip, index);
-            }
-        };
-
-        vm.onRemove = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) return vm.componentConstruction.onRemove;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onRemove) vm.componentConstruction.onRemove(chip, index);
-            }
-        };
-
-        vm.onSelect = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) return vm.componentConstruction.onSelect;
-
-                //Default value
-                return null;
-            },
-
-            invoke: function invoke(chip, index) {
-                if (vm.componentConstruction && vm.componentConstruction.onSelect) vm.componentConstruction.onSelect(chip, index);
-            }
-        };
-
-        vm.placeholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.placeholder) return vm.componentConstruction.placeholder;
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.secondaryPlaceholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.secondaryPlaceholder) return vm.componentConstruction.secondaryPlaceholder;
-
-                //Default value
-                return vm.placeholder.get();
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.removable = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.removable != null) return vm.componentConstruction.removable;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.readOnly = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.readOnly) return vm.componentConstruction.readOnly;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.enableChipEdit = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.enableChipEdit != null) return vm.componentConstruction.enableChipEdit;
-
-                //Default value
-                return 'true';
-            }
-        };
-
-        vm.addOnBlur = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.addOnBlur != null) return vm.componentConstruction.addOnBlur;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.separators = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.separators) return vm.componentConstruction.separators;
-
-                //Default value
-                return vm.separatorsDefault;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.getStringValue = function () {
-            if (Array.isArray(vm.valueModel) && vm.valueModel.length > 0) {
-                var value = '';
-                vm.valueModel.forEach(function (element) {
-                    value += element + ' ';
-                });
-                return value;
-            }
-            return '';
-        };
-
-        vm.tC = function (chip, index) {
-            if (vm.transformChip.get()) vm.transformChip.invoke(chip, index);
-        };
-
-        vm.oAdd = function (chip, index) {
-            if (vm.onAdd.get()) vm.onAdd.invoke(chip, index);
-        };
-
-        vm.oRemove = function (chip, index) {
-            if (vm.onRemove.get()) vm.onRemove.invoke(chip, index);
-        };
-
-        vm.oSelect = function (chip, index) {
-            if (vm.onSelect.get()) vm.onSelect.invoke(chip, index);
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$mdConstant'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixChip/entifixChip.html',
-        template: '<md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <md-chips \
-                            ng-if="vm.canShowEditableFields.get()" \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd$chip()" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                        <div ng-if="!vm.canShowEditableFields.get()"> \
-                            <label>{{vm.placeholder.get()}}</label><br/> \
-                            <strong>{{vm.getStringValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-chips \
-                            name="{{vm.name.get()}}" \
-                            ng-model="vm.valueModel" \
-                            md-transform-chip="vm.tC($chip, $index)" \
-                            placeholder="{{vm.placeholder.get()}}" \
-                            secondary-placeholder="{{vm.secondaryPlaceholder.get()}}" \
-                            md-removable="vm.removable.get()" \
-                            readonly="vm.readOnly.get()" \
-                            md-enable-chip-edit="{{vm.enableChipEdit.get()}}" \
-                            md-max-chips="{{vm.maxChips.get()}}" \
-                            md-add-on-blur="{{vm.addOnBlur.get()}}" \
-                            md-on-add="vm.oAdd($chip, $index)" \
-                            md-on-remove="vm.oRemove($chip, $index)" \
-                            md-on-select="vm.oSelect($chip, $index)" \
-                            md-separator-keys="vm.separators.get()"> \
-                            <md-chip-template> \
-                                {{$chip}} \
-                                &nbsp&nbsp \
-                                </md-chip-template> \
-                        </md-chips> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" class="ngMessage-error" multiple> \
-                            <div ng-message="md-max-chips">{{vm.maxChipsMessage.get()}}</div> \
-                        </div> \
-                    </div> \
-                    <br/>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixChip', component);
 })();
 'use strict';
 
@@ -7102,395 +7102,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller(EntifixStringUtils) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.multipleMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.multipleMessage) {
-                    if (vm.componentConstruction.multipleMessage.getter) return vm.componentConstruction.multipleMessage.getter();
-
-                    if (vm.componentConstruction.multipleMessage.text) return vm.componentConstruction.multipleMessage.text;
-                }
-
-                //Default value
-                return 'Error en la elección del elemento, vuelva a seleccionarlo';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixselect' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.isMultipleDisplay = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.isMultiple = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultiple) return vm.componentConstruction.isMultiple;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.collection = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.collection) {
-                    if (vm.componentConstruction.collection.getter) return vm.componentConstruction.collection.getter();
-                    if (vm.componentConstruction.collection.elements) return vm.componentConstruction.collection.elements;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-        };
-
-        vm.getConstantFilters = function () {
-            var constantFilters = null;
-            if (vm.queryDetails && vm.queryDetails.constantFilters) {
-                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
-            }
-
-            return constantFilters;
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            loadCollection();
-            checkoutputs();
-            vm.searchText;
-        };
-
-        function loadCollection() {
-            if (vm.collection.get()) vm.items = vm.collection.get();else {
-                if (!vm.isMultipleDisplay.get()) {
-                    vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
-                        vm.items = enumResult;
-                    }, undefined, vm.getConstantFilters());
-                } else {
-                    prepareMultiDisplayParameters();
-                    vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
-                }
-            }
-        };
-
-        function prepareMultiDisplayParameters() {
-            var actionSuccess = function actionSuccess(enumResult) {
-                vm.items = enumResult;
-            };
-            vm.parameters = {
-                displayProperties: vm.componentConstruction.displayProperties,
-                actionSuccess: actionSuccess,
-                actionError: vm.queryDetails.actionError,
-                filters: vm.getConstantFilters()
-            };
-        }
-
-        function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        return vm.getValue();
-                    }
-                }
-            };
-
-            if (vm.init) vm.init();
-        };
-
-        vm.getDisplayValue = function () {
-            if (!vm.isMultiple.get()) {
-                if (vm.valueModel && vm.items && vm.items.length > 0) {
-                    var item = vm.items.filter(function (e) {
-                        return e.Value == vm.valueModel;
-                    })[0];
-                    if (item) return item.Display;
-                }
-            } else {
-                if (vm.valueModel && vm.items && vm.items.length > 0) {
-                    var item = '';
-                    vm.valueModel.forEach(function (valueModel) {
-                        item += vm.items.filter(function (e) {
-                            return e.Value == valueModel;
-                        })[0].Display;
-                    });
-                    if (item) return item;
-                }
-            }
-            return vm.nullValueLabel.get();
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel && vm.items && vm.items.length > 0) {
-                var item = vm.items.filter(function (e) {
-                    return e.Value == vm.valueModel;
-                })[0];
-                if (item) return item;
-            }
-
-            return null;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            var entity = vm.items.filter(function (e) {
-                return e.Value == vm.valueModel;
-            })[0];
-            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
-        };
-
-        vm.cleanSearch = function () {
-            vm.searchText = '';
-        };
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['EntifixStringUtils'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            queryDetails: '<',
-            componentConstruction: '<',
-            componentBindingOut: '=',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixSelect/entifixSelect.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="!vm.isMultiple.get()"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
-                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader"> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div>  \
-                            </md-input-container> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
-                            </div> \
-                        </div> \
-                        <div ng-if="!vm.isForm.get()"> \
-                            <md-input-container class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader"> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                </div> \
-                            </md-input-container> \
-                        </div> \
-                    </div> \
-                    <div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="vm.isMultiple.get()"> \
-                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                        <div ng-if="vm.isForm.get()"> \
-                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader" \
-                                    multiple=""> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
-                                </div>  \
-                            </md-input-container> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.get()}}</label><br/> \
-                                <strong>{{vm.getDisplayValue()}}</strong> \
-                            </div> \
-                        </div> \
-                        <div ng-if="!vm.isForm.get()"> \
-                            <md-input-container class="entifix-select-width"> \
-                                <label>{{vm.title.get()}}</label> \
-                                <md-select \
-                                    ng-model="vm.valueModel" \
-                                    ng-required="vm.isRequired.get()" \
-                                    ng-change="vm.runOnChangeTrigger()" \
-                                    name="{{vm.name.get()}}" \
-                                    aria-label="{{vm.name.get()}}" \
-                                    md-on-close="vm.cleanSearch()" \
-                                    data-md-container-class="selectSelectHeader" \
-                                    multiple=""> \
-                                    <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
-                                    </md-select-header> \
-                                    <md-optgroup label={{vm.title.get()}}> \
-                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
-                                    </md-optgroup> \
-                                </md-select> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
-                                </div> \
-                            </md-input-container> \
-                        </div> \
-                    </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixSelect', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     var module = angular.module('entifix-js');
 
     componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', '$timeout', 'EntifixPager', '$stateParams', '$state', 'EntifixResource', '$mdMenu', 'EntifixDateGenerator', 'EntifixSession', 'EntifixConfig', 'EntifixDownloadReportSettings'];
@@ -8494,7 +8105,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 isForm: false,
                 mapping: { method: function method(entity) {
                         return entity.label;
-                    } }
+                    } },
+                collection: { elements: [{ Display: 'Si', Value: "true" }, { Display: 'No', Value: "false" }] }
             };
 
             vm.valueToSearchDTCC = {
@@ -8851,7 +8463,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 </div> \
                                 <div layout-sm="column" layout-gt-sm="row" flex> \
                                     <div flex> \
-                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'entity\'" flex> \
+                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'entity\' || bindCtrl.columnToSearch.type == \'number\'" flex> \
                                             <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input> \
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'date\'" flex> \
@@ -8862,6 +8474,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'enum\'" flex> \
                                             <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete> \
+                                        </div> \
+                                        <div ng-if="bindCtrl.columnToSearch.type == \'boolean\'" flex> \
+                                            <entifix-select value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" component-binding-out="bindCtrl.valueToSearchE"></entifix-select> \
                                         </div> \
                                     </div> \
                                     <div flex layout layout-align="center center"> \
@@ -9015,6 +8630,554 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller(EntifixStringUtils) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.multipleMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.multipleMessage) {
+                    if (vm.componentConstruction.multipleMessage.getter) return vm.componentConstruction.multipleMessage.getter();
+
+                    if (vm.componentConstruction.multipleMessage.text) return vm.componentConstruction.multipleMessage.text;
+                }
+
+                //Default value
+                return 'Error en la elección del elemento, vuelva a seleccionarlo';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixselect' + randomNumber;
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.isMultipleDisplay = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultipleDisplay) return vm.componentConstruction.isMultipleDisplay;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.isMultiple = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultiple) return vm.componentConstruction.isMultiple;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.collection = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.collection) {
+                    if (vm.componentConstruction.collection.getter) return vm.componentConstruction.collection.getter();
+                    if (vm.componentConstruction.collection.elements) return vm.componentConstruction.collection.elements;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+        };
+
+        vm.getConstantFilters = function () {
+            var constantFilters = null;
+            if (vm.queryDetails && vm.queryDetails.constantFilters) {
+                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
+            }
+
+            return constantFilters;
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            loadCollection();
+            checkoutputs();
+            vm.searchText;
+        };
+
+        function loadCollection() {
+            if (vm.collection.get()) vm.items = vm.collection.get();else {
+                if (!vm.isMultipleDisplay.get()) {
+                    vm.queryDetails.resource.getEnumerationBind(vm.componentConstruction.displayPropertyName, function (enumResult) {
+                        vm.items = enumResult;
+                    }, undefined, vm.getConstantFilters());
+                } else {
+                    prepareMultiDisplayParameters();
+                    vm.queryDetails.resource.getEnumerationBindMultiDisplay(vm.parameters);
+                }
+            }
+        };
+
+        function prepareMultiDisplayParameters() {
+            var actionSuccess = function actionSuccess(enumResult) {
+                vm.items = enumResult;
+            };
+            vm.parameters = {
+                displayProperties: vm.componentConstruction.displayProperties,
+                actionSuccess: actionSuccess,
+                actionError: vm.queryDetails.actionError,
+                filters: vm.getConstantFilters()
+            };
+        }
+
+        function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        return vm.getValue();
+                    }
+                }
+            };
+
+            if (vm.init) vm.init();
+        };
+
+        vm.getDisplayValue = function () {
+            if (!vm.isMultiple.get()) {
+                if (vm.valueModel && vm.items && vm.items.length > 0) {
+                    var item = vm.items.filter(function (e) {
+                        return e.Value == vm.valueModel;
+                    })[0];
+                    if (item) return item.Display;
+                }
+            } else {
+                if (vm.valueModel && vm.items && vm.items.length > 0) {
+                    var item = '';
+                    vm.valueModel.forEach(function (valueModel) {
+                        item += vm.items.filter(function (e) {
+                            return e.Value == valueModel;
+                        })[0].Display;
+                    });
+                    if (item) return item;
+                }
+            }
+            return vm.nullValueLabel.get();
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel && vm.items && vm.items.length > 0) {
+                var item = vm.items.filter(function (e) {
+                    return e.Value == vm.valueModel;
+                })[0];
+                if (item) return item;
+            }
+
+            return null;
+        };
+
+        vm.runOnChangeTrigger = function () {
+            var entity = vm.items.filter(function (e) {
+                return e.Value == vm.valueModel;
+            })[0];
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity });
+        };
+
+        vm.cleanSearch = function () {
+            vm.searchText = '';
+        };
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['EntifixStringUtils'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixSelect/entifixSelect.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="!vm.isMultiple.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader"> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div>  \
+                            </md-input-container> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()"> \
+                            <md-input-container class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader"> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                </div> \
+                            </md-input-container> \
+                        </div> \
+                    </div> \
+                    <div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}" ng-if="vm.isMultiple.get()"> \
+                        <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                        <div ng-if="vm.isForm.get()"> \
+                            <md-input-container ng-if="vm.canShowEditableFields.get()" class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader" \
+                                    multiple=""> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
+                                </div>  \
+                            </md-input-container> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.get()}}</label><br/> \
+                                <strong>{{vm.getDisplayValue()}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.get()"> \
+                            <md-input-container class="entifix-select-width"> \
+                                <label>{{vm.title.get()}}</label> \
+                                <md-select \
+                                    ng-model="vm.valueModel" \
+                                    ng-required="vm.isRequired.get()" \
+                                    ng-change="vm.runOnChangeTrigger()" \
+                                    name="{{vm.name.get()}}" \
+                                    aria-label="{{vm.name.get()}}" \
+                                    md-on-close="vm.cleanSearch()" \
+                                    data-md-container-class="selectSelectHeader" \
+                                    multiple=""> \
+                                    <md-select-header class="select-header"> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                    </md-select-header> \
+                                    <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
+                                    </md-optgroup> \
+                                </md-select> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                                    <div ng-message="md-multiple">{{vm.multipleMessage.get()}}</div> \
+                                </div> \
+                            </md-input-container> \
+                        </div> \
+                    </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixSelect', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotification'];
+
+    function controller($mdDialog, EntifixNotification) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.tableStripedComponentConstruction = {
+                title: { text: 'Tabla Rayada' },
+                isSwitch: true
+            };
+
+            vm.pageSizeComponentConstruction = {
+                title: { text: 'Tamaño de la hoja' },
+                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
+            };
+
+            vm.pageOrientationComponentConstruction = {
+                title: { text: 'Orientación de la hoja' },
+                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
+            };
+        }
+
+        function setDefaults() {
+            vm.header = "Configuración del reporte";
+            vm.entity = {};
+            vm.entity.tableStriped = true;
+            vm.entity.pageSize = "Letter";
+            vm.entity.pageOrientation = "Landscape";
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel(vm.entity);
+        };
+
+        vm.ok = function () {
+            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
+                $mdDialog.hide(vm.entity);
+            } else {
+                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
+            }
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
+
+    downloadReportSettingsFactory.$inject = ['$mdDialog'];
+
+    function downloadReportSettingsFactory($mdDialog) {
+        var downloadReportSettingsController = function downloadReportSettingsController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
+                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
+                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
+                                                                <h2>&nbsp {{vm.header}}</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageSize"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageSizeComponentConstruction"  \
+                                                                        component-binding-out="vm.pageSizeInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-checkbox-switch  \
+                                                                        value-model="vm.entity.tableStriped"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.tableStripedComponentConstruction"> \
+                                                                    </entifix-checkbox-switch> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageOrientation"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
+                                                                        component-binding-out="vm.pageOrientationInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button  ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixDownloadReportSettingsController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (result) {
+                    if (callbackSuccess) callbackSuccess(result);
+                }, function (result) {
+                    if (callbackError) callbackError(result);
+                });
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return downloadReportSettingsController;
+    };
 })();
 'use strict';
 
@@ -9880,165 +10043,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         return entityModal;
-    };
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
-
-    controller.$inject = ['$mdDialog', 'EntifixNotification'];
-
-    function controller($mdDialog, EntifixNotification) {
-        var vm = this;
-
-        // Properties & fields
-        // ==============================================================================================================================================================
-
-        // ==============================================================================================================================================================
-
-
-        // Methods
-        // ==============================================================================================================================================================
-        function activate() {
-            setDefaults();
-            createComponents();
-        };
-
-        function createComponents() {
-            vm.tableStripedComponentConstruction = {
-                title: { text: 'Tabla Rayada' },
-                isSwitch: true
-            };
-
-            vm.pageSizeComponentConstruction = {
-                title: { text: 'Tamaño de la hoja' },
-                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
-            };
-
-            vm.pageOrientationComponentConstruction = {
-                title: { text: 'Orientación de la hoja' },
-                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
-            };
-        }
-
-        function setDefaults() {
-            vm.header = "Configuración del reporte";
-            vm.entity = {};
-            vm.entity.tableStriped = true;
-            vm.entity.pageSize = "Letter";
-            vm.entity.pageOrientation = "Landscape";
-        }
-
-        vm.cancel = function () {
-            $mdDialog.cancel(vm.entity);
-        };
-
-        vm.ok = function () {
-            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
-                $mdDialog.hide(vm.entity);
-            } else {
-                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
-            }
-        };
-
-        activate();
-        // ==============================================================================================================================================================
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
-
-    downloadReportSettingsFactory.$inject = ['$mdDialog'];
-
-    function downloadReportSettingsFactory($mdDialog) {
-        var downloadReportSettingsController = function downloadReportSettingsController() {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
-                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
-                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
-                                                                <h2>&nbsp {{vm.header}}</h2> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <div> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageSize"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageSizeComponentConstruction"  \
-                                                                        component-binding-out="vm.pageSizeInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-checkbox-switch  \
-                                                                        value-model="vm.entity.tableStriped"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.tableStripedComponentConstruction"> \
-                                                                    </entifix-checkbox-switch> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageOrientation"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
-                                                                        component-binding-out="vm.pageOrientationInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row"> \
-                                                            <md-button ng-click="vm.cancel()"> \
-                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
-                                                            </md-button> \
-                                                            <md-button  ng-click="vm.ok()"> \
-                                                                <md-icon class="material-icons">done</md-icon> Ok \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </div> \
-                                                </md-dialog>',
-                    controller: 'EntifixDownloadReportSettingsController',
-                    parent: angular.element(document.body),
-                    clickOutsideToClose: false,
-                    escapeToClose: false,
-                    fullscreen: true,
-                    controllerAs: 'vm'
-                }).then(function (result) {
-                    if (callbackSuccess) callbackSuccess(result);
-                }, function (result) {
-                    if (callbackError) callbackError(result);
-                });
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return downloadReportSettingsController;
     };
 })();
 'use strict';

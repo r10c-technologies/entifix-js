@@ -1312,7 +1312,8 @@
                 hasTime: false,
                 hasMinutes: false,
                 isForm: false,
-                mapping: { method: (entity) => { return entity.label } }
+                mapping: { method: (entity) => { return entity.label } },
+                collection: { elements: [{ Display: 'Si', Value: "true" }, { Display: 'No', Value: "false" }]}
             };
             
             vm.valueToSearchDTCC = 
@@ -1727,7 +1728,7 @@
                                 </div> \
                                 <div layout-sm="column" layout-gt-sm="row" flex> \
                                     <div flex> \
-                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'entity\'" flex> \
+                                        <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == \'text\' || bindCtrl.columnToSearch.type == \'entity\' || bindCtrl.columnToSearch.type == \'number\'" flex> \
                                             <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input> \
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'date\'" flex> \
@@ -1738,6 +1739,9 @@
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'enum\'" flex> \
                                             <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete> \
+                                        </div> \
+                                        <div ng-if="bindCtrl.columnToSearch.type == \'boolean\'" flex> \
+                                            <entifix-select value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" component-binding-out="bindCtrl.valueToSearchE"></entifix-select> \
                                         </div> \
                                     </div> \
                                     <div flex layout layout-align="center center"> \

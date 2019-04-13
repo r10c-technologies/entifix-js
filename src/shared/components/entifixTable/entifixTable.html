@@ -49,7 +49,7 @@
             </div>
             <div layout-sm="column" layout-gt-sm="row" flex>
                 <div flex>
-                    <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == 'text'|| bindCtrl.columnToSearch.type == 'entity'" flex>
+                    <div ng-if="!bindCtrl.columnToSearch || bindCtrl.columnToSearch.type == 'text' || bindCtrl.columnToSearch.type == 'entity' || bindCtrl.columnToSearch.type == 'number'" flex>
                         <entifix-input value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC"></entifix-input>
                     </div>
                     <div ng-if="bindCtrl.columnToSearch.type == 'date'" flex>
@@ -62,14 +62,7 @@
                         <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete>
                     </div>
                     <div ng-if="bindCtrl.columnToSearch.type == 'boolean'" flex>
-                        <md-input-container class="md-block">
-                            <label>{{bindCtrl.operatorsText.get()}}</label>
-                            <md-select
-                                ng-model="bindCtrl.operator"
-                                aria-label="{{bindCtrl.operatorsText.get()}}">
-                                <md-option ng-repeat="item in bindCtrl.operators" ng-value="item">{{item.display}}</md-option>
-                            </md-select>
-                        </md-input-container>
+                        <entifix-select value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" component-binding-out="bindCtrl.valueToSearchE"></entifix-select>
                     </div>
                 </div>
                 <div flex layout layout-align="center center">
