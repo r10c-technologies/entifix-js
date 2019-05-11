@@ -874,8 +874,8 @@
 
             vm.getFile = function (options, callbackSuccess, callbackError)
             {
-                let actionSuccess = callbackSuccess ? callbackSuccess : (response) => { createDownloadFile(response, options); };
-                let actionError = callbackError ? callbackError : (response) => { _checkActionErrors(response); };
+                let actionSuccess = callbackSuccess ? callbackSuccess : (response) => { createDownloadFile(response, options); if (options.callbackSuccess) options.callbackSuccess(); };
+                let actionError = callbackError ? callbackError : (response) => { _checkActionErrors(response); if (options.callbackError) options.callbackError() };
                 let config;
 
                 switch (options.requestType) {
@@ -890,6 +890,9 @@
                     case "custom-report":
                         config = { method: "POST", url: getBaseUrl(), data: options.data, responseType: "arraybuffer" };
                         break;
+
+                    default:
+                        config = { method: options.method, url: getBaseUrl(), data: options.data, responseType: options.responseType }
                 }
 
                 if (options.headers)
