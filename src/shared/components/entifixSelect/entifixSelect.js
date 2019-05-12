@@ -202,6 +202,30 @@
                 
                 return 'SIN REGISTROS';
             }
+        };
+        
+        vm.canShowNoneOption =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.canShowNoneOption)
+                    return vm.componentConstruction.canShowNoneOption;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.noneLabel =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.noneLabel)
+                    return vm.componentConstruction.noneLabel;
+                
+                //Default value
+                return 'Ninguno';
+            }
         }
             
         vm.getConstantFilters = function()
@@ -372,6 +396,7 @@
                                         <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-if="{{vm.canShowNoneOption.get()}}"><em>{{vm.noneLabel.get()}}</em></md-option> \
                                         <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
                                     </md-optgroup> \
                                 </md-select> \
@@ -399,6 +424,7 @@
                                         <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-if="{{vm.canShowNoneOption.get()}}"><em>{{vm.noneLabel.get()}}</em></md-option> \
                                         <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
                                     </md-optgroup> \
                                 </md-select> \
@@ -426,6 +452,7 @@
                                         <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-if="{{vm.canShowNoneOption.get()}}"><em>{{vm.noneLabel.get()}}</em></md-option> \
                                         <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
                                     </md-optgroup> \
                                 </md-select> \
@@ -455,6 +482,7 @@
                                         <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
+                                        <md-option ng-if="{{vm.canShowNoneOption.get()}}"><em>{{vm.noneLabel.get()}}</em></md-option> \
                                         <md-option ng-repeat="item in vm.items | filter:vm.searchText" ng-value="item.Value">{{item.Display}}</md-option> \
                                     </md-optgroup> \
                                 </md-select> \
