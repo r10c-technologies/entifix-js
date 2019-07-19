@@ -397,7 +397,7 @@
             }
         }
         
-        vm.getConstantFilters = function()
+        vm.getConstantFilters = () =>
         {
             var constantFilters = [];
             if (vm.queryDetails && vm.queryDetails.constantFilters)
@@ -426,7 +426,7 @@
             setValues();
         }
        
-        function loadCollection()
+        let loadCollection = () =>
         {
             vm.queryDetails
                 .resource
@@ -435,7 +435,7 @@
                                             });
         }
 
-        function checkoutputs()
+        let checkoutputs = () =>
         {
             vm.componentBindingOut = 
             { 
@@ -471,7 +471,7 @@
             return undefined;
         };
 
-        function constructFilters(searchText)
+        let constructFilters = (searchText) =>
         {
             //Construct Filters
             var allFilters = [];
@@ -488,7 +488,7 @@
             return allFilters;
         }
 
-        function setValueModel(value, entity)
+        let setValueModel = (value, entity) =>
         {
             if (vm.valueModel != value)
             {
@@ -533,7 +533,7 @@
                                     );
         };
 
-        function getInitialData(data)
+        let getInitialData = (data) =>
         {
             var maxItems = vm.maxItemsQuery.get();
             vm.queryDetails
@@ -557,7 +557,7 @@
                      
         }
 
-        function getEntity(id)
+        let getEntity = (id) =>
         {
             vm.loadingFirstRequest = true;
             vm.queryDetails
@@ -570,7 +570,7 @@
                                                 vm.entityList = results;
                                                 vm.showList = results.map(vm.mappingMethod.get());
                                                 vm.selectedItem = vm.showList[0];
-                                                vm.firstRequest = false;
+                                                vm.loadingFirstRequest = true;
                                             }
                                         }, 
                                         (error) =>
@@ -685,6 +685,7 @@
             vm.disabled.value = vm.disabled.get();
             vm.noCache.value = vm.noCache.get();
             vm.notFoundText.value = vm.notFoundText.get();
+            vm.display = vm.getDisplayValue();
         }
 
         $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
