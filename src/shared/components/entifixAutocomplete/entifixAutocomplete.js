@@ -685,10 +685,10 @@
             vm.disabled.value = vm.disabled.get();
             vm.noCache.value = vm.noCache.get();
             vm.notFoundText.value = vm.notFoundText.get();
-            vm.display = vm.getDisplayValue();
+            vm.getDisplayValue();
         }
 
-        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
+        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { if (newValue != oldValue) setValues(); });
  
         //=======================================================================================================================================================================
 
@@ -750,7 +750,7 @@
                             </div> \
                             <div ng-if="!vm.canShowEditableFields.get()"> \
                                 <label>{{vm.title.value}}</label><br/> \
-                                <strong>{{vm.display}}</strong> \
+                                <strong>{{vm.selectedItem}}</strong> \
                             </div> \
                         </div> \
                         <div ng-if="!vm.isForm.value" ng-click="vm.onFocus($event)"> \
