@@ -634,7 +634,7 @@
                     var bindEnum = [];
 
                     results.forEach(function (element) {
-                        bindEnum.push({ Value: element[_keyProperty], Display: element[DisplayProperty], ObjectData: element });
+                        bindEnum.push({ Value: element[_keyProperty], Display: element[DisplayProperty], entity: element });
                     });
 
                     actionSuccess(bindEnum);
@@ -647,17 +647,17 @@
                 var operateresults = function (results) {
                     var bindEnum = [];
 
-                    results.forEach(function (element) {
+                    results.forEach(element => {
                         if (parameters.displayProperties) {
                             var value = "";
-                            parameters.displayProperties.forEach(function (displayProperty) {
+                            parameters.displayProperties.forEach(displayProperty => {
                                 if (displayProperty.type)
                                     value += element[displayProperty.property][displayProperty.display] + " - ";
                                 else
                                     value += element[displayProperty.property] + " - ";
                             });
                             value = value.substring(0, value.length - 2)
-                            bindEnum.push({ Value: element[_keyProperty], Display: value, ObjectData: element });
+                            bindEnum.push({ Value: element[_keyProperty], Display: value, entity: element });
                         }
                     });
 

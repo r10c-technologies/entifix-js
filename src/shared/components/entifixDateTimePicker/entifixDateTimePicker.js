@@ -579,12 +579,12 @@
             vm.okText.value = vm.okText.get();
             vm.todayText.value = vm.todayText.get();
             vm.cancelText.value = vm.cancelText.get();
-            vm.weekStart.vale = vm.weekStart.get();
+            vm.weekStart.value = vm.weekStart.get();
             vm.weekDays.value = vm.weekDays.get();
             vm.weekDays.value = vm.weekDays.get();
             vm.nullValueLabel.value = vm.nullValueLabel.get();
             vm.hasTime.value = vm.hasTime.get();
-            vm.hasMinutes.vale = vm.hasMinutes.get();
+            vm.hasMinutes.value = vm.hasMinutes.get();
             vm.shortTime.value = vm.shortTime.get();
             vm.dateString = vm.getDateString();
         }

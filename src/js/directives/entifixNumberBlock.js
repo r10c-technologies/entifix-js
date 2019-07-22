@@ -15,7 +15,7 @@
                                 code === 9 || // tab
                                 code === 37 || // left arrow
                                 code === 39 || // right arrow
-                                (code >= 48 && code <= 57) || (code >= 96 && code <= 105))) { // numbers
+                                (code >= 48 && code <= 57 && !e.shiftKey) || (code >= 96 && code <= 105 && !e.shiftKey))) { // numbers
                             e.preventDefault();
                         }
                     });

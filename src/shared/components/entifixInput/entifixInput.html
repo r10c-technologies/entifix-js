@@ -14,8 +14,8 @@
                 ng-change="vm.runOnChangeTrigger()"
                 ng-model-options="vm.modelOptions.value"
                 step="any"
-                number-validation="{{vm.numberValidation.value}}"
-                number-block
+                entifix-number-validation="{{vm.numberValidation.value}}"
+                entifix-number-block
                 ng-max="vm.max.value"
                 ng-min="vm.min.value"
                 autocomplete="off"/>
@@ -49,8 +49,8 @@
                 ng-change="vm.runOnChangeTrigger()"
                 ng-model-options="vm.modelOptions.value"
                 step="any"
-                number-validation="{{vm.numberValidation.value}}"
-                number-block
+                entifix-number-validation="{{vm.numberValidation.value}}"
+                entifix-number-block
                 ng-max="vm.max.value"
                 ng-min="vm.min.value"
                 autocomplete="off"/>
@@ -84,10 +84,10 @@
                 ng-change="vm.runOnChangeTrigger()"
                 ng-model-options="vm.modelOptions.value"
                 step="any"
-                number-validation="{{vm.numberValidation.value}}"
+                entifix-number-validation="{{vm.numberValidation.value}}"
+                entifix-number-block
                 ng-max="vm.max.value"
-                ng-min="vm.min.value"
-                number-block></textarea>
+                ng-min="vm.min.value"></textarea>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.value}}</div>
                     <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div>
@@ -116,10 +116,10 @@
                 ng-change="vm.runOnChangeTrigger()"
                 ng-model-options="vm.modelOptions.value"
                 step="any"
-                number-validation="{{vm.numberValidation.value}}"
+                entifix-number-validation="{{vm.numberValidation.value}}"
+                entifix-number-block
                 ng-max="vm.max.value"
-                ng-min="vm.min.value"
-                number-block></textarea>
+                ng-min="vm.min.value"></textarea>
                 <div ng-messages="vm.canEvaluateErrors.get()" multiple>
                     <div ng-message="required">{{vm.requiredMessage.value}}</div>
                     <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div>

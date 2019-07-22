@@ -302,7 +302,7 @@
             { 
                 selectedEntity:
                 {
-                    get: () => { return vm.getValue() }
+                    get: () => { return vm.currentEntity || vm.getValue() }
                 }
             };
 
@@ -334,7 +334,7 @@
             return vm.nullValueLabel.get();            
         };
 
-        vm.getValue = function()
+        vm.getValue = () =>
         {
             if (vm.valueModel && vm.items && vm.items.length > 0)
             {
@@ -348,9 +348,9 @@
 
         vm.runOnChangeTrigger = function()
         {
-            var entity = vm.items.filter((e)=>{return e.Value == vm.valueModel;})[0]
+            vm.currentEntity = vm.items.filter((e)=>{return e.Value == vm.valueModel;})[0]
             if (vm.onChange)
-                vm.onChange({oldValue: vm.valueModel, newValue: vm.valueModel, entity: entity});
+                vm.onChange({oldValue: vm.valueModel, newValue: vm.valueModel, entity: vm.currentEntity});
         }
 
         vm.cleanSearch = function()

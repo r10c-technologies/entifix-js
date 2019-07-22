@@ -234,7 +234,7 @@
                 }
 
                 //Default value
-                return 'Ingrese una número válido';
+                return 'Ingrese un número válido';
             }
         };
 
@@ -451,7 +451,7 @@
             vm.minMessage.value = vm.minMessage.get();
             vm.modelOptions.value = vm.modelOptions.get();
             vm.numberMessage.value = vm.numberMessage.get();
-            vm.numberValidation.vale = vm.numberValidation.get();
+            vm.numberValidation.value = vm.numberValidation.get();
             vm.nullValueLabel.value = vm.nullValueLabel.get();
             vm.rows.value = vm.rows.get();
             vm.format.value = vm.format.get();
@@ -496,7 +496,8 @@
                                 ng-model-options="vm.modelOptions.value" \
                                 step="any" \
                                 number-validation="{{vm.numberValidation.value}}" \
-                                number-block \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
                                 ng-max="vm.max.value" \
                                 ng-min="vm.min.value" \
                                 autocomplete="off"/> \
@@ -530,8 +531,8 @@
                                 ng-change="vm.runOnChangeTrigger()" \
                                 ng-model-options="vm.modelOptions.value" \
                                 step="any" \
-                                number-validation="{{vm.numberValidation.value}}" \
-                                number-block \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
                                 ng-max="vm.max.value" \
                                 ng-min="vm.min.value" \
                                 autocomplete="off"/> \
@@ -564,10 +565,10 @@
                                 ng-change="vm.runOnChangeTrigger()" \
                                 ng-model-options="vm.modelOptions.value" \
                                 step="any" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
                                 ng-max="vm.max.value" \
-                                ng-min="vm.min.value" \
-                                number-validation="{{vm.numberValidation.value}}" \
-                                number-block></textarea> \
+                                ng-min="vm.min.value"></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                                     <div ng-message="required">{{vm.requiredMessage.value}}</div> \
                                     <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
@@ -598,10 +599,10 @@
                                 ng-change="vm.runOnChangeTrigger()" \
                                 ng-model-options="vm.modelOptions.value" \
                                 step="any" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
                                 ng-max="vm.max.value" \
-                                ng-min="vm.min.value" \
-                                number-validation="{{vm.numberValidation.value}}" \
-                                number-block></textarea> \
+                                ng-min="vm.min.value"></textarea> \
                                 <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                                     <div ng-message="required">{{vm.requiredMessage.value}}</div> \
                                     <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
