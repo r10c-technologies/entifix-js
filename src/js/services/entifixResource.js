@@ -609,7 +609,7 @@
 
             //Public ===>>>>:
 
-            vm.getCollection = function (actionSuccess, actionError, filters, suffix_pagination) {
+            vm.getCollection = (actionSuccess, actionError, filters, suffix_pagination) => {
                 _isLoading = true;
 
                 actionError = actionError || _defaultActionError;
@@ -629,8 +629,8 @@
                 GET(onQueryEnd(preSuccess), onQueryEnd(actionError), manageUriFilter(filters), tempSuffix);
             };
 
-            vm.getEnumerationBind = function (DisplayProperty, actionSuccess, actionError, filters) {
-                var operateresults = function (results) {
+            vm.getEnumerationBind = (DisplayProperty, actionSuccess, actionError, filters) => {
+                var operateresults = (results) => {
                     var bindEnum = [];
 
                     results.forEach(function (element) {
@@ -643,8 +643,8 @@
                 return vm.getCollection(operateresults, actionError, filters);
             };
 
-            vm.getEnumerationBindMultiDisplay = function (parameters) {
-                var operateresults = function (results) {
+            vm.getEnumerationBindMultiDisplay = (parameters) => {
+                var operateresults = (results) => {
                     var bindEnum = [];
 
                     results.forEach(element => {
@@ -667,7 +667,7 @@
                 return vm.getCollection(operateresults, parameters.actionError, parameters.filters);
             };
 
-            vm.getDefault = function (actionSuccess, actionError) {
+            vm.getDefault = (actionSuccess, actionError) => {
                 var defaultURL = EntifixMetadata.getDefaultUrl(resourceName);
 
                 _isLoading = true;
@@ -684,18 +684,22 @@
                 GET(onQueryEnd(preSuccess), onQueryEnd(actionError), null, defaultURL);
             };
 
-            vm.saveEntity = function (entity, ActionSuccess, ActionError) {
+            vm.saveEntity = (entity, actionSuccess, actionError) => {
                 if (entity[_keyProperty]) {
                     if (entity[_opProperty])
-                        _replaceEntity(entity, ActionSuccess, ActionError);
+                        _replaceEntity(entity, actionSuccess, actionError);
                     else
-                        _updateEntity(entity, ActionSuccess, ActionError);
+                        _updateEntity(entity, actionSuccess, actionError);
                 }
                 else
-                    _insertEntity(entity, ActionSuccess, ActionError);
+                    _insertEntity(entity, actionSuccess, actionError);
             };
 
-            vm.deleteEntity = function (entity, actionSuccess, actionError) {
+            vm.updateEntity = (entity, actionSuccess, actionError) => {
+                _updateEntity(entity, actionSuccess, actionError);
+            };
+
+            vm.deleteEntity = (entity, actionSuccess, actionError) => {
                 var id = entity;
 
                 if (entity instanceof Object)
@@ -704,7 +708,7 @@
                 _deleteEntity(id, actionSuccess, actionError)
             };
 
-            vm.loadAsResource = function (entity, ActionSuccess, ActionError) {
+            vm.loadAsResource = (entity, ActionSuccess, ActionError) => {
                 var id = entity;
 
                 if (entity instanceof Object)
@@ -713,7 +717,7 @@
                 findEntity(id, ActionSuccess, ActionError);
             };
 
-            vm.getEntityPagination = function (pageIndex, pageSize, constFilters, pagFilters, sort) {
+            vm.getEntityPagination = (pageIndex, pageSize, constFilters, pagFilters, sort) => {
                 _isLoading = true;
 
                 var skip = { property: "skip", value: pageIndex };
@@ -737,22 +741,23 @@
                 if (sort && sort.length > 0)
                     allFilters = allFilters.concat(sort);
 
-                return GET(null, null, manageUriFilter(allFilters), pagUrl, true).then((response) => {
-                    var dataPag =
-                    {
-                        resultSet: response.data ? response.data.data : response.data,
-                        total: parseInt(response.data ? response.data.info.total : response.data)
-                    }
-                    _isLoading = false;
-                    return dataPag;
-                },
+                return GET(null, null, manageUriFilter(allFilters), pagUrl, true).then(
+                    (response) => {
+                        var dataPag =
+                        {
+                            resultSet: response.data ? response.data.data : response.data,
+                            total: parseInt(response.data ? response.data.info.total : response.data)
+                        }
+                        _isLoading = false;
+                        return dataPag;
+                    },
                     (error) => {
                         _isLoading = false;
                         _checkActionErrors(error);
                     });
             };
 
-            vm.getPagFilters = function (searchText, searchArray, columnsSelected) {
+            vm.getPagFilters = (searchText, searchArray, columnsSelected) => {
                 var resPagFilters = [];
                 if (searchText && (!searchArray || searchArray.length <= 0)) {
                     var pagProperties = filterProperties(EntifixMetadata.getPaginableProperties(resourceName), columnsSelected);
@@ -780,7 +785,7 @@
                 return resPagFilters;
             };
 
-            vm.getFile = function (options, callbackSuccess, callbackError) {
+            vm.getFile = (options, callbackSuccess, callbackError) => {
                 let actionSuccess = callbackSuccess ? callbackSuccess : (response) => { createDownloadFile(response, options); if (options.callbackSuccess) options.callbackSuccess(); };
                 let actionError = callbackError ? callbackError : (response) => { _checkActionErrors(response); if (options.callbackError) options.callbackError() };
                 let config;
@@ -808,7 +813,7 @@
                 $http(config).then(actionSuccess, actionError);
             }
 
-            vm.getId = function (entity) {
+            vm.getId = (entity) => {
                 if (entity && entity instanceof Object && entity[_keyProperty]) {
                     var valuekey = entity[_keyProperty];
                     if (isNaN(valuekey))
@@ -820,23 +825,23 @@
                 return null;
             };
 
-            vm.isNewEntity = function (entity) {
+            vm.isNewEntity = (entity) => {
                 return vm.getId(entity) == null;
             };
 
-            vm.isProcessedEntity = function (entity) {
+            vm.isProcessedEntity = (entity) => {
                 return EntifixMetadata.isProcessedEntity(resourceName, entity);
             };
 
-            vm.getStartDateProperty = function () {
+            vm.getStartDateProperty = () => {
                 return EntifixMetadata.getStartDateProperty(resourceName);
             }
 
-            vm.getEndDateProperty = function () {
+            vm.getEndDateProperty = () => {
                 return EntifixMetadata.getEndDateProperty(resourceName);
             }
 
-            vm.getNotApplyProperty = function () {
+            vm.getNotApplyProperty = () => {
                 return EntifixMetadata.getNotApplyProperty(resourceName);
             }
 
@@ -891,47 +896,47 @@
                     _events.filter((e) => { return e.type == eventType; }).forEach((e) => { e.callback(args); });
             };
 
-            vm.listenSave = function (callback) {
+            vm.listenSave = (callback) => {
                 addNewEvent(callback, _eventType.save);
             };
 
-            vm.listenSaved = function (callback) {
+            vm.listenSaved = (callback) => {
                 addNewEvent(callback, _eventType.saved);
             };
 
-            vm.listenDelete = function (callback) {
+            vm.listenDelete = (callback) => {
                 addNewEvent(callback, _eventType.delete);
             };
 
-            vm.listenDeleted = function (callback) {
+            vm.listenDeleted = (callback) => {
                 addNewEvent(callback, _eventType.deleted);
             };
 
-            vm.listenLoad = function (callback) {
+            vm.listenLoad = (callback) => {
                 addNewEvent(callback, _eventType.load);
             };
 
-            vm.listenLoaded = function (callback) {
+            vm.listenLoaded = (callback) => {
                 addNewEvent(callback, _eventType.loaded);
             };
 
-            vm.listenErrorSave = function (callback) {
+            vm.listenErrorSave = (callback) => {
                 addNewEvent(callback, _eventType.errorSave);
             };
 
-            vm.listenErrorDelete = function (callback) {
+            vm.listenErrorDelete = (callback) => {
                 addNewEvent(callback, _eventType.errorDelete);
             };
 
-            vm.listenErrorLoad = function (callback) {
+            vm.listenErrorLoad = (callback) => {
                 addNewEvent(callback, _eventType.errorLoad);
             };
 
-            vm.listenNonValidSave = function (callback) {
+            vm.listenNonValidSave = (callback) => {
                 addNewEvent(callback, _eventType.nonValidSave);
             };
 
-            vm.clearEvents = function () {
+            vm.clearEvents = () => {
                 _events = [];
             };
 
