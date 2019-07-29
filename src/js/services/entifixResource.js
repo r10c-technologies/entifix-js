@@ -695,6 +695,10 @@
                     _insertEntity(entity, actionSuccess, actionError);
             };
 
+            vm.insertEntity = (entity, actionSuccess, actionError) => {
+                _insertEntity(entity, actionSuccess, actionError);
+            };
+
             vm.updateEntity = (entity, actionSuccess, actionError) => {
                 _updateEntity(entity, actionSuccess, actionError);
             };
