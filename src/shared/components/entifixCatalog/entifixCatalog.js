@@ -488,12 +488,12 @@
         // Methods
         // ==============================================================================================================================================================
 
-        vm.changeToMainView = function()
+        vm.changeToMainView = () =>
         {
             $state.go($state.current.name, { [vm.paramName.get()]: null });
         };
 
-        vm.changeToSingleView = function(entity)
+        vm.changeToSingleView = (entity) =>
         {
             var navid = -1;
 
@@ -504,7 +504,7 @@
                 $state.go($state.current.name, { [vm.paramName.get()]: navid });
         };
 
-        vm.openModal = function(entity, event)
+        vm.openModal = (entity, event) =>
         {
             // Defaults for modal =======================================================================================================================================
             // Component Construction Configuration
@@ -528,10 +528,13 @@
                 if (!vm.entityComponentConstruction.save)
                     vm.entityComponentConstruction.save = {};
                 
-                vm.entityComponentConstruction.save.customAction = (entity, defaultOk, setViewState) => 
-                                                                    {
-                                                                        saveModal(entity, defaultOk, setViewState);
-                                                                    };
+                if (!vm.entityComponentConstruction.save.customAction)
+                {
+                    vm.entityComponentConstruction.save.customAction = (entity, defaultOk, setViewState) => 
+                    {
+                        saveModal(entity, defaultOk, setViewState);
+                    };
+                }
             }
 
             if (checkDefaultEntityConstruction('remove'))
@@ -539,20 +542,22 @@
                 if (!vm.entityComponentConstruction.remove)
                     vm.entityComponentConstruction.remove = {};
 
-                vm.entityComponentConstruction.remove.customAction = (entity, defaultOk, setViewState) => 
-                                                                    {
-                                                                        EntifixNotification.confirm({ 
-                                                                                                "body": "Está seguro de eliminar el registro", 
-                                                                                                "header": "Confirmación requerida", 
-                                                                                                "actionConfirm": () => 
-                                                                                                {
-                                                                                                    vm.entityQueryDetails.resource.deleteEntity(entity, () => { defaultOk(); $timeout(vm.tableComponentBindingOut.pager.reload(), 500); });
-                                                                                                },
-                                                                                                "actionCancel": () =>
-                                                                                                {
-                                                                                                    
-                                                                                                }});
-                                                                    };
+                if (!vm.entityComponentConstruction.remove.customAction) {
+                    vm.entityComponentConstruction.remove.customAction = (entity, defaultOk, setViewState) => 
+                    {
+                        EntifixNotification.confirm({ 
+                                                "body": "Está seguro de eliminar el registro", 
+                                                "header": "Confirmación requerida", 
+                                                "actionConfirm": () => 
+                                                {
+                                                    vm.entityQueryDetails.resource.deleteEntity(entity, () => { defaultOk(); $timeout(vm.tableComponentBindingOut.pager.reload(), 500); });
+                                                },
+                                                "actionCancel": () =>
+                                                {
+                                                    
+                                                }});
+                    };
+                }
             }
 
             vm.entityComponentConstruction.event = event;
@@ -562,11 +567,13 @@
                 if (!vm.entityComponentConstruction.process)
                     vm.entityComponentConstruction.process = {};
                     
-                vm.entityComponentConstruction.process.customAction = (entity, defaultOk, setViewState) => 
-                                                                    {
-                                                                        entity[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
-                                                                        saveModal(entity, defaultOk, setViewState);
-                                                                    };
+                if (!vm.entityComponentConstruction.process.customAction) {
+                    vm.entityComponentConstruction.process.customAction = (entity, defaultOk, setViewState) => 
+                    {
+                        entity[vm.entityQueryDetails.resource.getOpProperty.get()] = 'PROCESAR';
+                        saveModal(entity, defaultOk, setViewState);
+                    };
+                }
             }
             
             // Query Details Configuration
