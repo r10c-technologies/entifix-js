@@ -3094,6 +3094,626 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 })();
 'use strict';
 
+(function () {
+    'use strict';
+
+    function componentcontroller($timeout, EntifixStringUtils, $scope) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        var _defaultTitle, plannedRecharge;
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.isLoading = {
+            get: function get() {
+                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
+
+                //Default value
+                return false;
+            }
+        };
+
+        //Label - Editable Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.requiredMatch = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null) return vm.componentConstruction.requiredMatch;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.requiredMatchMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMatchMessage) {
+                    if (vm.componentConstruction.requiredMatchMessage.getter) return vm.componentConstruction.requiredMatchMessage.getter();
+
+                    if (vm.componentConstruction.requiredMatchMessage.text) return vm.componentConstruction.requiredMatchMessage.text;
+                }
+
+                //Default value
+                return 'Seleccione un elemento de la lista';
+            }
+        };
+
+        vm.minLengthRequest = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthRequest) return vm.componentConstruction.minLengthRequest;
+
+                //Default value
+                return 0;
+            }
+        };
+
+        vm.minLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.minLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
+                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
+
+                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado corto';
+            }
+        };
+
+        vm.maxLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
+                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
+
+                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado largo';
+            }
+        };
+
+        vm.createNewEntityMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.createNewEntityMessage) {
+                    if (vm.componentConstruction.createNewEntityMessage.getter) return vm.componentConstruction.createNewEntityMessage.getter();
+
+                    if (vm.componentConstruction.createNewEntityMessage.text) return vm.componentConstruction.createNewEntityMessage.text;
+                }
+
+                //Default value
+                return 'Agregar ';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            },
+
+            set: function set(value) {
+                if (value) vm.componentConstruction.title = { text: value };
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixautocomplete' + randomNumber;
+            }
+        };
+
+        vm.mappingMethod = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.mapping) {
+                    if (vm.componentConstruction.mapping.method) return vm.componentConstruction.mapping.method;
+                    if (vm.componentConstruction.mapping.property) return function (element) {
+                        return element[vm.componentConstruction.mapping.property];
+                    };
+                }
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.placeholder = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.placeholder) {
+                    if (vm.componentConstruction.placeholder.getter) return vm.componentConstruction.placeholder.getter();
+
+                    if (vm.componentConstruction.placeholder.text) return vm.componentConstruction.placeholder.text;
+                }
+
+                //Default value
+                return "";
+            }
+        };
+
+        vm.disabled = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.disabled) return vm.componentConstruction.disabled;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.loadAllItems = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.loadAllItems) return vm.componentConstruction.loadAllItems;
+
+                //Default Value
+                return false;
+            }
+        };
+
+        vm.noCache = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.noCache != null) return vm.componentConstruction.noCache;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.notFoundText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.notFoundText) {
+                    if (vm.componentConstruction.notFoundText.getter) return vm.componentConstruction.notFoundText.getter();
+
+                    if (vm.componentConstruction.notFoundText.text) return vm.componentConstruction.notFoundText.text;
+                }
+
+                //Default value
+                return 'No hay coincidencias. ';
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.canCreateNewEntity = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.canCreateNewEntity) return vm.componentConstruction.canCreateNewEntity;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.maxItemsQuery = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxItemsQuery) return vm.componentConstruction.maxItemsQuery;
+
+                //Default value
+                return 10;
+            }
+        };
+
+        vm.keyProperty = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.keyProperty) return vm.componentConstruction.keyProperty;
+
+                //Default value
+                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.getKeyProperty.get();
+
+                return 'id';
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+        };
+
+        vm.getConstantFilters = function () {
+            var constantFilters = [];
+            if (vm.queryDetails && vm.queryDetails.constantFilters) {
+                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
+            }
+
+            return constantFilters;
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.loadAllItems.get()) loadCollection();
+            checkoutputs();
+            _defaultTitle = vm.title.get();
+            setValues();
+        };
+
+        var loadCollection = function loadCollection() {
+            vm.queryDetails.resource.getCollection(function (results) {
+                vm.items = results;
+            });
+        };
+
+        var checkoutputs = function checkoutputs() {
+            vm.componentBindingOut = {
+                selectedEntity: {
+                    get: function get() {
+                        if (vm.entityList && vm.entityList.length > 0) return vm.entityList.filter(function (D_entity) {
+                            return vm.selectedItem == vm.mappingMethod.get()(D_entity);
+                        })[0];
+                    },
+                    set: function set(value) {
+                        if (value) getEntity(value);else {
+                            vm.showList = [];vm.selectedItem = undefined;vm.entityList = [];
+                        }
+                    }
+                }
+            };
+
+            if (vm.componentConstruction.init) vm.componentConstruction.init();
+
+            vm.loadingFirstRequest = false;
+        };
+
+        vm.getDisplayValue = function () {
+            if (vm.valueModel && vm.selectedItem) return vm.selectedItem;
+
+            if (vm.valueModel && !vm.selectedItem && !vm.loadingFirstRequest) getEntity(vm.valueModel);
+
+            return vm.nullValueLabel.get();
+        };
+
+        vm.getValue = function () {
+            if (vm.valueModel) return vm.valueModel;
+
+            return undefined;
+        };
+
+        var constructFilters = function constructFilters(searchText) {
+            //Construct Filters
+            var allFilters = [];
+
+            if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0) allFilters = allFilters.concat(vm.componentConstruction.searchProperties.map(function (D_searchProperty) {
+                return { property: D_searchProperty, value: searchText, operator: 'lk' };
+            }));
+
+            if (vm.queryDetails && vm.queryDetails.filters) allFilters = allFilters.concat(vm.queryDetails.filters);
+
+            if (vm.getConstantFilters()) allFilters = allFilters.concat(vm.getConstantFilters());
+
+            return allFilters;
+        };
+
+        var setValueModel = function setValueModel(value, entity) {
+            if (vm.valueModel != value) vm.valueModel = value;
+            if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity });
+        };
+
+        vm.updateData = function (data) {
+            var typedText = data.search;
+
+            vm.queryDetails.resource.getCollection(function (results) {
+                if (results.length > 0) {
+                    vm.entityList = results;
+                    vm.showList = results.map(vm.mappingMethod.get());
+                    vm.title.set(_defaultTitle);
+                } else {
+                    vm.showList = [];
+                    if (vm.canCreateNewEntity.get()) {
+                        vm.showList = [typedText];
+                        vm.title.set(_defaultTitle + ': ' + vm.createNewEntityMessage.get() + typedText);
+                    }
+                }
+                data.resolve(vm.showList);
+            }, function (error) {
+                if (data.reject) data.reject();
+            }, constructFilters(typedText));
+        };
+
+        var getInitialData = function getInitialData(data) {
+            var maxItems = vm.maxItemsQuery.get();
+            vm.queryDetails.resource.getCollection(function (results) {
+                vm.entityList = results;
+                vm.showList = results.map(vm.mappingMethod.get());
+                data.resolve(vm.showList);
+                vm.title.set(_defaultTitle);
+            }, function (error) {
+                if (data.reject) data.reject();
+            }, vm.getConstantFilters().concat([{ property: 'skip', value: 0, type: 'fixed_filter' }, { property: 'take', value: maxItems, type: 'fixed_filter' }])
+            //,{ skip: 0, take: maxItems }
+            );
+        };
+
+        var getEntity = function getEntity(id) {
+            vm.loadingFirstRequest = true;
+            vm.queryDetails.resource.getCollection(function (results) {
+                if (results.length > 0) {
+                    vm.entityList = results;
+                    vm.showList = results.map(vm.mappingMethod.get());
+                    vm.selectedItem = vm.showList[0];
+                    vm.loadingFirstRequest = true;
+                }
+            }, function (error) {}, [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter' }]);
+        };
+
+        // Autosearch control
+        var planedUpdate;
+
+        function cleanPlannedUpdate() {
+            if (planedUpdate) {
+                $timeout.cancel(planedUpdate);
+                planedUpdate = null;
+            }
+        }
+
+        function createPlannedUpdate(resolve, reject, searchText) {
+            planedUpdate = $timeout(vm.updateData, 500, true, { search: searchText, resolve: resolve, reject: reject });
+        }
+
+        function createPlannedInsert(resolve, reject, searchText) {
+            planedUpdate = $timeout(getInitialData, 500, true, { search: searchText, resolve: resolve, reject: reject });
+        }
+
+        vm.searchItems = function (searchText) {
+            if (searchText && vm.loadAllItems.get()) {
+                var items = vm.items.filter(function (e) {
+                    return e[vm.componentConstruction.searchProperties[0]].indexOf(searchText) >= 0;
+                });
+                return items;
+            } else if (searchText) {
+                return new Promise(function (resolve, reject) {
+                    setValueModel(undefined);
+                    cleanPlannedUpdate();
+                    createPlannedUpdate(resolve, reject, searchText);
+                });
+            }
+            return new Promise(function (resolve, reject) {
+                setValueModel(undefined);
+                cleanPlannedUpdate();
+                createPlannedInsert(resolve, reject, searchText);
+            });
+        };
+
+        vm.changeSelectedItem = function () {
+            var entity = vm.entityList.filter(function (D_entity) {
+                return vm.selectedItem == vm.mappingMethod.get()(D_entity);
+            })[0];
+            if (!vm.canCreateNewEntity.get()) {
+                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(undefined);
+            } else {
+                if (vm.onChange) vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
+
+                if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
+            }
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
+        };
+
+        vm.onFocus = function ($event) {
+            if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click') $event.target.select();
+        };
+
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.title.value = vm.title.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.requiredMatch.value = vm.requiredMatch.get();
+            vm.requiredMatchMessage.value = vm.requiredMatchMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.minLengthRequest.value = vm.minLengthRequest.get();
+            vm.createNewEntityMessage.value = vm.createNewEntityMessage.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.placeholder.value = vm.placeholder.get();
+            vm.disabled.value = vm.disabled.get();
+            vm.noCache.value = vm.noCache.get();
+            vm.notFoundText.value = vm.notFoundText.get();
+            vm.getDisplayValue();
+        }
+
+        $scope.$watch(function () {
+            return vm.valueModel;
+        }, function (newValue, oldValue) {
+            if (newValue != oldValue) {
+                setValues();
+            }
+        });
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils', '$scope'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            queryDetails: '<',
+            componentConstruction: '<',
+            componentBindingOut: '=',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixAutocomplete/entifixAutocomplete.html',
+        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
+                        <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                        <div ng-if="vm.isForm.value"> \
+                            <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
+                                <md-autocomplete \
+                                    md-floating-label={{vm.title.value}} \
+                                    md-input-name={{vm.name.value}} \
+                                    md-min-length="vm.minLengthRequest.value" \
+                                    md-input-minlength="{{vm.minLength.value}}" \
+                                    md-input-maxlength="{{vm.maxLength.value}}" \
+                                    md-no-cache="vm.noCache.value" \
+                                    md-selected-item="vm.selectedItem" \
+                                    md-search-text="vm.searchText" \
+                                    md-items="item in vm.searchItems(vm.searchText)" \
+                                    md-item-text="item" \
+                                    md-selected-item-change="vm.changeSelectedItem()" \
+                                    ng-required="vm.isRequired.value" \
+                                    md-require-match="vm.requiredMatch.value" \
+                                    placeholder="{{vm.placeholder.value}}" \
+                                    ng-disabled="vm.disabled.value" \
+                                    md-clear-button="true"> \
+                                    <md-item-template> \
+                                        <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                    </md-item-template> \
+                                    <md-not-found> \
+                                        <div> \
+                                            {{vm.notFoundText.value}} \
+                                        </div> \
+                                    </md-not-found> \
+                                    <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                        <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                        <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                        <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    </div> \
+                                </md-autocomplete> \
+                            </div> \
+                            <div ng-if="!vm.canShowEditableFields.get()"> \
+                                <label>{{vm.title.value}}</label><br/> \
+                                <strong>{{vm.selectedItem}}</strong> \
+                            </div> \
+                        </div> \
+                        <div ng-if="!vm.isForm.value" ng-click="vm.onFocus($event)"> \
+                            <md-autocomplete \
+                                md-floating-label={{vm.title.value}} \
+                                md-input-name={{vm.name.value}} \
+                                md-min-length="vm.minLengthRequest.value" \
+                                md-input-minlength="{{vm.minLength.value}}" \
+                                md-input-maxlength="{{vm.maxLength.value}}" \
+                                md-no-cache="vm.noCache.value" \
+                                md-selected-item="vm.selectedItem" \
+                                md-search-text="vm.searchText" \
+                                md-items="item in vm.searchItems(vm.searchText)" \
+                                md-item-text="item" \
+                                md-selected-item-change="vm.changeSelectedItem()" \
+                                ng-required="vm.isRequired.value" \
+                                md-require-match="vm.requiredMatch.value" \
+                                placeholder="{{vm.placeholder.value}}" \
+                                ng-disabled="vm.disabled.value" \
+                                md-clear-button="true"> \
+                                <md-item-template> \
+                                    <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
+                                </md-item-template> \
+                                <md-not-found> \
+                                    {{vm.notFoundText.value}} \
+                                </md-not-found> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                </div> \
+                            </md-autocomplete> \
+                        </div> \
+                    </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixAutocomplete', component);
+})();
+'use strict';
+
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 (function () {
@@ -3128,7 +3748,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 vm.tableComponentConstruction.edit.customAction = function (entity) {
                     if (personalizeEditTable) personalizeEditTable(entity);else {
-                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.queryDetails.resource.getKeyProperty.get()], function (entity) {
+                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.entityQueryDetails.resource.getKeyProperty.get()], function (entity) {
                             if (vm.isModal.get()) vm.openModal(entity);else vm.changeToSingleView(entity);
                         });
                     }
@@ -3716,24 +4336,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller($timeout, EntifixStringUtils, $scope) {
+    function componentcontroller(EntifixStringUtils, $scope) {
         var vm = this;
         var randomNumber = Math.floor(Math.random() * 100 + 1);
-        var _defaultTitle, plannedRecharge;
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
-
-        vm.isLoading = {
-            get: function get() {
-                if (vm.queryDetails && vm.queryDetails.resource) vm.queryDetails.resource.isLoading.get();
-
-                //Default value
-                return false;
-            }
-        };
-
-        //Label - Editable Behavior
+        //Label - Input Behavior
         vm.canShowEditableFields = {
             get: function get() {
                 if (vm.showEditableFields) return vm.showEditableFields;
@@ -3751,114 +4360,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        //Error validations
-        vm.isRequired = {
+        vm.isSwitch = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+                if (vm.componentConstruction.isSwitch) return vm.componentConstruction.isSwitch;
 
                 //Default value
                 return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.requiredMatch = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatch != null) return vm.componentConstruction.requiredMatch;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.requiredMatchMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMatchMessage) {
-                    if (vm.componentConstruction.requiredMatchMessage.getter) return vm.componentConstruction.requiredMatchMessage.getter();
-
-                    if (vm.componentConstruction.requiredMatchMessage.text) return vm.componentConstruction.requiredMatchMessage.text;
-                }
-
-                //Default value
-                return 'Seleccione un elemento de la lista';
-            }
-        };
-
-        vm.minLengthRequest = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthRequest) return vm.componentConstruction.minLengthRequest;
-
-                //Default value
-                return 0;
-            }
-        };
-
-        vm.minLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.minLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
-                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
-
-                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado corto';
-            }
-        };
-
-        vm.maxLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
-                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
-
-                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado largo';
-            }
-        };
-
-        vm.createNewEntityMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.createNewEntityMessage) {
-                    if (vm.componentConstruction.createNewEntityMessage.getter) return vm.componentConstruction.createNewEntityMessage.getter();
-
-                    if (vm.componentConstruction.createNewEntityMessage.text) return vm.componentConstruction.createNewEntityMessage.text;
-                }
-
-                //Default value
-                return 'Agregar ';
             }
         };
 
@@ -3872,90 +4379,22 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 //Default value
                 return '';
-            },
-
-            set: function set(value) {
-                if (value) vm.componentConstruction.title = { text: value };
             }
         };
 
         vm.name = {
             get: function get() {
                 if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixautocomplete' + randomNumber;
-            }
-        };
-
-        vm.mappingMethod = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.mapping) {
-                    if (vm.componentConstruction.mapping.method) return vm.componentConstruction.mapping.method;
-                    if (vm.componentConstruction.mapping.property) return function (element) {
-                        return element[vm.componentConstruction.mapping.property];
-                    };
-                }
+                return 'entifixcheckboxswitch' + randomNumber;
             }
         };
 
         vm.isForm = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+                if (vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
 
                 //Default value
                 return true;
-            }
-        };
-
-        vm.placeholder = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.placeholder) {
-                    if (vm.componentConstruction.placeholder.getter) return vm.componentConstruction.placeholder.getter();
-
-                    if (vm.componentConstruction.placeholder.text) return vm.componentConstruction.placeholder.text;
-                }
-
-                //Default value
-                return "";
-            }
-        };
-
-        vm.disabled = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.disabled) return vm.componentConstruction.disabled;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.loadAllItems = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.loadAllItems) return vm.componentConstruction.loadAllItems;
-
-                //Default Value
-                return false;
-            }
-        };
-
-        vm.noCache = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.noCache != null) return vm.componentConstruction.noCache;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.notFoundText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.notFoundText) {
-                    if (vm.componentConstruction.notFoundText.getter) return vm.componentConstruction.notFoundText.getter();
-
-                    if (vm.componentConstruction.notFoundText.text) return vm.componentConstruction.notFoundText.text;
-                }
-
-                //Default value
-                return 'No hay coincidencias. ';
             }
         };
 
@@ -3972,50 +4411,31 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             }
         };
 
-        vm.canCreateNewEntity = {
+        vm.valueTitle = {
             get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.canCreateNewEntity) return vm.componentConstruction.canCreateNewEntity;
+                if (vm.title.get() && vm.title.get() != '') {
+                    if (vm.includeValue.get()) {
+                        var bool = 'No';
+                        if (vm.valueModel && vm.title.get() && vm.title.get() != '') bool = 'Si';
+                        return vm.title.get() + ': ' + bool;
+                    } else return vm.title.get();
+                }
+                return '';
+            }
+        };
+
+        vm.includeValue = {
+            get: function get() {
+                if (vm.componentConstruction.includeValue != null) return vm.componentConstruction.includeValue;
 
                 //Default value
-                return false;
+                return true;
             }
         };
 
-        vm.maxItemsQuery = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxItemsQuery) return vm.componentConstruction.maxItemsQuery;
-
-                //Default value
-                return 10;
-            }
-        };
-
-        vm.keyProperty = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.keyProperty) return vm.componentConstruction.keyProperty;
-
-                //Default value
-                if (vm.queryDetails && vm.queryDetails.resource) return vm.queryDetails.resource.getKeyProperty.get();
-
-                return 'id';
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-        };
-
-        vm.getConstantFilters = function () {
-            var constantFilters = [];
-            if (vm.queryDetails && vm.queryDetails.constantFilters) {
-                if (vm.queryDetails.constantFilters.getter) constantFilters = vm.queryDetails.constantFilters.getter();else constantFilters = vm.queryDetails.constantFilters;
-            }
-
-            return constantFilters;
+        vm.getValue = function () {
+            if (vm.valueModel) return 'Si';
+            return 'No';
         };
         //=======================================================================================================================================================================
 
@@ -4024,177 +4444,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         //=======================================================================================================================================================================
 
         vm.$onInit = function () {
-            if (vm.loadAllItems.get()) loadCollection();
-            checkoutputs();
-            _defaultTitle = vm.title.get();
-            setValues();
+            if (vm.init) vm.init();
+            if (vm.valueModel == undefined) vm.valueModel = false;
         };
 
-        var loadCollection = function loadCollection() {
-            vm.queryDetails.resource.getCollection(function (results) {
-                vm.items = results;
-            });
-        };
-
-        var checkoutputs = function checkoutputs() {
-            vm.componentBindingOut = {
-                selectedEntity: {
-                    get: function get() {
-                        if (vm.entityList && vm.entityList.length > 0) return vm.entityList.filter(function (D_entity) {
-                            return vm.selectedItem == vm.mappingMethod.get()(D_entity);
-                        })[0];
-                    },
-                    set: function set(value) {
-                        if (value) getEntity(value);else {
-                            vm.showList = [];vm.selectedItem = undefined;vm.entityList = [];
-                        }
-                    }
-                }
-            };
-
-            if (vm.componentConstruction.init) vm.componentConstruction.init();
-
-            vm.loadingFirstRequest = false;
-        };
-
-        vm.getDisplayValue = function () {
-            if (vm.valueModel && vm.selectedItem) return vm.selectedItem;
-
-            if (vm.valueModel && !vm.selectedItem && !vm.loadingFirstRequest) getEntity(vm.valueModel);
-
-            return vm.nullValueLabel.get();
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel) return vm.valueModel;
-
-            return undefined;
-        };
-
-        var constructFilters = function constructFilters(searchText) {
-            //Construct Filters
-            var allFilters = [];
-
-            if (vm.queryDetails && vm.componentConstruction.searchProperties && vm.componentConstruction.searchProperties.length > 0) allFilters = allFilters.concat(vm.componentConstruction.searchProperties.map(function (D_searchProperty) {
-                return { property: D_searchProperty, value: searchText, operator: 'lk' };
-            }));
-
-            if (vm.queryDetails && vm.queryDetails.filters) allFilters = allFilters.concat(vm.queryDetails.filters);
-
-            if (vm.getConstantFilters()) allFilters = allFilters.concat(vm.getConstantFilters());
-
-            return allFilters;
-        };
-
-        var setValueModel = function setValueModel(value, entity) {
-            if (vm.valueModel != value) {
-                vm.valueModel = value;
-                if (vm.onChange) vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity });
-            }
-        };
-
-        vm.updateData = function (data) {
-            var typedText = data.search;
-
-            vm.queryDetails.resource.getCollection(function (results) {
-                if (results.length > 0) {
-                    vm.entityList = results;
-                    vm.showList = results.map(vm.mappingMethod.get());
-                    vm.title.set(_defaultTitle);
-                } else {
-                    vm.showList = [];
-                    if (vm.canCreateNewEntity.get()) {
-                        vm.showList = [typedText];
-                        vm.title.set(_defaultTitle + ': ' + vm.createNewEntityMessage.get() + typedText);
-                    }
-                }
-                data.resolve(vm.showList);
-            }, function (error) {
-                if (data.reject) data.reject();
-            }, constructFilters(typedText));
-        };
-
-        var getInitialData = function getInitialData(data) {
-            var maxItems = vm.maxItemsQuery.get();
-            vm.queryDetails.resource.getCollection(function (results) {
-                vm.entityList = results;
-                vm.showList = results.map(vm.mappingMethod.get());
-                data.resolve(vm.showList);
-                vm.title.set(_defaultTitle);
-            }, function (error) {
-                if (data.reject) data.reject();
-            }, vm.getConstantFilters().concat([{ property: 'skip', value: 0, type: 'fixed_filter' }, { property: 'take', value: maxItems, type: 'fixed_filter' }])
-            //,{ skip: 0, take: maxItems }
-            );
-        };
-
-        var getEntity = function getEntity(id) {
-            vm.loadingFirstRequest = true;
-            vm.queryDetails.resource.getCollection(function (results) {
-                if (results.length > 0) {
-                    vm.entityList = results;
-                    vm.showList = results.map(vm.mappingMethod.get());
-                    vm.selectedItem = vm.showList[0];
-                    vm.loadingFirstRequest = true;
-                }
-            }, function (error) {}, [{ property: vm.keyProperty.get(), value: id, type: 'fixed_filter' }]);
-        };
-
-        // Autosearch control
-        var planedUpdate;
-
-        function cleanPlannedUpdate() {
-            if (planedUpdate) {
-                $timeout.cancel(planedUpdate);
-                planedUpdate = null;
-            }
-        }
-
-        function createPlannedUpdate(resolve, reject, searchText) {
-            planedUpdate = $timeout(vm.updateData, 500, true, { search: searchText, resolve: resolve, reject: reject });
-        }
-
-        function createPlannedInsert(resolve, reject, searchText) {
-            planedUpdate = $timeout(getInitialData, 500, true, { search: searchText, resolve: resolve, reject: reject });
-        }
-
-        vm.searchItems = function (searchText) {
-            if (searchText && vm.loadAllItems.get()) {
-                var items = vm.items.filter(function (e) {
-                    return e[vm.componentConstruction.searchProperties[0]].indexOf(searchText) >= 0;
-                });
-                return items;
-            } else if (searchText) {
-                return new Promise(function (resolve, reject) {
-                    setValueModel(undefined);
-                    cleanPlannedUpdate();
-                    createPlannedUpdate(resolve, reject, searchText);
-                });
-            }
-            return new Promise(function (resolve, reject) {
-                setValueModel(undefined);
-                cleanPlannedUpdate();
-                createPlannedInsert(resolve, reject, searchText);
-            });
-        };
-
-        vm.changeSelectedItem = function () {
-            var entity = vm.entityList.filter(function (D_entity) {
-                return vm.selectedItem == vm.mappingMethod.get()(D_entity);
-            })[0];
-            if (!vm.canCreateNewEntity.get()) {
-                if (vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);else setValueModel(undefined);
-            } else {
-                if (vm.onChange) vm.onChange({ oldValue: undefined, newValue: vm.selectedItem, entity: entity });
-
-                if (entity && vm.selectedItem) setValueModel(vm.queryDetails.resource.getId(entity), entity);
-            }
-            cleanPlannedRecharge();
-            plannedRecharge = $timeout(setValues, 1500);
-        };
-
-        vm.onFocus = function ($event) {
-            if ($event.target && $event.target.value && $event.target.value.length > 0 && $event.type == 'click') $event.target.select();
+        vm.runOnChangeTrigger = function () {
+            if (vm.onChange) vm.onChange({ value: vm.valueModel });
         };
 
         function cleanPlannedRecharge() {
@@ -4209,127 +4464,94 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             vm.tooltip.value = vm.tooltip.get();
             vm.title.value = vm.title.get();
             vm.name.value = vm.name.get();
-            vm.isRequired.value = vm.isRequired.get();
+            vm.isSwitch.value = vm.isSwitch.get();
             vm.requiredMessage.value = vm.requiredMessage.get();
             vm.requiredMatch.value = vm.requiredMatch.get();
-            vm.requiredMatchMessage.value = vm.requiredMatchMessage.get();
-            vm.maxLength.value = vm.maxLength.get();
-            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
-            vm.minLength.value = vm.minLength.get();
-            vm.minLengthMessage.value = vm.minLengthMessage.get();
-            vm.minLengthRequest.value = vm.minLengthRequest.get();
-            vm.createNewEntityMessage.value = vm.createNewEntityMessage.get();
-            vm.nullValueLabel.value = vm.nullValueLabel.get();
-            vm.placeholder.value = vm.placeholder.get();
-            vm.disabled.value = vm.disabled.get();
-            vm.noCache.value = vm.noCache.get();
-            vm.notFoundText.value = vm.notFoundText.get();
-            vm.getDisplayValue();
         }
 
-        $scope.$watch(function () {
-            return vm.valueModel;
-        }, function (newValue, oldValue) {
-            if (newValue != oldValue) setValues();
-        });
+        //$scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
 
         //=======================================================================================================================================================================
-
     };
 
-    componentcontroller.$inject = ['$timeout', 'EntifixStringUtils', '$scope'];
+    componentcontroller.$inject = ['EntifixStringUtils', '$scope'];
 
     var component = {
         bindings: {
             valueModel: '=',
             showEditableFields: '=',
             evaluateErrors: '&',
-            queryDetails: '<',
             componentConstruction: '<',
-            componentBindingOut: '=',
             onChange: '&'
         },
-        //templateUrl: 'dist/shared/components/entifixAutocomplete/entifixAutocomplete.html',
-        template: '<div ng-class="{\'whirl double-up whirlback\': vm.isLoading.get()}"> \
-                        <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
-                        <div ng-if="vm.isForm.value"> \
-                            <div ng-if="vm.canShowEditableFields.get()" ng-click="vm.onFocus($event)"> \
-                                <md-autocomplete \
-                                    md-floating-label={{vm.title.value}} \
-                                    md-input-name={{vm.name.value}} \
-                                    md-min-length="vm.minLengthRequest.value" \
-                                    md-input-minlength="{{vm.minLength.value}}" \
-                                    md-input-maxlength="{{vm.maxLength.value}}" \
-                                    md-no-cache="vm.noCache.value" \
-                                    md-selected-item="vm.selectedItem" \
-                                    md-search-text="vm.searchText" \
-                                    md-items="item in vm.searchItems(vm.searchText)" \
-                                    md-item-text="item" \
-                                    md-selected-item-change="vm.changeSelectedItem()" \
-                                    ng-required="vm.isRequired.value" \
-                                    md-require-match="vm.requiredMatch.value" \
-                                    placeholder="{{vm.placeholder.value}}" \
-                                    ng-disabled="vm.disabled.value" \
-                                    md-clear-button="true"> \
-                                    <md-item-template> \
-                                        <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
-                                    </md-item-template> \
-                                    <md-not-found> \
-                                        <div> \
-                                            {{vm.notFoundText.value}} \
-                                        </div> \
-                                    </md-not-found> \
-                                    <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                        <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                        <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
-                                        <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                        <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                    </div> \
-                                </md-autocomplete> \
-                            </div> \
-                            <div ng-if="!vm.canShowEditableFields.get()"> \
-                                <label>{{vm.title.value}}</label><br/> \
-                                <strong>{{vm.selectedItem}}</strong> \
-                            </div> \
+        //templateUrl: 'dist/shared/components/entifixCheckboxSwitch/entifixCheckboxSwitch.html',
+        template: '<div ng-if="!vm.isSwitch.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <div ng-show="vm.canShowEditableFields.get()" class="md-checkbox-padding"> \
+                            <md-checkbox  \
+                                ng-model="vm.valueModel" \
+                                name="{{vm.name.get()}}" \
+                                ng-checked="vm.valueModel" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                class="checkbox-default"> \
+                                {{vm.valueTitle.get()}} \
+                            </md-checkbox> \
                         </div> \
-                        <div ng-if="!vm.isForm.value" ng-click="vm.onFocus($event)"> \
-                            <md-autocomplete \
-                                md-floating-label={{vm.title.value}} \
-                                md-input-name={{vm.name.value}} \
-                                md-min-length="vm.minLengthRequest.value" \
-                                md-input-minlength="{{vm.minLength.value}}" \
-                                md-input-maxlength="{{vm.maxLength.value}}" \
-                                md-no-cache="vm.noCache.value" \
-                                md-selected-item="vm.selectedItem" \
-                                md-search-text="vm.searchText" \
-                                md-items="item in vm.searchItems(vm.searchText)" \
-                                md-item-text="item" \
-                                md-selected-item-change="vm.changeSelectedItem()" \
-                                ng-required="vm.isRequired.value" \
-                                md-require-match="vm.requiredMatch.value" \
-                                placeholder="{{vm.placeholder.value}}" \
-                                ng-disabled="vm.disabled.value" \
-                                md-clear-button="true"> \
-                                <md-item-template> \
-                                    <span md-highlight-text="vm.searchText" md-highlight-flags="^i">{{item}}</span> \
-                                </md-item-template> \
-                                <md-not-found> \
-                                    {{vm.notFoundText.value}} \
-                                </md-not-found> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                    <div ng-message="md-require-match">{{vm.requiredMatchMessage.value}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                    <div ng-message="maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                </div> \
-                            </md-autocomplete> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
+                            <strong>{{vm.getValue()}}</strong> \
                         </div> \
-                    </div>',
+                    </div> \
+                    <div ng-if="!vm.isForm.get()" class="md-checkbox-padding"> \
+                        <md-checkbox  \
+                            ng-model="vm.valueModel" \
+                            name="{{vm.name.get()}}" \
+                            ng-checked="vm.valueModel" \
+                            aria-label="{{vm.name.get()}}" \
+                            ng-change="vm.runOnChangeTrigger()" \
+                            class="checkbox-default"> \
+                            {{vm.valueTitle.get()}} \
+                        </md-checkbox> \
+                    </div> \
+                </div> \
+                <div ng-if="vm.isSwitch.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="vm.isForm.get()"> \
+                        <div ng-show="vm.canShowEditableFields.get()"> \
+                            <md-switch \
+                                ng-model="vm.valueModel" \
+                                name="{{vm.name.get()}}" \
+                                ng-checked="vm.valueModel" \
+                                aria-label="{{vm.name.get()}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                class="switch-default"> \
+                                {{vm.valueTitle.get()}} \
+                            </md-switch> \
+                        </div> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
+                            <strong>{{vm.getValue()}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.get()"> \
+                        <md-switch \
+                            ng-model="vm.valueModel" \
+                            name="{{vm.name.get()}}" \
+                            ng-checked="vm.valueModel" \
+                            aria-label="{{vm.name.get()}}" \
+                            ng-change="vm.runOnChangeTrigger()" \
+                            class="switch-default"> \
+                            {{vm.valueTitle.get()}} \
+                        </md-switch> \
+                    </div> \
+                </div>',
         controller: componentcontroller,
         controllerAs: 'vm'
     };
 
-    angular.module('entifix-js').component('entifixAutocomplete', component);
+    angular.module('entifix-js').component('entifixCheckboxSwitch', component);
 })();
 'use strict';
 
@@ -5203,967 +5425,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    function componentcontroller(EntifixStringUtils, $scope) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        vm.isSwitch = {
-            get: function get() {
-                if (vm.componentConstruction.isSwitch) return vm.componentConstruction.isSwitch;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixcheckboxswitch' + randomNumber;
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.valueTitle = {
-            get: function get() {
-                if (vm.title.get() && vm.title.get() != '') {
-                    if (vm.includeValue.get()) {
-                        var bool = 'No';
-                        if (vm.valueModel && vm.title.get() && vm.title.get() != '') bool = 'Si';
-                        return vm.title.get() + ': ' + bool;
-                    } else return vm.title.get();
-                }
-                return '';
-            }
-        };
-
-        vm.includeValue = {
-            get: function get() {
-                if (vm.componentConstruction.includeValue != null) return vm.componentConstruction.includeValue;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.getValue = function () {
-            if (vm.valueModel) return 'Si';
-            return 'No';
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-            if (vm.valueModel == undefined) vm.valueModel = false;
-        };
-
-        vm.runOnChangeTrigger = function () {
-            if (vm.onChange) vm.onChange({ value: vm.valueModel });
-        };
-
-        function cleanPlannedRecharge() {
-            if (plannedRecharge) {
-                $timeout.cancel(plannedRecharge);
-                plannedRecharge = null;
-            }
-        };
-
-        function setValues() {
-            vm.isForm.value = vm.isForm.get();
-            vm.tooltip.value = vm.tooltip.get();
-            vm.title.value = vm.title.get();
-            vm.name.value = vm.name.get();
-            vm.isSwitch.value = vm.isSwitch.get();
-            vm.requiredMessage.value = vm.requiredMessage.get();
-            vm.requiredMatch.value = vm.requiredMatch.get();
-        }
-
-        //$scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplayValue(); });
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = ['EntifixStringUtils', '$scope'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixCheckboxSwitch/entifixCheckboxSwitch.html',
-        template: '<div ng-if="!vm.isSwitch.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <div ng-show="vm.canShowEditableFields.get()" class="md-checkbox-padding"> \
-                            <md-checkbox  \
-                                ng-model="vm.valueModel" \
-                                name="{{vm.name.get()}}" \
-                                ng-checked="vm.valueModel" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                class="checkbox-default"> \
-                                {{vm.valueTitle.get()}} \
-                            </md-checkbox> \
-                        </div> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
-                            <strong>{{vm.getValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()" class="md-checkbox-padding"> \
-                        <md-checkbox  \
-                            ng-model="vm.valueModel" \
-                            name="{{vm.name.get()}}" \
-                            ng-checked="vm.valueModel" \
-                            aria-label="{{vm.name.get()}}" \
-                            ng-change="vm.runOnChangeTrigger()" \
-                            class="checkbox-default"> \
-                            {{vm.valueTitle.get()}} \
-                        </md-checkbox> \
-                    </div> \
-                </div> \
-                <div ng-if="vm.isSwitch.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="vm.isForm.get()"> \
-                        <div ng-show="vm.canShowEditableFields.get()"> \
-                            <md-switch \
-                                ng-model="vm.valueModel" \
-                                name="{{vm.name.get()}}" \
-                                ng-checked="vm.valueModel" \
-                                aria-label="{{vm.name.get()}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                class="switch-default"> \
-                                {{vm.valueTitle.get()}} \
-                            </md-switch> \
-                        </div> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.get()}}</label>&nbsp;<br/> \
-                            <strong>{{vm.getValue()}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.get()"> \
-                        <md-switch \
-                            ng-model="vm.valueModel" \
-                            name="{{vm.name.get()}}" \
-                            ng-checked="vm.valueModel" \
-                            aria-label="{{vm.name.get()}}" \
-                            ng-change="vm.runOnChangeTrigger()" \
-                            class="switch-default"> \
-                            {{vm.valueTitle.get()}} \
-                        </md-switch> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixCheckboxSwitch', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller($filter, EntifixStringUtils, $timeout, $scope) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-        var plannedRecharge;
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.maxLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
-                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
-
-                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado largo';
-            }
-        };
-
-        vm.minLength = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.minLengthMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
-                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
-
-                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
-                }
-
-                //Default value
-                return 'El texto es demasiado corto';
-            }
-        };
-
-        vm.max = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.max) return vm.componentConstruction.max;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.maxMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.maxMessage) {
-                    if (vm.componentConstruction.maxMessage.getter) return vm.componentConstruction.maxMessage.getter();
-
-                    if (vm.componentConstruction.maxMessage.text) return vm.componentConstruction.maxMessage.text;
-                }
-
-                //Default value
-                return 'El número es demasiado largo';
-            }
-        };
-
-        vm.min = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.min) return vm.componentConstruction.min;
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.minMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.minMessage) {
-                    if (vm.componentConstruction.minMessage.getter) return vm.componentConstruction.minMessage.getter();
-
-                    if (vm.componentConstruction.minMessage.text) return vm.componentConstruction.minMessage.text;
-                }
-
-                //Default value
-                return 'El número es demasiado corto';
-            }
-        };
-
-        vm.emailMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.emailMessage) {
-                    if (vm.componentConstruction.emailMessage.getter) return vm.componentConstruction.emailMessage.getter();
-
-                    if (vm.componentConstruction.emailMessage.text) return vm.componentConstruction.emailMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese una dirección de correo válida';
-            }
-        };
-
-        vm.urlMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.urlMessage) {
-                    if (vm.componentConstruction.urlMessage.getter) return vm.componentConstruction.urlMessage.getter();
-
-                    if (vm.componentConstruction.urlMessage.text) return vm.componentConstruction.urlMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese una dirección URL válida';
-            }
-        };
-
-        vm.numberMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.numberMessage) {
-                    if (vm.componentConstruction.numberMessage.getter) return vm.componentConstruction.numberMessage.getter();
-
-                    if (vm.componentConstruction.numberMessage.text) return vm.componentConstruction.numberMessage.text;
-                }
-
-                //Default value
-                return 'Ingrese un número válido';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixinput' + randomNumber;
-            }
-        };
-
-        vm.isTextArea = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isTextArea) return true;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.type = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.type) return vm.componentConstruction.type;
-
-                //Default value
-                return 'text';
-            }
-        };
-
-        vm.isForm = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
-
-                //Default value
-                return true;
-            }
-        };
-
-        vm.rows = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.rows) return vm.componentConstruction.rows;
-
-                //Default value
-                return 1;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.modelOptions = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.modelOptions) return vm.componentConstruction.modelOptions;
-
-                return {};
-            }
-        };
-
-        vm.numberValidation = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.numberValidation) return vm.componentConstruction.numberValidation;
-
-                return false;
-            }
-        };
-
-        vm.format = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.format) return vm.componentConstruction.format;
-
-                return null;
-            }
-        };
-
-        vm.currency = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.currency) return vm.componentConstruction.currency;
-
-                return '';
-            }
-        };
-
-        vm.nullValueLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
-
-                return 'SIN REGISTROS';
-            }
-            //=======================================================================================================================================================================
-
-
-            //Methods________________________________________________________________________________________________________________________________________________________________ 
-            //=======================================================================================================================================================================
-
-        };vm.$onInit = function () {
-            setValues();
-        };
-
-        vm.runOnChangeTrigger = function () {
-            if (vm.onChange) vm.onChange({ value: vm.valueModel });
-
-            cleanPlannedRecharge();
-            plannedRecharge = $timeout(setValues, 1500);
-        };
-
-        vm.getDisplay = function () {
-            if (vm.valueModel) {
-                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
-                return vm.valueModel;
-            } else return vm.nullValueLabel.get();
-        };
-
-        function cleanPlannedRecharge() {
-            if (plannedRecharge) {
-                $timeout.cancel(plannedRecharge);
-                plannedRecharge = null;
-            }
-        };
-
-        function setValues() {
-            vm.isForm.value = vm.isForm.get();
-            vm.tooltip.value = vm.tooltip.get();
-            vm.isTextArea.value = vm.isTextArea.get();
-            vm.title.value = vm.title.get();
-            vm.display = vm.getDisplay();
-            vm.type.value = vm.type.get();
-            vm.name.value = vm.name.get();
-            vm.isRequired.value = vm.isRequired.get();
-            vm.emailMessage.value = vm.emailMessage.get();
-            vm.urlMessage.value = vm.urlMessage.get();
-            vm.requiredMessage.value = vm.requiredMessage.get();
-            vm.maxLength.value = vm.maxLength.get();
-            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
-            vm.minLength.value = vm.minLength.get();
-            vm.minLengthMessage.value = vm.minLengthMessage.get();
-            vm.max.value = vm.max.get();
-            vm.maxMessage.value = vm.maxMessage.get();
-            vm.min.value = vm.min.get();
-            vm.minMessage.value = vm.minMessage.get();
-            vm.modelOptions.value = vm.modelOptions.get();
-            vm.numberMessage.value = vm.numberMessage.get();
-            vm.numberValidation.value = vm.numberValidation.get();
-            vm.nullValueLabel.value = vm.nullValueLabel.get();
-            vm.rows.value = vm.rows.get();
-            vm.format.value = vm.format.get();
-            vm.currency.value = vm.currency.get();
-        }
-
-        $scope.$watch(function () {
-            return vm.valueModel;
-        }, function (newValue, oldValue) {
-            vm.display = vm.getDisplay();
-        });
-
-        //=======================================================================================================================================================================
-
-    };
-
-    componentcontroller.$inject = ['$filter', 'EntifixStringUtils', '$timeout', '$scope'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixInput/entifixInput.html',
-        template: '<div ng-if="!vm.isTextArea.value"> \
-                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
-                    <div ng-if="vm.isForm.value"> \
-                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.value}}</label> \
-                            <input \
-                                type="{{vm.type.value}}" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.value" \
-                                md-maxlength="{{vm.maxLength.value}}" \
-                                minlength="{{vm.minLength.value}}" \
-                                name="{{vm.name.value}}" \
-                                aria-label="{{vm.name.value}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.value" \
-                                step="any" \
-                                number-validation="{{vm.numberValidation.value}}" \
-                                entifix-number-validation="{{vm.numberValidation.value}}" \
-                                entifix-number-block \
-                                ng-max="vm.max.value" \
-                                ng-min="vm.min.value" \
-                                autocomplete="off"/> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
-                                </div> \
-                        </md-input-container> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.value}}</label><br/> \
-                            <strong>{{vm.display}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.value"> \
-                        <md-input-container class="md-block"> \
-                            <label>{{vm.title.value}}</label> \
-                            <input \
-                                type="{{vm.type.value}}" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.value" \
-                                md-maxlength="{{vm.maxLength.value}}" \
-                                minlength="{{vm.minLength.value}}" \
-                                name="{{vm.name.value}}" \
-                                aria-label="{{vm.name.value}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.value" \
-                                step="any" \
-                                entifix-number-validation="{{vm.numberValidation.value}}" \
-                                entifix-number-block \
-                                ng-max="vm.max.value" \
-                                ng-min="vm.min.value" \
-                                autocomplete="off"/> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
-                                </div> \
-                        </md-input-container> \
-                    </div> \
-                </div> \
-                <div ng-if="vm.isTextArea.value"> \
-                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
-                    <div ng-if="vm.isForm.value"> \
-                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.value}}</label> \
-                            <textarea \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.value" \
-                                md-maxlength="{{vm.maxLength.value}}" \
-                                rows="{{vm.rows.value}}" \
-                                minlength="{{vm.minLength.value}}" \
-                                name="{{vm.name.value}}" \
-                                aria-label="{{vm.name.value}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.value" \
-                                step="any" \
-                                entifix-number-validation="{{vm.numberValidation.value}}" \
-                                entifix-number-block \
-                                ng-max="vm.max.value" \
-                                ng-min="vm.min.value"></textarea> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
-                                </div> \
-                        </md-input-container> \
-                        <div ng-hide="vm.canShowEditableFields.get()"> \
-                            <label>{{vm.title.value}}</label><br/> \
-                            <strong>{{vm.display}}</strong> \
-                        </div> \
-                    </div> \
-                    <div ng-if="!vm.isForm.value"> \
-                        <md-input-container class="md-block"> \
-                            <label>{{vm.title.value}}</label> \
-                            <textarea \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.value" \
-                                md-maxlength="{{vm.maxLength.value}}" \
-                                rows="{{vm.rows.value}}" \
-                                minlength="{{vm.minLength.value}}" \
-                                name="{{vm.name.value}}" \
-                                aria-label="{{vm.name.value}}" \
-                                ng-change="vm.runOnChangeTrigger()" \
-                                ng-model-options="vm.modelOptions.value" \
-                                step="any" \
-                                entifix-number-validation="{{vm.numberValidation.value}}" \
-                                entifix-number-block \
-                                ng-max="vm.max.value" \
-                                ng-min="vm.min.value"></textarea> \
-                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
-                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
-                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
-                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
-                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
-                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
-                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
-                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
-                                </div> \
-                        </md-input-container> \
-                    </div> \
-                </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixInput', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    function componentcontroller(EntifixStringUtils) {
-        var vm = this;
-        var randomNumber = Math.floor(Math.random() * 100 + 1);
-
-        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-        //Label - Input Behavior
-        vm.canShowEditableFields = {
-            get: function get() {
-                if (vm.showEditableFields) return vm.showEditableFields;
-
-                return false;
-            }
-        };
-
-        //Error Behavior with ng-messages
-        vm.canEvaluateErrors = {
-            get: function get() {
-                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
-
-                return false;
-            }
-        };
-
-        //Error validations
-        vm.isRequired = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.requiredMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
-                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
-
-                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
-                }
-
-                //Default value
-                return 'Este campo es obligatorio';
-            }
-        };
-
-        vm.title = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.title) {
-                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
-
-                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
-                }
-
-                //Default value
-                return '';
-            }
-        };
-
-        vm.name = {
-            get: function get() {
-                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
-                return 'entifixinput' + randomNumber;
-            }
-        };
-
-        vm.tooltip = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
-                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
-
-                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
-                }
-
-                //Default value
-                return null;
-            }
-        };
-
-        vm.isMultiple = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.isMultiple != null) return vm.componentConstruction.isMultiple;
-
-                //Default value
-                return false;
-            }
-        };
-
-        vm.selectFileText = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.selectFileText) {
-                    if (vm.componentConstruction.selectFileText.getter) return vm.componentConstruction.selectFileText.getter();
-
-                    if (vm.componentConstruction.selectFileText.text) return vm.componentConstruction.selectFileText.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Seleccionar Archivos...';
-                return 'Seleccionar Archivo';
-            }
-        };
-
-        vm.deleteFileLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.deleteFileLabel) {
-                    if (vm.componentConstruction.deleteFileLabel.getter) return vm.componentConstruction.deleteFileLabel.getter();
-
-                    if (vm.componentConstruction.deleteFileLabel.text) return vm.componentConstruction.deleteFileLabel.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Eliminar archivos...';
-                return 'Eliminar archivo...';
-            }
-        };
-
-        vm.fileNameLabel = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.fileNameLabel) {
-                    if (vm.componentConstruction.fileNameLabel.getter) return vm.componentConstruction.fileNameLabel.getter();
-
-                    if (vm.componentConstruction.fileNameLabel.text) return vm.componentConstruction.fileNameLabel.text;
-                }
-
-                //Default value
-                if (vm.isMultiple.get()) return 'Nombre de los archivos: ';
-                return 'Nombre del archivo: ';
-            }
-        };
-
-        vm.showSelectedMessage = {
-            get: function get() {
-                if (vm.componentConstruction && vm.componentConstruction.showSelectedMessage != null) return vm.componentConstruction.showSelectedMessage;
-
-                //Default value
-                return true;
-            }
-        };
-        //=======================================================================================================================================================================
-
-
-        //Methods________________________________________________________________________________________________________________________________________________________________ 
-        //=======================================================================================================================================================================
-
-        vm.$onInit = function () {
-            if (vm.init) vm.init();
-        };
-
-        vm.runOnChangeTrigger = function () {
-            if (vm.onChange) vm.onChange({ value: vm.valueModel });
-        };
-
-        vm.getDisplay = function () {
-            if (vm.valueModel) {
-                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
-                return vm.valueModel;
-            } else return vm.nullValueLabel.get();
-        };
-
-        vm.cleanFile = function () {
-            delete vm.valueModel;
-        };
-
-        //=======================================================================================================================================================================
-    };
-
-    componentcontroller.$inject = ['EntifixStringUtils'];
-
-    var component = {
-        bindings: {
-            valueModel: '=',
-            showEditableFields: '=',
-            evaluateErrors: '&',
-            componentConstruction: '<',
-            onChange: '&'
-        },
-        //templateUrl: 'dist/shared/components/entifixFile/entifixFile.html',
-        template: '<div ng-show="vm.canShowEditableFields.get()"> \
-                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
-                    <div ng-if="!vm.isMultiple.get()"> \
-                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
-                            <input type="file" \
-                                ng-model="vm.valueModel" \
-                                ng-required="vm.isRequired.get()" \
-                                entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
-                        </label> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                        </div> \
-                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
-                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
-                            <strong>{{vm.fileNameLabel.get()}}</strong> \
-                            {{vm.valueModel.name + " "}} \
-                        </h4> \
-                    </div> \
-                    <div ng-if="vm.isMultiple.get()"> \
-                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
-                            <input type="file" \
-                                ng-model="vm.valueModel" \
-                                multiple \
-                                ng-required="vm.isRequired.get()" \
-                                entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
-                        </label> \
-                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
-                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
-                        </div> \
-                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
-                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
-                            <strong>{{vm.fileNameLabel.get()}}</strong> \
-                            <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
-                        </h4> \
-                    </div> \
-                    <br hide-gt-sm><br hide-gt-sm> \
-                   </div>',
-        controller: componentcontroller,
-        controllerAs: 'vm'
-    };
-
-    angular.module('entifix-js').component('entifixFile', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     var module = angular.module('entifix-js');
 
     componentController.$inject = ['BaseComponentFunctions', 'EntifixNotification', 'EntifixNotifier', '$timeout', '$rootScope', 'EntifixSession'];
@@ -6867,6 +6128,745 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
         //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixinput' + randomNumber;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.isMultiple = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isMultiple != null) return vm.componentConstruction.isMultiple;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.selectFileText = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.selectFileText) {
+                    if (vm.componentConstruction.selectFileText.getter) return vm.componentConstruction.selectFileText.getter();
+
+                    if (vm.componentConstruction.selectFileText.text) return vm.componentConstruction.selectFileText.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Seleccionar Archivos...';
+                return 'Seleccionar Archivo';
+            }
+        };
+
+        vm.deleteFileLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.deleteFileLabel) {
+                    if (vm.componentConstruction.deleteFileLabel.getter) return vm.componentConstruction.deleteFileLabel.getter();
+
+                    if (vm.componentConstruction.deleteFileLabel.text) return vm.componentConstruction.deleteFileLabel.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Eliminar archivos...';
+                return 'Eliminar archivo...';
+            }
+        };
+
+        vm.fileNameLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.fileNameLabel) {
+                    if (vm.componentConstruction.fileNameLabel.getter) return vm.componentConstruction.fileNameLabel.getter();
+
+                    if (vm.componentConstruction.fileNameLabel.text) return vm.componentConstruction.fileNameLabel.text;
+                }
+
+                //Default value
+                if (vm.isMultiple.get()) return 'Nombre de los archivos: ';
+                return 'Nombre del archivo: ';
+            }
+        };
+
+        vm.showSelectedMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.showSelectedMessage != null) return vm.componentConstruction.showSelectedMessage;
+
+                //Default value
+                return true;
+            }
+        };
+        //=======================================================================================================================================================================
+
+
+        //Methods________________________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+
+        vm.$onInit = function () {
+            if (vm.init) vm.init();
+        };
+
+        vm.runOnChangeTrigger = function () {
+            if (vm.onChange) vm.onChange({ value: vm.valueModel });
+        };
+
+        vm.getDisplay = function () {
+            if (vm.valueModel) {
+                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
+                return vm.valueModel;
+            } else return vm.nullValueLabel.get();
+        };
+
+        vm.cleanFile = function () {
+            delete vm.valueModel;
+        };
+
+        //=======================================================================================================================================================================
+    };
+
+    componentcontroller.$inject = ['EntifixStringUtils'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixFile/entifixFile.html',
+        template: '<div ng-show="vm.canShowEditableFields.get()"> \
+                    <md-tooltip ng-if="vm.tooltip.get()" md-direction="left">{{vm.tooltip.get()}}</md-tooltip> \
+                    <div ng-if="!vm.isMultiple.get()"> \
+                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
+                            <input type="file" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.get()" \
+                                entifix-file-read \
+                                ng-change="vm.runOnChangeTrigger()"/> \
+                        </label> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                        </div> \
+                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
+                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
+                            <strong>{{vm.fileNameLabel.get()}}</strong> \
+                            {{vm.valueModel.name + " "}} \
+                        </h4> \
+                    </div> \
+                    <div ng-if="vm.isMultiple.get()"> \
+                        <label class="btn-file md-raised md-primary">{{vm.selectFileText.get()}} \
+                            <input type="file" \
+                                ng-model="vm.valueModel" \
+                                multiple \
+                                ng-required="vm.isRequired.get()" \
+                                entifix-file-read \
+                                ng-change="vm.runOnChangeTrigger()"/> \
+                        </label> \
+                        <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                            <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
+                        </div> \
+                        <md-button class="text-danger btn-delete-file" ng-click="vm.cleanFile()" ng-show="vm.valueModel">{{vm.deleteFileLabel.get()}}</md-button> \
+                        <h4 ng-show="vm.valueModel && vm.showSelectedMessage.get()"> \
+                            <strong>{{vm.fileNameLabel.get()}}</strong> \
+                            <p ng-repeat="file in vm.valueModel">{{file.name + " "}}</p> \
+                        </h4> \
+                    </div> \
+                    <br hide-gt-sm><br hide-gt-sm> \
+                   </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixFile', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller($filter, EntifixStringUtils, $timeout, $scope) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+        var plannedRecharge;
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
+        //Label - Input Behavior
+        vm.canShowEditableFields = {
+            get: function get() {
+                if (vm.showEditableFields) return vm.showEditableFields;
+
+                return false;
+            }
+        };
+
+        //Error Behavior with ng-messages
+        vm.canEvaluateErrors = {
+            get: function get() {
+                if (vm.evaluateErrors) return vm.evaluateErrors({ name: vm.name.get() });
+
+                return false;
+            }
+        };
+
+        //Error validations
+        vm.isRequired = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isRequired) return vm.componentConstruction.isRequired;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.requiredMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.requiredMessage) {
+                    if (vm.componentConstruction.requiredMessage.getter) return vm.componentConstruction.requiredMessage.getter();
+
+                    if (vm.componentConstruction.requiredMessage.text) return vm.componentConstruction.requiredMessage.text;
+                }
+
+                //Default value
+                return 'Este campo es obligatorio';
+            }
+        };
+
+        vm.maxLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLength) return vm.componentConstruction.maxLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxLengthMessage) {
+                    if (vm.componentConstruction.maxLengthMessage.getter) return vm.componentConstruction.maxLengthMessage.getter();
+
+                    if (vm.componentConstruction.maxLengthMessage.text) return vm.componentConstruction.maxLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado largo';
+            }
+        };
+
+        vm.minLength = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLength) return vm.componentConstruction.minLength;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.minLengthMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minLengthMessage) {
+                    if (vm.componentConstruction.minLengthMessage.getter) return vm.componentConstruction.minLengthMessage.getter();
+
+                    if (vm.componentConstruction.minLengthMessage.text) return vm.componentConstruction.minLengthMessage.text;
+                }
+
+                //Default value
+                return 'El texto es demasiado corto';
+            }
+        };
+
+        vm.max = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.max) return vm.componentConstruction.max;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.maxMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.maxMessage) {
+                    if (vm.componentConstruction.maxMessage.getter) return vm.componentConstruction.maxMessage.getter();
+
+                    if (vm.componentConstruction.maxMessage.text) return vm.componentConstruction.maxMessage.text;
+                }
+
+                //Default value
+                return 'El número es demasiado largo';
+            }
+        };
+
+        vm.min = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.min) return vm.componentConstruction.min;
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.minMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.minMessage) {
+                    if (vm.componentConstruction.minMessage.getter) return vm.componentConstruction.minMessage.getter();
+
+                    if (vm.componentConstruction.minMessage.text) return vm.componentConstruction.minMessage.text;
+                }
+
+                //Default value
+                return 'El número es demasiado corto';
+            }
+        };
+
+        vm.emailMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.emailMessage) {
+                    if (vm.componentConstruction.emailMessage.getter) return vm.componentConstruction.emailMessage.getter();
+
+                    if (vm.componentConstruction.emailMessage.text) return vm.componentConstruction.emailMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese una dirección de correo válida';
+            }
+        };
+
+        vm.urlMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.urlMessage) {
+                    if (vm.componentConstruction.urlMessage.getter) return vm.componentConstruction.urlMessage.getter();
+
+                    if (vm.componentConstruction.urlMessage.text) return vm.componentConstruction.urlMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese una dirección URL válida';
+            }
+        };
+
+        vm.numberMessage = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.numberMessage) {
+                    if (vm.componentConstruction.numberMessage.getter) return vm.componentConstruction.numberMessage.getter();
+
+                    if (vm.componentConstruction.numberMessage.text) return vm.componentConstruction.numberMessage.text;
+                }
+
+                //Default value
+                return 'Ingrese un número válido';
+            }
+        };
+
+        vm.title = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.title) {
+                    if (vm.componentConstruction.title.getter) return vm.componentConstruction.title.getter();
+
+                    if (vm.componentConstruction.title.text) return vm.componentConstruction.title.text;
+                }
+
+                //Default value
+                return '';
+            }
+        };
+
+        vm.name = {
+            get: function get() {
+                if (vm.title.get() != '') return EntifixStringUtils.getCleanedString(vm.title.get());
+                return 'entifixinput' + randomNumber;
+            }
+        };
+
+        vm.isTextArea = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isTextArea) return true;
+
+                //Default value
+                return false;
+            }
+        };
+
+        vm.type = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.type) return vm.componentConstruction.type;
+
+                //Default value
+                return 'text';
+            }
+        };
+
+        vm.isForm = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.isForm != null) return vm.componentConstruction.isForm;
+
+                //Default value
+                return true;
+            }
+        };
+
+        vm.rows = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.rows) return vm.componentConstruction.rows;
+
+                //Default value
+                return 1;
+            }
+        };
+
+        vm.tooltip = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.tooltip) {
+                    if (vm.componentConstruction.tooltip.getter) return vm.componentConstruction.tooltip.getter();
+
+                    if (vm.componentConstruction.tooltip.text) return vm.componentConstruction.tooltip.text;
+                }
+
+                //Default value
+                return null;
+            }
+        };
+
+        vm.modelOptions = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.modelOptions) return vm.componentConstruction.modelOptions;
+
+                return {};
+            }
+        };
+
+        vm.numberValidation = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.numberValidation) return vm.componentConstruction.numberValidation;
+
+                return false;
+            }
+        };
+
+        vm.format = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.format) return vm.componentConstruction.format;
+
+                return null;
+            }
+        };
+
+        vm.currency = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.currency) return vm.componentConstruction.currency;
+
+                return '';
+            }
+        };
+
+        vm.nullValueLabel = {
+            get: function get() {
+                if (vm.componentConstruction && vm.componentConstruction.nullValueLabel) return vm.componentConstruction.nullValueLabel;
+
+                return 'SIN REGISTROS';
+            }
+            //=======================================================================================================================================================================
+
+
+            //Methods________________________________________________________________________________________________________________________________________________________________ 
+            //=======================================================================================================================================================================
+
+        };vm.$onInit = function () {
+            setValues();
+        };
+
+        vm.runOnChangeTrigger = function () {
+            if (vm.onChange) vm.onChange({ value: vm.valueModel });
+
+            cleanPlannedRecharge();
+            plannedRecharge = $timeout(setValues, 1500);
+        };
+
+        vm.getDisplay = function () {
+            if (vm.valueModel) {
+                if (vm.format.get()) return $filter(vm.format.get())(vm.valueModel, vm.currency.get());
+                return vm.valueModel;
+            } else return vm.nullValueLabel.get();
+        };
+
+        function cleanPlannedRecharge() {
+            if (plannedRecharge) {
+                $timeout.cancel(plannedRecharge);
+                plannedRecharge = null;
+            }
+        };
+
+        function setValues() {
+            vm.isForm.value = vm.isForm.get();
+            vm.tooltip.value = vm.tooltip.get();
+            vm.isTextArea.value = vm.isTextArea.get();
+            vm.title.value = vm.title.get();
+            vm.display = vm.getDisplay();
+            vm.type.value = vm.type.get();
+            vm.name.value = vm.name.get();
+            vm.isRequired.value = vm.isRequired.get();
+            vm.emailMessage.value = vm.emailMessage.get();
+            vm.urlMessage.value = vm.urlMessage.get();
+            vm.requiredMessage.value = vm.requiredMessage.get();
+            vm.maxLength.value = vm.maxLength.get();
+            vm.maxLengthMessage.value = vm.maxLengthMessage.get();
+            vm.minLength.value = vm.minLength.get();
+            vm.minLengthMessage.value = vm.minLengthMessage.get();
+            vm.max.value = vm.max.get();
+            vm.maxMessage.value = vm.maxMessage.get();
+            vm.min.value = vm.min.get();
+            vm.minMessage.value = vm.minMessage.get();
+            vm.modelOptions.value = vm.modelOptions.get();
+            vm.numberMessage.value = vm.numberMessage.get();
+            vm.numberValidation.value = vm.numberValidation.get();
+            vm.nullValueLabel.value = vm.nullValueLabel.get();
+            vm.rows.value = vm.rows.get();
+            vm.format.value = vm.format.get();
+            vm.currency.value = vm.currency.get();
+        }
+
+        $scope.$watch(function () {
+            return vm.valueModel;
+        }, function (newValue, oldValue) {
+            vm.display = vm.getDisplay();
+        });
+
+        //=======================================================================================================================================================================
+
+    };
+
+    componentcontroller.$inject = ['$filter', 'EntifixStringUtils', '$timeout', '$scope'];
+
+    var component = {
+        bindings: {
+            valueModel: '=',
+            showEditableFields: '=',
+            evaluateErrors: '&',
+            componentConstruction: '<',
+            onChange: '&'
+        },
+        //templateUrl: 'dist/shared/components/entifixInput/entifixInput.html',
+        template: '<div ng-if="!vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
+                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.value}}</label> \
+                            <input \
+                                type="{{vm.type.value}}" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.value" \
+                                step="any" \
+                                number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                autocomplete="off"/> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
+                                </div> \
+                        </md-input-container> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.value"> \
+                        <md-input-container class="md-block"> \
+                            <label>{{vm.title.value}}</label> \
+                            <input \
+                                type="{{vm.type.value}}" \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.value" \
+                                step="any" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value" \
+                                autocomplete="off"/> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
+                                </div> \
+                        </md-input-container> \
+                    </div> \
+                </div> \
+                <div ng-if="vm.isTextArea.value"> \
+                    <md-tooltip ng-if="vm.tooltip.value" md-direction="left">{{vm.tooltip.value}}</md-tooltip> \
+                    <div ng-if="vm.isForm.value"> \
+                        <md-input-container class="md-block" ng-show="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.value}}</label> \
+                            <textarea \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.value" \
+                                step="any" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value"></textarea> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
+                                </div> \
+                        </md-input-container> \
+                        <div ng-hide="vm.canShowEditableFields.get()"> \
+                            <label>{{vm.title.value}}</label><br/> \
+                            <strong>{{vm.display}}</strong> \
+                        </div> \
+                    </div> \
+                    <div ng-if="!vm.isForm.value"> \
+                        <md-input-container class="md-block"> \
+                            <label>{{vm.title.value}}</label> \
+                            <textarea \
+                                ng-model="vm.valueModel" \
+                                ng-required="vm.isRequired.value" \
+                                md-maxlength="{{vm.maxLength.value}}" \
+                                rows="{{vm.rows.value}}" \
+                                minlength="{{vm.minLength.value}}" \
+                                name="{{vm.name.value}}" \
+                                aria-label="{{vm.name.value}}" \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                ng-model-options="vm.modelOptions.value" \
+                                step="any" \
+                                entifix-number-validation="{{vm.numberValidation.value}}" \
+                                entifix-number-block \
+                                ng-max="vm.max.value" \
+                                ng-min="vm.min.value"></textarea> \
+                                <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
+                                    <div ng-message="required">{{vm.requiredMessage.value}}</div> \
+                                    <div ng-message="md-maxlength">{{vm.maxLengthMessage.value}}</div> \
+                                    <div ng-message="minlength">{{vm.minLengthMessage.value}}</div> \
+                                    <div ng-message="email">{{vm.emailMessage.value}}</div> \
+                                    <div ng-message="url">{{vm.urlMessage.value}}</div> \
+                                    <div ng-message="number">{{vm.numberMessage.value}}</div> \
+                                    <div ng-message="max">{{vm.maxMessage.value}}</div> \
+                                    <div ng-message="min">{{vm.minMessage.value}}</div> \
+                                </div> \
+                        </md-input-container> \
+                    </div> \
+                </div>',
+        controller: componentcontroller,
+        controllerAs: 'vm'
+    };
+
+    angular.module('entifix-js').component('entifixInput', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    function componentcontroller(EntifixStringUtils) {
+        var vm = this;
+        var randomNumber = Math.floor(Math.random() * 100 + 1);
+
+        //Fields and Properties__________________________________________________________________________________________________________________________________________________ 
+        //=======================================================================================================================================================================
 
         vm.isLoading = {
             get: function get() {
@@ -7115,165 +7115,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     };
 
     angular.module('entifix-js').component('entifixRadioButton', component);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
-
-    controller.$inject = ['$mdDialog', 'EntifixNotification'];
-
-    function controller($mdDialog, EntifixNotification) {
-        var vm = this;
-
-        // Properties & fields
-        // ==============================================================================================================================================================
-
-        // ==============================================================================================================================================================
-
-
-        // Methods
-        // ==============================================================================================================================================================
-        function activate() {
-            setDefaults();
-            createComponents();
-        };
-
-        function createComponents() {
-            vm.tableStripedComponentConstruction = {
-                title: { text: 'Tabla Rayada' },
-                isSwitch: true
-            };
-
-            vm.pageSizeComponentConstruction = {
-                title: { text: 'Tamaño de la hoja' },
-                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
-            };
-
-            vm.pageOrientationComponentConstruction = {
-                title: { text: 'Orientación de la hoja' },
-                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
-            };
-        }
-
-        function setDefaults() {
-            vm.header = "Configuración del reporte";
-            vm.entity = {};
-            vm.entity.tableStriped = true;
-            vm.entity.pageSize = "Letter";
-            vm.entity.pageOrientation = "Landscape";
-        }
-
-        vm.cancel = function () {
-            $mdDialog.cancel(vm.entity);
-        };
-
-        vm.ok = function () {
-            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
-                $mdDialog.hide(vm.entity);
-            } else {
-                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
-            }
-        };
-
-        activate();
-        // ==============================================================================================================================================================
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
-
-    downloadReportSettingsFactory.$inject = ['$mdDialog'];
-
-    function downloadReportSettingsFactory($mdDialog) {
-        var downloadReportSettingsController = function downloadReportSettingsController() {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
-                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
-                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
-                                                                <h2>&nbsp {{vm.header}}</h2> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <div> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageSize"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageSizeComponentConstruction"  \
-                                                                        component-binding-out="vm.pageSizeInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-checkbox-switch  \
-                                                                        value-model="vm.entity.tableStriped"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.tableStripedComponentConstruction"> \
-                                                                    </entifix-checkbox-switch> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageOrientation"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
-                                                                        component-binding-out="vm.pageOrientationInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row"> \
-                                                            <md-button ng-click="vm.cancel()"> \
-                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
-                                                            </md-button> \
-                                                            <md-button  ng-click="vm.ok()"> \
-                                                                <md-icon class="material-icons">done</md-icon> Ok \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </div> \
-                                                </md-dialog>',
-                    controller: 'EntifixDownloadReportSettingsController',
-                    parent: angular.element(document.body),
-                    clickOutsideToClose: false,
-                    escapeToClose: false,
-                    fullscreen: true,
-                    controllerAs: 'vm'
-                }).then(function (result) {
-                    if (callbackSuccess) callbackSuccess(result);
-                }, function (result) {
-                    if (callbackError) callbackError(result);
-                });
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return downloadReportSettingsController;
-    };
 })();
 'use strict';
 
@@ -9219,6 +9060,165 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         //Register component 
     };module.component('entifixTable', component);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotification'];
+
+    function controller($mdDialog, EntifixNotification) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.tableStripedComponentConstruction = {
+                title: { text: 'Tabla Rayada' },
+                isSwitch: true
+            };
+
+            vm.pageSizeComponentConstruction = {
+                title: { text: 'Tamaño de la hoja' },
+                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
+            };
+
+            vm.pageOrientationComponentConstruction = {
+                title: { text: 'Orientación de la hoja' },
+                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
+            };
+        }
+
+        function setDefaults() {
+            vm.header = "Configuración del reporte";
+            vm.entity = {};
+            vm.entity.tableStriped = true;
+            vm.entity.pageSize = "Letter";
+            vm.entity.pageOrientation = "Landscape";
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel(vm.entity);
+        };
+
+        vm.ok = function () {
+            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
+                $mdDialog.hide(vm.entity);
+            } else {
+                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
+            }
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
+
+    downloadReportSettingsFactory.$inject = ['$mdDialog'];
+
+    function downloadReportSettingsFactory($mdDialog) {
+        var downloadReportSettingsController = function downloadReportSettingsController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
+                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
+                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
+                                                                <h2>&nbsp {{vm.header}}</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageSize"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageSizeComponentConstruction"  \
+                                                                        component-binding-out="vm.pageSizeInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-checkbox-switch  \
+                                                                        value-model="vm.entity.tableStriped"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.tableStripedComponentConstruction"> \
+                                                                    </entifix-checkbox-switch> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageOrientation"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
+                                                                        component-binding-out="vm.pageOrientationInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button  ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixDownloadReportSettingsController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (result) {
+                    if (callbackSuccess) callbackSuccess(result);
+                }, function (result) {
+                    if (callbackError) callbackError(result);
+                });
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return downloadReportSettingsController;
+    };
 })();
 'use strict';
 

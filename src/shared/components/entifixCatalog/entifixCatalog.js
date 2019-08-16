@@ -41,7 +41,7 @@
                         personalizeEditTable(entity);
                     else 
                     {
-                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.queryDetails.resource.getKeyProperty.get()], (entity) => {
+                        vm.entityQueryDetails.resource.loadAsResource(entity[vm.entityQueryDetails.resource.getKeyProperty.get()], (entity) => {
                             if (vm.isModal.get())
                                 vm.openModal(entity);
                             else

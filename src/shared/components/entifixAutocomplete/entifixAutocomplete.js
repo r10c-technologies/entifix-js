@@ -491,11 +491,9 @@
         let setValueModel = (value, entity) =>
         {
             if (vm.valueModel != value)
-            {
                 vm.valueModel = value;
-                if (vm.onChange)
-                    vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity }); 
-            }
+            if (vm.onChange)
+                vm.onChange({ oldValue: vm.valueModel, newValue: value, entity: entity });
         }
 
         vm.updateData = (data) =>
@@ -688,7 +686,7 @@
             vm.getDisplayValue();
         }
 
-        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { if (newValue != oldValue) setValues(); });
+        $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { if (newValue != oldValue) { setValues(); } });
  
         //=======================================================================================================================================================================
 
