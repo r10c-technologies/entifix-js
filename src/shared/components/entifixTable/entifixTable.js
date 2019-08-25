@@ -1424,7 +1424,7 @@
             if (vm.columnToSearch.display && vm.operator.operator && vm.valueToSearch) {
                 vm.valueToSearch = transformDate(vm.valueToSearch, vm.columnToSearch.type);
                 vm.textBoxSearchValueChips.push(vm.columnToSearch.display + ' ' + vm.operator.operator + ' ' + vm.valueToSearch);
-                vm.searchArray.push({ property: vm.columnToSearch, operator: vm.operator.operator, value: vm.valueToSearch });
+                vm.searchArray.push({ property: vm.columnToSearch.pageProperty || vm.columnToSearch.name, operator: vm.operator.operator, value: vm.valueToSearch });
             }
             cleanCustomSearchValues();
             setParametersAddChip();
