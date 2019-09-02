@@ -9,7 +9,7 @@
 
     function service()
     {
-        var vm = this;
+        let vm = this;
 
         // Properties and Fields========================================================================================================================================================
         //==============================================================================================================================================================================
@@ -23,13 +23,13 @@
         // Methods _____________________________________________________________________________________________________________________________________________________________________
         //==============================================================================================================================================================================
 
-        vm.getDefinedMembers = function(resourceName)
+        vm.getDefinedMembers = (resourceName) =>
         {
-            var allDefinedMembers = getResource(resourceName).definedMembers || [];
+            let allDefinedMembers = getResource(resourceName).definedMembers || [];
 
             if (!getResource(resourceName).denyInheritance)
             {
-                var base = getBase(resourceName);
+                let base = getBase(resourceName);
     
                 while (base) 
                 {
@@ -46,11 +46,11 @@
             return allDefinedMembers;
         };
 
-        vm.getExcludedMembers = function(resourceName)
+        vm.getExcludedMembers = (resourceName) =>
         {            
-            var allExcludedMembers = getResource(resourceName).excludeMembers || [];
+            let allExcludedMembers = getResource(resourceName).excludeMembers || [];
 
-             var base = getBase(resourceName);
+            let base = getBase(resourceName);
 
             while (base) 
             {
@@ -63,26 +63,26 @@
             return allExcludedMembers;
         };
 
-        vm.getTransformProperties = function(resourceName)
+        vm.getTransformProperties = (resourceName) =>
         {
             return vm.getDefinedMembers(resourceName).filter( (p) => { return p.transformType && p.transformType != "false"; });         
         };
 
-        vm.getPaginableProperties = function(resourceName)
+        vm.getPaginableProperties = (resourceName) =>
         {
             return vm.getDefinedMembers(resourceName).filter( (p) => { return p.paginable == 'true' || p.paginable == true; });
         };
 
-        vm.getJoinProperties = function(resourceName)
+        vm.getJoinProperties = (resourceName) =>
         {
             return vm.getDefinedMembers(resourceName).filter( (p) => { return p.joinable; });
         };
 
-        vm.getKeyProperty = function(resourceName)
+        vm.getKeyProperty = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var keyProperty = resource.keyProperty;
-            var base = getBase(resourceName);
+            let resource = getResource(resourceName);
+            let keyProperty = resource.keyProperty;
+            let base = getBase(resourceName);
 
             while (base && !keyProperty) 
             {
@@ -98,11 +98,11 @@
             return keyProperty;
         };
 
-        vm.getOpProperty = function(resourceName)
+        vm.getOpProperty = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var opProperty = resource.opProperty;
-            var base = getBase(resourceName);
+            let resource = getResource(resourceName);
+            let opProperty = resource.opProperty;
+            let base = getBase(resourceName);
 
             while (base && !opProperty) 
             {
@@ -118,13 +118,13 @@
             return opProperty;
         };
         
-        vm.getResourceURL = function(resourceName)
+        vm.getResourceURL = (resourceName) =>
         {
-            var resource = getResource(resourceName);
+            let resource = getResource(resourceName);
 
-            var path = resource.url;
+            let path = resource.url;
 
-            var base = getBase(resourceName);
+            let base = getBase(resourceName);
 
             while (base) 
             {
@@ -137,14 +137,14 @@
             return path;            
         };
 
-        vm.getTypeInfo = function(resourceName)
+        vm.getTypeInfo = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var typeInfo = resource.type;
+            let resource = getResource(resourceName);
+            let typeInfo = resource.type;
 
             if (!typeInfo)
             {
-                var base = getBase(resourceName);
+                let base = getBase(resourceName);
                 while (base && !typeInfo) 
                 {
                     if (base.type)
@@ -157,14 +157,14 @@
             return typeInfo;
         };
 
-        vm.allowUrlPrefix = function(resourceName)
+        vm.allowUrlPrefix = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var allowPrefix = resource.allowUrlPrefix;
+            let resource = getResource(resourceName);
+            let allowPrefix = resource.allowUrlPrefix;
 
             if (!allowPrefix)
             {
-                var base = getBase(resourceName);
+                let base = getBase(resourceName);
                 while (base && !allowPrefix) 
                 {
                     allowPrefix = base.allowUrlPrefix;
@@ -175,14 +175,14 @@
             return allowPrefix || false;
         };
 
-        vm.allowUrlPostfix = function(resourceName)
+        vm.allowUrlPostfix = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var allowPostfix = resource.allowUrlPostfix;
+            let resource = getResource(resourceName);
+            let allowPostfix = resource.allowUrlPostfix;
 
             if (!allowPostfix)
             {
-                var base = getBase(resourceName);
+                let base = getBase(resourceName);
                 while (base && !allowPostfix) 
                 {
                     allowPostfix = base.allowPostfix;
@@ -193,16 +193,16 @@
             return allowPostfix || false;
         };
 
-        vm.denyBarPrefix = function(resourceName)
+        vm.denyBarPrefix = (resourceName) =>
         {
-            var resource = getResource(resourceName);
+            let resource = getResource(resourceName);
             return resource.denyBarPrefix || false;
         };
 
-        vm.getDefaultUrl = function(resourceName)
+        vm.getDefaultUrl = (resourceName) =>
         {
-            var resource = getResource(resourceName);
-            var defaultUrl = resource.defaultUrl;
+            let resource = getResource(resourceName);
+            let defaultUrl = resource.defaultUrl;
 
             if (!defaultUrl)
                 defaultUrl = 'default';
@@ -210,9 +210,9 @@
             return defaultUrl;
         }
         
-        vm.getRequestOptions = function(resourceName)
+        vm.getRequestOptions = (resourceName) =>
         {
-            var resource = getResource(resourceName);
+            let resource = getResource(resourceName);
             if(resource.requestOptions != null || resource.requestOptions != undefined)
                 return resource.requestOptions;
             else {
@@ -220,10 +220,10 @@
             }
         }
         
-        vm.getStartDateProperty = function(resourceName)
+        vm.getStartDateProperty = (resourceName) =>
         {
-            var definedMembers = vm.getDefinedMembers(resourceName);
-            var startProperty = null;
+            let definedMembers = vm.getDefinedMembers(resourceName);
+            let startProperty = null;
 
             if (definedMembers.length > 0)
                 definedMembers.forEach((dm) => { if (dm.startDate) { startProperty = dm.name; return false; } else return true; });
@@ -231,10 +231,10 @@
             return startProperty;
         }
         
-        vm.getEndDateProperty = function(resourceName)
+        vm.getEndDateProperty = (resourceName) =>
         {
-            var definedMembers = vm.getDefinedMembers(resourceName);
-            var endProperty = null;
+            let definedMembers = vm.getDefinedMembers(resourceName);
+            let endProperty = null;
 
             if (definedMembers.length > 0)
                 definedMembers.every((dm) => { if (dm.endDate) { endProperty = dm.name; return false; } else return true; });
@@ -242,10 +242,10 @@
             return endProperty;
         }
         
-        vm.getNotApplyProperty = function(resourceName)
+        vm.getNotApplyProperty = (resourceName) =>
         {
-            var definedMembers = vm.getDefinedMembers(resourceName);
-            var notApplyProperty = null;
+            let definedMembers = vm.getDefinedMembers(resourceName);
+            let notApplyProperty = null;
 
             if (definedMembers.length > 0)
                 definedMembers.every((dm) => { if (dm.notApply){ notApplyProperty = dm.name; return false; } else return true; });
@@ -253,10 +253,10 @@
             return notApplyProperty;
         }
 
-        vm.isProcessedEntity = function(resourceName, entity)
+        vm.isProcessedEntity = (resourceName, entity) =>
         {
-            var definedMembers = vm.getDefinedMembers(resourceName);
-            var processedProperty, processedValue;
+            let definedMembers = vm.getDefinedMembers(resourceName);
+            let processedProperty, processedValue;
 
             if (definedMembers.length > 0)
                 definedMembers.every((dm) => { if (dm.processedValue) { processedProperty = dm.name; processedValue = dm.processedValue; return false; } else return true; });
@@ -284,7 +284,7 @@
 
         function getBase(resourceName)
         {
-            var resource = globalMetadata.resources.filter((r) => { return r.name == resourceName; })[0];
+            let resource = globalMetadata.resources.filter((r) => { return r.name == resourceName; })[0];
 
             if (resource.base)
                 return globalMetadata.resources.filter((r) => { return r.name == resource.base; })[0];

@@ -326,7 +326,7 @@
                 if (vm.valueModel && vm.items && vm.items.length > 0)
                 {
                     var item = '';
-                    vm.valueModel.forEach((valueModel) => { item += vm.items.filter((e)=>{return e.Value == valueModel;})[0].Display; });
+                    vm.valueModel.forEach((valueModel, index) => { item += vm.items.filter(e => e.Value == valueModel)[0].Display + (index < vm.valueModel.length - 1 ? ', ' : ''); });
                     if (item)
                         return item;
                 }

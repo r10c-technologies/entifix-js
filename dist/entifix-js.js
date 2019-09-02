@@ -542,185 +542,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
-        return {
-            restrict: 'A',
-            link: function link($scope, element) {
-                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
-                var resize = function resize() {
-                    if ($scope.initialHeight != '') {
-                        element[0].style.height = $scope.initialHeight;
-                        $scope.initialHeight = '';
-                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
-                };
-                element.on("input change", resize);
-                $timeout(resize, 0);
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixFileRead", [function () {
-        return {
-            require: "ngModel",
-            link: function postLink(scope, elem, attrs, ngModel) {
-                elem.on("change", function (e) {
-                    if (!attrs.multiple) {
-                        var files = elem[0].files[0];
-                        ngModel.$setViewValue(files);
-                    } else {
-                        var files = elem[0].files;
-                        ngModel.$setViewValue(files);
-                    }
-                });
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNextFocus', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-
-                elem.bind('keydown', function (e) {
-                    var code = e.keyCode || e.which;
-                    if (code === 13 || code === 39 || code === 9) {
-                        var focusNext;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusNext = false, len = pageElems.length;
-                        for (var i = 0; i < len; i++) {
-                            var pe = pageElems[i];
-                            if (focusNext) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusNext = true;
-                            }
-                        }
-                    }
-                    if (code === 37) {
-                        var focusPrevious;
-                        var len;
-                        e.preventDefault();
-                        var pageElems = document.querySelectorAll(attrs.nextFocus),
-                            elem = e.target;
-                        focusPrevious = false, len = pageElems.length;
-                        for (var i = len - 1; i >= 0; i--) {
-                            var pe = pageElems[i];
-                            if (focusPrevious) {
-                                if (pe.style.display !== 'none') {
-                                    pe.focus();
-                                    break;
-                                }
-                            } else if (pe === e.target) {
-                                focusPrevious = true;
-                            }
-                        }
-                    }
-                });
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberBlock', function () {
-        return {
-            restrict: 'A',
-            link: function link($scope, elem, attrs) {
-                if (attrs.numberValidation == "true") {
-                    elem.bind('keydown', function (e) {
-                        var code = e.keyCode || e.which;
-                        if (!(code === 8 || // backspace
-                        code === 46 || // delete
-                        code === 110 || code === 190 || // decimal point
-                        code === 9 || // tab
-                        code === 37 || // left arrow
-                        code === 39 || // right arrow
-                        code >= 48 && code <= 57 && !e.shiftKey || code >= 96 && code <= 105 && !e.shiftKey)) {
-                            // numbers
-                            e.preventDefault();
-                        }
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive('entifixNumberValidation', function () {
-        return {
-            require: 'ngModel',
-            link: function link(scope, element, attrs, ctrl) {
-                if (attrs.numberValidation == "true") {
-                    ctrl.$parsers.push(function (value) {
-                        if (ctrl.$isEmpty(value)) {
-                            ctrl.$setValidity('number', true);
-                            return null;
-                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
-                            ctrl.$setValidity('number', true);
-                            return value;
-                        } else ctrl.$setValidity('number', false);
-                    });
-                }
-            }
-        };
-    });
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
-    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
-        return {
-            restrict: 'A',
-            priority: 1001,
-            terminal: true,
-            scope: {
-                perm: "&permission"
-            },
-            compile: function compile(element, attributes) {
-                var permission = attributes.entifixSecurityContext;
-
-                element.removeAttr('entifix-security-context');
-
-                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
-
-                var fn = $compile(element);
-                return function (scope) {
-                    fn(scope);
-                };
-            }
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     angular.module('entifix-js').factory('EntifixCollectionFormatter', factory);
 
     factory.$inject = ['EntifixDateGenerator'];
@@ -1380,7 +1201,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
         vm.isProcessedEntity = function (resourceName, entity) {
             var definedMembers = vm.getDefinedMembers(resourceName);
-            var processedProperty, processedValue;
+            var processedProperty = void 0,
+                processedValue = void 0;
 
             if (definedMembers.length > 0) definedMembers.every(function (dm) {
                 if (dm.processedValue) {
@@ -2936,6 +2758,185 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             request: request
         };
     };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixElasticTextArea', ['$timeout', function ($timeout) {
+        return {
+            restrict: 'A',
+            link: function link($scope, element) {
+                $scope.initialHeight = $scope.initialHeight || element[0].style.height;
+                var resize = function resize() {
+                    if ($scope.initialHeight != '') {
+                        element[0].style.height = $scope.initialHeight;
+                        $scope.initialHeight = '';
+                    } else element[0].style.height = "" + element[0].scrollHeight + "px";
+                };
+                element.on("input change", resize);
+                $timeout(resize, 0);
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive("entifixFileRead", [function () {
+        return {
+            require: "ngModel",
+            link: function postLink(scope, elem, attrs, ngModel) {
+                elem.on("change", function (e) {
+                    if (!attrs.multiple) {
+                        var files = elem[0].files[0];
+                        ngModel.$setViewValue(files);
+                    } else {
+                        var files = elem[0].files;
+                        ngModel.$setViewValue(files);
+                    }
+                });
+            }
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNextFocus', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+
+                elem.bind('keydown', function (e) {
+                    var code = e.keyCode || e.which;
+                    if (code === 13 || code === 39 || code === 9) {
+                        var focusNext;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusNext = false, len = pageElems.length;
+                        for (var i = 0; i < len; i++) {
+                            var pe = pageElems[i];
+                            if (focusNext) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusNext = true;
+                            }
+                        }
+                    }
+                    if (code === 37) {
+                        var focusPrevious;
+                        var len;
+                        e.preventDefault();
+                        var pageElems = document.querySelectorAll(attrs.nextFocus),
+                            elem = e.target;
+                        focusPrevious = false, len = pageElems.length;
+                        for (var i = len - 1; i >= 0; i--) {
+                            var pe = pageElems[i];
+                            if (focusPrevious) {
+                                if (pe.style.display !== 'none') {
+                                    pe.focus();
+                                    break;
+                                }
+                            } else if (pe === e.target) {
+                                focusPrevious = true;
+                            }
+                        }
+                    }
+                });
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberBlock', function () {
+        return {
+            restrict: 'A',
+            link: function link($scope, elem, attrs) {
+                if (attrs.numberValidation == "true") {
+                    elem.bind('keydown', function (e) {
+                        var code = e.keyCode || e.which;
+                        if (!(code === 8 || // backspace
+                        code === 46 || // delete
+                        code === 110 || code === 190 || // decimal point
+                        code === 9 || // tab
+                        code === 37 || // left arrow
+                        code === 39 || // right arrow
+                        code >= 48 && code <= 57 && !e.shiftKey || code >= 96 && code <= 105 && !e.shiftKey)) {
+                            // numbers
+                            e.preventDefault();
+                        }
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive('entifixNumberValidation', function () {
+        return {
+            require: 'ngModel',
+            link: function link(scope, element, attrs, ctrl) {
+                if (attrs.numberValidation == "true") {
+                    ctrl.$parsers.push(function (value) {
+                        if (ctrl.$isEmpty(value)) {
+                            ctrl.$setValidity('number', true);
+                            return null;
+                        } else if (!isNaN(parseFloat(value)) && isFinite(value)) {
+                            ctrl.$setValidity('number', true);
+                            return value;
+                        } else ctrl.$setValidity('number', false);
+                    });
+                }
+            }
+        };
+    });
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').directive("entifixSecurityContext", ['EntifixSession', '$compile', function (EntifixSession, $compile) {
+        return {
+            restrict: 'A',
+            priority: 1001,
+            terminal: true,
+            scope: {
+                perm: "&permission"
+            },
+            compile: function compile(element, attributes) {
+                var permission = attributes.entifixSecurityContext;
+
+                element.removeAttr('entifix-security-context');
+
+                if (EntifixSession.checkPermissions(permission)) element.attr('ng-if', true);else element.attr('ng-if', false);
+
+                var fn = $compile(element);
+                return function (scope) {
+                    fn(scope);
+                };
+            }
+        };
+    }]);
 })();
 'use strict';
 
@@ -7357,10 +7358,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             } else {
                 if (vm.valueModel && vm.items && vm.items.length > 0) {
                     var item = '';
-                    vm.valueModel.forEach(function (valueModel) {
+                    vm.valueModel.forEach(function (valueModel, index) {
                         item += vm.items.filter(function (e) {
                             return e.Value == valueModel;
-                        })[0].Display;
+                        })[0].Display + (index < vm.valueModel.length - 1 ? ', ' : '');
                     });
                     if (item) return item;
                 }
@@ -9066,165 +9067,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
-
-    controller.$inject = ['$mdDialog', 'EntifixNotification'];
-
-    function controller($mdDialog, EntifixNotification) {
-        var vm = this;
-
-        // Properties & fields
-        // ==============================================================================================================================================================
-
-        // ==============================================================================================================================================================
-
-
-        // Methods
-        // ==============================================================================================================================================================
-        function activate() {
-            setDefaults();
-            createComponents();
-        };
-
-        function createComponents() {
-            vm.tableStripedComponentConstruction = {
-                title: { text: 'Tabla Rayada' },
-                isSwitch: true
-            };
-
-            vm.pageSizeComponentConstruction = {
-                title: { text: 'Tamaño de la hoja' },
-                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
-            };
-
-            vm.pageOrientationComponentConstruction = {
-                title: { text: 'Orientación de la hoja' },
-                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
-            };
-        }
-
-        function setDefaults() {
-            vm.header = "Configuración del reporte";
-            vm.entity = {};
-            vm.entity.tableStriped = true;
-            vm.entity.pageSize = "Letter";
-            vm.entity.pageOrientation = "Landscape";
-        }
-
-        vm.cancel = function () {
-            $mdDialog.cancel(vm.entity);
-        };
-
-        vm.ok = function () {
-            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
-                $mdDialog.hide(vm.entity);
-            } else {
-                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
-            }
-        };
-
-        activate();
-        // ==============================================================================================================================================================
-    };
-
-    // FACTORY ================================================================================================================================================================================
-    // ========================================================================================================================================================================================
-    // =========================================================================================================================================================================================
-    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
-
-    downloadReportSettingsFactory.$inject = ['$mdDialog'];
-
-    function downloadReportSettingsFactory($mdDialog) {
-        var downloadReportSettingsController = function downloadReportSettingsController() {
-            var vm = this;
-
-            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
-            //==============================================================================================================================================================================
-
-            //Fields ===>>>>:
-
-
-            //Properties ===>>>>:
-
-
-            //==============================================================================================================================================================================
-
-            // Methods _____________________________________________________________________________________________________________________________________________________________________
-            //==============================================================================================================================================================================
-            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
-                $mdDialog.show({
-                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
-                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
-                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
-                                                        <div class="md-toolbar-tools" layout> \
-                                                            <div flex layout layout-align="start center"> \
-                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
-                                                                <h2>&nbsp {{vm.header}}</h2> \
-                                                            </div> \
-                                                        </div> \
-                                                    </md-toolbar> \
-                                                    <div> \
-                                                        <md-dialog-content> \
-                                                            <md-content layout-padding> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageSize"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageSizeComponentConstruction"  \
-                                                                        component-binding-out="vm.pageSizeInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-checkbox-switch  \
-                                                                        value-model="vm.entity.tableStriped"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.tableStripedComponentConstruction"> \
-                                                                    </entifix-checkbox-switch> \
-                                                                </div> \
-                                                                <div flex> \
-                                                                    <entifix-select  \
-                                                                        value-model="vm.entity.pageOrientation"  \
-                                                                        show-editable-fields="true" \
-                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
-                                                                        component-binding-out="vm.pageOrientationInstance"> \
-                                                                    </entifix-select> \
-                                                                </div> \
-                                                            </md-content> \
-                                                        </md-dialog-content> \
-                                                        <md-dialog-actions layout="row"> \
-                                                            <md-button ng-click="vm.cancel()"> \
-                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
-                                                            </md-button> \
-                                                            <md-button  ng-click="vm.ok()"> \
-                                                                <md-icon class="material-icons">done</md-icon> Ok \
-                                                            </md-button> \
-                                                        </md-dialog-actions> \
-                                                    </div> \
-                                                </md-dialog>',
-                    controller: 'EntifixDownloadReportSettingsController',
-                    parent: angular.element(document.body),
-                    clickOutsideToClose: false,
-                    escapeToClose: false,
-                    fullscreen: true,
-                    controllerAs: 'vm'
-                }).then(function (result) {
-                    if (callbackSuccess) callbackSuccess(result);
-                }, function (result) {
-                    if (callbackError) callbackError(result);
-                });
-            };
-
-            //==============================================================================================================================================================================
-        };
-
-        return downloadReportSettingsController;
-    };
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     var entifixEnvironmentModule = angular.module('entifix-js');
 
     // CONTROLLER ================================================================================================================================================================================
@@ -10233,5 +10075,164 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         };
 
         return systemOwnerController;
+    };
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
+    angular.module('entifix-js').controller('EntifixDownloadReportSettingsController', controller);
+
+    controller.$inject = ['$mdDialog', 'EntifixNotification'];
+
+    function controller($mdDialog, EntifixNotification) {
+        var vm = this;
+
+        // Properties & fields
+        // ==============================================================================================================================================================
+
+        // ==============================================================================================================================================================
+
+
+        // Methods
+        // ==============================================================================================================================================================
+        function activate() {
+            setDefaults();
+            createComponents();
+        };
+
+        function createComponents() {
+            vm.tableStripedComponentConstruction = {
+                title: { text: 'Tabla Rayada' },
+                isSwitch: true
+            };
+
+            vm.pageSizeComponentConstruction = {
+                title: { text: 'Tamaño de la hoja' },
+                collection: { elements: [{ Display: 'Letter', Value: 'Letter' }, { Display: 'Legal', Value: 'Legal' }, { Display: 'A0', Value: 'A0' }, { Display: 'A1', Value: 'A1' }, { Display: 'A2', Value: 'A2' }, { Display: 'A3', Value: 'A3' }, { Display: 'A4', Value: 'A4' }] }
+            };
+
+            vm.pageOrientationComponentConstruction = {
+                title: { text: 'Orientación de la hoja' },
+                collection: { elements: [{ Display: 'Landscape', Value: 'Landscape' }, { Display: 'Portrait', Value: 'Portrait' }] }
+            };
+        }
+
+        function setDefaults() {
+            vm.header = "Configuración del reporte";
+            vm.entity = {};
+            vm.entity.tableStriped = true;
+            vm.entity.pageSize = "Letter";
+            vm.entity.pageOrientation = "Landscape";
+        }
+
+        vm.cancel = function () {
+            $mdDialog.cancel(vm.entity);
+        };
+
+        vm.ok = function () {
+            if (vm.entity.tableStriped != undefined && vm.entity.pageSize != undefined && vm.entity.pageOrientation != undefined) {
+                $mdDialog.hide(vm.entity);
+            } else {
+                EntifixNotification.error({ "body": "Por favor, seleccione todas las opciones.", "isToast": true });
+            }
+        };
+
+        activate();
+        // ==============================================================================================================================================================
+    };
+
+    // FACTORY ================================================================================================================================================================================
+    // ========================================================================================================================================================================================
+    // =========================================================================================================================================================================================
+    angular.module('entifix-js').factory('EntifixDownloadReportSettings', downloadReportSettingsFactory);
+
+    downloadReportSettingsFactory.$inject = ['$mdDialog'];
+
+    function downloadReportSettingsFactory($mdDialog) {
+        var downloadReportSettingsController = function downloadReportSettingsController() {
+            var vm = this;
+
+            // Properties and Fields _______________________________________________________________________________________________________________________________________________________            
+            //==============================================================================================================================================================================
+
+            //Fields ===>>>>:
+
+
+            //Properties ===>>>>:
+
+
+            //==============================================================================================================================================================================
+
+            // Methods _____________________________________________________________________________________________________________________________________________________________________
+            //==============================================================================================================================================================================
+            vm.chooseDownloadReportSettings = function (callbackSuccess, callbackError) {
+                $mdDialog.show({
+                    //templateUrl: 'dist/shared/controls/entifixDownloadReportSettings/entifixDownloadReportSettings.html',
+                    template: '<md-dialog aria-label="Configuración del reporte" class="md-sm"> \
+                                                    <md-toolbar md-colors="{background: \'default-primary-100\'}"> \
+                                                        <div class="md-toolbar-tools" layout> \
+                                                            <div flex layout layout-align="start center"> \
+                                                                <div class="md-icon-button"><md-icon class="material-icons">chrome_reader_mode</md-icon></div> \
+                                                                <h2>&nbsp {{vm.header}}</h2> \
+                                                            </div> \
+                                                        </div> \
+                                                    </md-toolbar> \
+                                                    <div> \
+                                                        <md-dialog-content> \
+                                                            <md-content layout-padding> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageSize"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageSizeComponentConstruction"  \
+                                                                        component-binding-out="vm.pageSizeInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-checkbox-switch  \
+                                                                        value-model="vm.entity.tableStriped"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.tableStripedComponentConstruction"> \
+                                                                    </entifix-checkbox-switch> \
+                                                                </div> \
+                                                                <div flex> \
+                                                                    <entifix-select  \
+                                                                        value-model="vm.entity.pageOrientation"  \
+                                                                        show-editable-fields="true" \
+                                                                        component-construction="vm.pageOrientationComponentConstruction"  \
+                                                                        component-binding-out="vm.pageOrientationInstance"> \
+                                                                    </entifix-select> \
+                                                                </div> \
+                                                            </md-content> \
+                                                        </md-dialog-content> \
+                                                        <md-dialog-actions layout="row"> \
+                                                            <md-button ng-click="vm.cancel()"> \
+                                                                <md-icon class="material-icons">clear</md-icon> Cancelar \
+                                                            </md-button> \
+                                                            <md-button  ng-click="vm.ok()"> \
+                                                                <md-icon class="material-icons">done</md-icon> Ok \
+                                                            </md-button> \
+                                                        </md-dialog-actions> \
+                                                    </div> \
+                                                </md-dialog>',
+                    controller: 'EntifixDownloadReportSettingsController',
+                    parent: angular.element(document.body),
+                    clickOutsideToClose: false,
+                    escapeToClose: false,
+                    fullscreen: true,
+                    controllerAs: 'vm'
+                }).then(function (result) {
+                    if (callbackSuccess) callbackSuccess(result);
+                }, function (result) {
+                    if (callbackError) callbackError(result);
+                });
+            };
+
+            //==============================================================================================================================================================================
+        };
+
+        return downloadReportSettingsController;
     };
 })();
