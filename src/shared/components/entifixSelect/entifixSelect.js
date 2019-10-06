@@ -227,6 +227,18 @@
                 return 'Ninguno';
             }
         }
+
+        vm.allLabel =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.allLabel)
+                    return vm.componentConstruction.allLabel;
+                
+                //Default value
+                return 'Seleccionar todos';
+            }
+        }
             
         vm.getConstantFilters = function()
         {
@@ -252,7 +264,7 @@
         {
             loadCollection();
             checkoutputs();
-            vm.searchText;
+            vm.selectedAll = false;
         };
        
         
@@ -357,6 +369,18 @@
         {
             vm.searchText = '';
         }
+
+        vm.selectAll = () => {
+            vm.selectedAll = !vm.selectedAll;
+            delete vm.all;
+            vm.valueModel = [];
+            if (vm.selectedAll) {
+                if (vm.items && vm.items.length > 0) {
+                    vm.items.forEach(e => vm.valueModel.push(e.Value) );
+                }
+                vm.all = true;
+            }
+        }
  
         //=======================================================================================================================================================================
 
@@ -449,7 +473,10 @@
                                     data-md-container-class="selectSelectHeader" \
                                     multiple=""> \
                                     <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/><br/> \
+                                    </md-select-header> \
+                                    <md-select-header class="select-header"> \
+                                        <md-button layout-fill value="all" ng-click="vm.selectAll($event)" style="text-align: left;">{{vm.allLabel.get()}}</md-button> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
                                         <md-option ng-if="vm.canShowNoneOption.get()" ng-value="undefined"><em>{{vm.noneLabel.get()}}</em></md-option> \
@@ -479,7 +506,10 @@
                                     data-md-container-class="selectSelectHeader" \
                                     multiple=""> \
                                     <md-select-header class="select-header"> \
-                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/> \
+                                        <input type="search" ng-model="vm.searchText" placeholder="Buscar {{vm.title.get()}} ..." class="header-searchbox md-text" ng-keydown="$event.stopPropagation()"/><br/> \
+                                    </md-select-header> \
+                                    <md-select-header class="select-header"> \
+                                        <md-button layout-fill value="all" ng-click="vm.selectAll($event)" style="text-align: left;">{{vm.allLabel.get()}}</md-button> \
                                     </md-select-header> \
                                     <md-optgroup label={{vm.title.get()}}> \
                                         <md-option ng-if="vm.canShowNoneOption.get()" ng-value="undefined"><em>{{vm.noneLabel.get()}}</em></md-option> \
