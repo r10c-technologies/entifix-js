@@ -564,7 +564,7 @@
         {
             get: () =>
             {
-                if (!vm.componentConstruction.permissions.edit || (m.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)))
+                if (!vm.componentConstruction.permissions.edit || (vm.componentConstruction.permissions.edit != null && EntifixSession.checkPermissions(vm.componentConstruction.permissions.edit)))
                     return true;
 
                 //Default value
