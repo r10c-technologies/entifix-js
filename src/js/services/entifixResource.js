@@ -703,6 +703,10 @@
                 _updateEntity(entity, actionSuccess, actionError);
             };
 
+            vm.replaceEntity = (entity, actionSuccess, actionError) => {
+                _replaceEntity(entity, actionSuccess, actionError);
+            }
+
             vm.deleteEntity = (entity, actionSuccess, actionError) => {
                 var id = entity;
 
