@@ -9,12 +9,12 @@
     function service() {
         var vm = this;
 
-        vm.success = function (options) {
+        vm.success = (options) => {
             let body = options.body || 'Acción realizada correctamente';
             let header = options.header || '¡Hecho!';
 
             if (options.isToast) {
-                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                const toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'success', title: header + " " + body });
             }
             else {
@@ -22,12 +22,12 @@
             }
         };
 
-        vm.error = function (options) {
+        vm.error = (options) => {
             let body = options.body || 'Error al realizar la acción solicitada';
             let header = options.header || '¡Error!';
 
             if (options.isToast) {
-                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                const toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'error', title: header + " " + body });
             }
             else {
@@ -35,12 +35,12 @@
             }
         };
 
-        vm.info = function (options) {
+        vm.info = (options) => {
             let body = options.body || '';
             let header = options.header || 'Información';
 
             if (options.isToast) {
-                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                const toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'info', title: header + " " + body });
             }
             else {
@@ -48,12 +48,12 @@
             }
         };
 
-        vm.warning = function (options) {
+        vm.warning = (options) => {
             let body = options.body || '';
             let header = options.header || 'Precaución';
 
             if (options.isToast) {
-                const toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                const toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: 3000 });
                 toast({ type: 'warning', title: header + " " + body });
             }
             else {
@@ -61,7 +61,7 @@
             }
         };
 
-        vm.confirm = function (options) {
+        vm.confirm = (options) => {
             let header = options.header || '¿Está seguro de proceder?';
 
             swal({
@@ -72,7 +72,17 @@
                 confirmButtonColor: '#DD6B55',
                 confirmButtonText: 'Sí',
                 cancelButtonText: 'No'
-            }).then((response) => { if (response.value && options.actionConfirm) options.actionConfirm(); else if (options.actionCancel) options.actionCancel(); });
+            }).then((response) => {
+                if (response.value && options.actionConfirm) {
+                    options.actionConfirm(response);
+                } else if (options.actionCancel) {
+                    options.actionCancel(response);
+                }
+            }).catch(error => {
+                if (options.actionCancel) {
+                    options.actionCancel(error);
+                }
+            });
 
         };
 
@@ -98,43 +108,38 @@
             // =========================================================================================================================
 
             // Fields
-            var _savedMessage = 'Registro guardado correctamente';
-            var _deletedMessage = 'Registro eliminado correctamente';
-            var _errorSaveMessage = 'No se pudo guardar el registro correctamente. Por favor inténtelo de nuevo';
-            var _errorDeleteMessage = 'No se pudo eliminar el registro correctamente. Por favor inténtelo de nuevo';
-            var _errorValidationMessage = 'No se pudo guardar el registro porque no todos los datos están correctos';
+            let _savedMessage = 'Registro guardado correctamente';
+            let _deletedMessage = 'Registro eliminado correctamente';
+            let _errorSaveMessage = 'No se pudo guardar el registro correctamente. Por favor inténtelo de nuevo';
+            let _errorDeleteMessage = 'No se pudo eliminar el registro correctamente. Por favor inténtelo de nuevo';
+            let _errorValidationMessage = 'No se pudo guardar el registro porque no todos los datos están correctos';
 
 
             // Properties
-            vm.savedMessage =
-                {
-                    get: () => { return _savedMessage; },
-                    set: (value) => { _savedMessage = value; }
-                };
+            vm.savedMessage = {
+                get: () => { return _savedMessage; },
+                set: (value) => { _savedMessage = value; }
+            };
 
-            vm.deletedMessage =
-                {
-                    get: () => { return _deletedMessage; },
-                    set: (value) => { _deletedMessage = value; }
-                };
+            vm.deletedMessage = {
+                get: () => { return _deletedMessage; },
+                set: (value) => { _deletedMessage = value; }
+            };
 
-            vm.errorSaveMessage =
-                {
-                    get: () => { return _errorSaveMessage; },
-                    set: (value) => { _savedMessage = value; }
-                };
+            vm.errorSaveMessage = {
+                get: () => { return _errorSaveMessage; },
+                set: (value) => { _savedMessage = value; }
+            };
 
-            vm.errorDeleteMessage =
-                {
-                    get: () => { return errorDeleteMessage; },
-                    set: (value) => { errorDeleteMessage = value; }
-                };
+            vm.errorDeleteMessage = {
+                get: () => { return errorDeleteMessage; },
+                set: (value) => { errorDeleteMessage = value; }
+            };
 
-            vm.errorValidationMessage =
-                {
-                    get: () => { return _errorValidationMessage; },
-                    set: (value) => { errorValidationMessage = value; }
-                };
+            vm.errorValidationMessage = {
+                get: () => { return _errorValidationMessage; },
+                set: (value) => { errorValidationMessage = value; }
+            };
 
 
             // =========================================================================================================================
@@ -143,7 +148,7 @@
             // Methods
             // =========================================================================================================================
 
-            function activate() {
+            const activate = () => {
                 resource.listenSaved(saved);
                 resource.listenDeleted(deleted);
                 resource.listenErrorSave(errorSave);
@@ -151,44 +156,49 @@
                 resource.listenNonValidSave(nonValidSave);
             };
 
-            function saved(args) {
-                var message = _savedMessage;
-                if (args.message)
+            const saved = args => {
+                let message = _savedMessage;
+                if (args.message) {
                     message = args.message;
+                }
 
-                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast});
+                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function deleted(args) {
-                var message = _deletedMessage;
-                if (args.message)
+            const deleted = args => {
+                let message = _deletedMessage;
+                if (args.message) {
                     message = args.message;
+                }
 
-                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast});
+                EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function errorSave(args) {
-                var message = _errorSaveMessage;
-                if (args.message)
+            const errorSave = args =>  {
+                let message = _errorSaveMessage;
+                if (args.message) {
                     message = args.message;
+                }
 
-                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function errorDelete(args) {
-                var message = _errorDeleteMessage;
-                if (args.message)
+            const errorDelete = args =>  {
+                let message = _errorDeleteMessage;
+                if (args.message) {
                     message = args.message;
+                }
 
-                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function nonValidSave(args) {
-                var message = _errorValidationMessage;
-                if (args.message)
+            const nonValidSave = args => {
+                let message = _errorValidationMessage;
+                if (args.message) {
                     message = args.message;
+                }
 
-                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast});
+                EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
 
             // =========================================================================================================================

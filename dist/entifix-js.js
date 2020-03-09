@@ -1482,7 +1482,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var header = options.header || '¡Hecho!';
 
             if (options.isToast) {
-                var toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                var toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'success', title: header + " " + body });
             } else {
                 swal(header, body, 'success');
@@ -1494,7 +1494,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var header = options.header || '¡Error!';
 
             if (options.isToast) {
-                var toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                var toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'error', title: header + " " + body });
             } else {
                 swal(header, body, 'error');
@@ -1506,7 +1506,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var header = options.header || 'Información';
 
             if (options.isToast) {
-                var toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                var toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: options.timer || 3000 });
                 toast({ type: 'info', title: header + " " + body });
             } else {
                 swal(header, body, 'info');
@@ -1518,7 +1518,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             var header = options.header || 'Precaución';
 
             if (options.isToast) {
-                var toast = swal.mixin({ toast: true, position: 'bottom-end', timer: 3000 });
+                var toast = swal.mixin({ toast: true, position: options.position || 'bottom-end', timer: 3000 });
                 toast({ type: 'warning', title: header + " " + body });
             } else {
                 swal(header, body, 'warning');
@@ -1537,7 +1537,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 confirmButtonText: 'Sí',
                 cancelButtonText: 'No'
             }).then(function (response) {
-                if (response.value && options.actionConfirm) options.actionConfirm();else if (options.actionCancel) options.actionCancel();
+                if (response.value && options.actionConfirm) {
+                    options.actionConfirm(response);
+                } else if (options.actionCancel) {
+                    options.actionCancel(response);
+                }
+            }).catch(function (error) {
+                if (options.actionCancel) {
+                    options.actionCancel(error);
+                }
             });
         };
 
@@ -1618,7 +1626,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             // Methods
             // =========================================================================================================================
 
-            function activate() {
+            var activate = function activate() {
                 resource.listenSaved(saved);
                 resource.listenDeleted(deleted);
                 resource.listenErrorSave(errorSave);
@@ -1626,37 +1634,47 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 resource.listenNonValidSave(nonValidSave);
             };
 
-            function saved(args) {
+            var saved = function saved(args) {
                 var message = _savedMessage;
-                if (args.message) message = args.message;
+                if (args.message) {
+                    message = args.message;
+                }
 
                 EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function deleted(args) {
+            var deleted = function deleted(args) {
                 var message = _deletedMessage;
-                if (args.message) message = args.message;
+                if (args.message) {
+                    message = args.message;
+                }
 
                 EntifixNotification.success({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function errorSave(args) {
+            var errorSave = function errorSave(args) {
                 var message = _errorSaveMessage;
-                if (args.message) message = args.message;
+                if (args.message) {
+                    message = args.message;
+                }
 
                 EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function errorDelete(args) {
+            var errorDelete = function errorDelete(args) {
                 var message = _errorDeleteMessage;
-                if (args.message) message = args.message;
+                if (args.message) {
+                    message = args.message;
+                }
 
                 EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
 
-            function nonValidSave(args) {
+            var nonValidSave = function nonValidSave(args) {
                 var message = _errorValidationMessage;
-                if (args.message) message = args.message;
+                if (args.message) {
+                    message = args.message;
+                }
 
                 EntifixNotification.error({ "body": message, "header": undefined, "isToast": isToast });
             };
@@ -9901,7 +9919,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         vm.cancel = function () {
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCancel) vm.componentBehavior.events.onCancel();
 
-            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction();else defaultCancel();
+            if (vm.componentConstruction.cancel.customAction) vm.componentConstruction.cancel.customAction(defaultOk, vm.entity.get());else defaultCancel();
 
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onCanceled) vm.componentBehavior.events.onCanceled();
         };
@@ -9909,7 +9927,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         vm.ok = function () {
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onOk) vm.componentBehavior.events.onOk();
 
-            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk);else defaultOk();
+            if (vm.componentConstruction.ok.customAction) vm.componentConstruction.ok.customAction(defaultOk, vm.entity.get());else defaultOk();
 
             if (vm.componentBehavior && vm.componentBehavior.events && vm.componentBehavior.events.onAfterOk) vm.componentBehavior.events.onAfterOk();
         };

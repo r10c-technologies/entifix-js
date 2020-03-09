@@ -758,7 +758,7 @@
                 vm.componentBehavior.events.onCancel();
             
             if (vm.componentConstruction.cancel.customAction)
-                vm.componentConstruction.cancel.customAction();
+                vm.componentConstruction.cancel.customAction(defaultOk, vm.entity.get());
             else
                 defaultCancel();
 
@@ -772,7 +772,7 @@
                 vm.componentBehavior.events.onOk();
             
             if (vm.componentConstruction.ok.customAction)
-                vm.componentConstruction.ok.customAction(defaultOk);
+                vm.componentConstruction.ok.customAction(defaultOk, vm.entity.get());
             else
                 defaultOk();
 
