@@ -1974,7 +1974,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                 var requestConfig = { method: "GET", url: tempUrl };
 
-                if (returnPromise) return $http(requestConfig);else $http(requestConfig).then(actionSuccess, actionError);
+                if (returnPromise) return $http(requestConfig).then(function (result) {
+                    // Add only for GET trigger scenario
+                    runTriggers(_eventType.loaded, result);
+                    return result;
+                });else $http(requestConfig).then(actionSuccess, actionError);
             };
 
             var POST = function POST(data, actionSuccess, actionError) {
@@ -2085,7 +2089,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                             /*if (TProperty.propertyMetaData.type == ?)
                             {
-                              }*/
+                             }*/
                         }
                     }
                 }
@@ -2142,7 +2146,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 //Other types of properties to transform....
                                 /*if (TProperty.propertyMetaData.type == ?)
                                 {
-                                  }*/
+                                 }*/
                             }
                         }
                     }
@@ -2455,7 +2459,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     /*
                                     if/else (...)
                                     {
-                                      }
+                                     }
                                     */
                                 }
 
@@ -3082,50 +3086,50 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 'use strict';
 
 (function () {
-        'use strict';
+    'use strict';
 
-        angular.module('entifix-js').service('EntifixStringUtils', service);
+    angular.module('entifix-js').service('EntifixStringUtils', service);
 
-        service.$inject = [];
+    service.$inject = [];
 
-        function service() {
-                var vm = this;
+    function service() {
+        var vm = this;
 
-                // Properties and fields
-                // =========================================================================================================================
+        // Properties and fields
+        // =========================================================================================================================
 
-                // Fields
-                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+        // Fields
+        var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
 
-                // Properties
+        // Properties
 
-                // =========================================================================================================================
+        // =========================================================================================================================
 
 
-                // Methods
-                // =========================================================================================================================
+        // Methods
+        // =========================================================================================================================
 
-                function activate() {};
+        function activate() {};
 
-                vm.getCleanedString = function (stringToClean) {
-                        for (var i = 0; i < specialChars.length; i++) {
-                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-                        }stringToClean = stringToClean.toLowerCase();
-                        stringToClean = stringToClean.replace(/ /g, "");
-                        stringToClean = stringToClean.replace(/á/gi, "a");
-                        stringToClean = stringToClean.replace(/é/gi, "e");
-                        stringToClean = stringToClean.replace(/í/gi, "i");
-                        stringToClean = stringToClean.replace(/ó/gi, "o");
-                        stringToClean = stringToClean.replace(/ú/gi, "u");
-                        stringToClean = stringToClean.replace(/ñ/gi, "n");
-                        return stringToClean;
-                };
-
-                // =========================================================================================================================
-
-                // Constructor call
-                activate();
+        vm.getCleanedString = function (stringToClean) {
+            for (var i = 0; i < specialChars.length; i++) {
+                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+            }stringToClean = stringToClean.toLowerCase();
+            stringToClean = stringToClean.replace(/ /g, "");
+            stringToClean = stringToClean.replace(/á/gi, "a");
+            stringToClean = stringToClean.replace(/é/gi, "e");
+            stringToClean = stringToClean.replace(/í/gi, "i");
+            stringToClean = stringToClean.replace(/ó/gi, "o");
+            stringToClean = stringToClean.replace(/ú/gi, "u");
+            stringToClean = stringToClean.replace(/ñ/gi, "n");
+            return stringToClean;
         };
+
+        // =========================================================================================================================
+
+        // Constructor call
+        activate();
+    };
 })();
 'use strict';
 

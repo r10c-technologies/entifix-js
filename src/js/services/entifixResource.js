@@ -28,9 +28,13 @@
 
                 var requestConfig = { method: "GET", url: tempUrl };
 
-                if (returnPromise)
-                    return $http(requestConfig);
-                else
+                if (returnPromise) 
+                    return $http(requestConfig).then(result => {
+                        // Add only for GET trigger scenario
+                        runTriggers(_eventType.loaded, result);
+                        return result;
+                    }); 
+                else 
                     $http(requestConfig).then(actionSuccess, actionError);
             };
 
