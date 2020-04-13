@@ -1137,19 +1137,28 @@
                                         var ok = 0;
                                         var e = 0;
 
-                                        var checkCompleted = (isError) =>
+                                        var checkCompleted = (response, isError) =>
                                         {
                                             if (isError)
                                                 e++;
                                             else
                                                 ok++; 
 
-                                            if ( e + ok >= requests )
-                                            {
-                                                if (e == 0)
-                                                    EntifixNotification.success({"body": 'Todos los registros fueron eliminados exitosamente'});
-                                                else
-                                                    EntifixNotification.error({"body": 'Algunos registros no pudieron ser eliminados'});
+                                            if (e + ok >= requests) {
+                                                if (e == 0) {
+                                                    if (requests == 1) {
+                                                        EntifixNotification.success({"body": 'Registro eliminado exitosamente.'});
+                                                    } else {
+                                                        EntifixNotification.success({"body": 'Todos los registros fueron eliminados exitosamente.'});
+                                                    }
+                                                }
+                                                else {
+                                                    if (requests == 1) {
+                                                        EntifixNotification.error({"body": `El registro no pudo ser eliminado. ${response.data.message}`});
+                                                    } else {
+                                                        EntifixNotification.error({"body": 'Algunos registros no pudieron ser eliminados.'});
+                                                    }
+                                                }
 
                                                 vm.connectionComponent.pager.reload();
                                                 vm.queryDetails.resource.onMultipleDeletion.set(false);
@@ -1163,7 +1172,7 @@
                                             .forEach((element) => {
                                                                     vm.queryDetails
                                                                         .resource
-                                                                        .deleteEntity(element,  () => { checkCompleted(false) }, () => { checkCompleted(true)} );
+                                                                        .deleteEntity(element,  (response, isError) => { checkCompleted(response, isError) }, () => { checkCompleted(response, isError)} );
                                                                 });
                                     }});
         };

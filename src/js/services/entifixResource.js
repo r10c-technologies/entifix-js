@@ -440,6 +440,8 @@
 
             function onQueryEnd(callback, isError) {
                 return (response) => {
+                    isError = isError || response.data && response.data.isLogicError;
+
                     if (callback)
                         callback(response);
 
@@ -457,8 +459,10 @@
 
             function onDeleteTransactionEnd(callback, isError) {
                 return (response) => {
+                    isError = isError || response.data && response.data.isLogicError;
+
                     if (!_onMultipleDeletion && callback)
-                        callback(response);
+                        callback(response, isError);
 
                     _isDeleting = false;
 

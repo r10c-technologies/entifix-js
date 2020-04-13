@@ -721,18 +721,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
-    angular.module('entifix-js').filter('percentage', ['$filter', function ($filter) {
-        return function (input) {
-            var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
-            return $filter('number')(input * 100, decimals) + '%';
-        };
-    }]);
-})();
-'use strict';
-
-(function () {
-    'use strict';
-
     angular.module('entifix-js').factory('EntifixCollectionFormatter', factory);
 
     factory.$inject = ['EntifixDateGenerator'];
@@ -2089,7 +2077,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                             /*if (TProperty.propertyMetaData.type == ?)
                             {
-                             }*/
+                              }*/
                         }
                     }
                 }
@@ -2146,7 +2134,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 //Other types of properties to transform....
                                 /*if (TProperty.propertyMetaData.type == ?)
                                 {
-                                 }*/
+                                  }*/
                             }
                         }
                     }
@@ -2350,6 +2338,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             function onQueryEnd(callback, isError) {
                 return function (response) {
+                    isError = isError || response.data && response.data.isLogicError;
+
                     if (callback) callback(response);
 
                     _isLoading = false;
@@ -2362,7 +2352,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
             function onDeleteTransactionEnd(callback, isError) {
                 return function (response) {
-                    if (!_onMultipleDeletion && callback) callback(response);
+                    isError = isError || response.data && response.data.isLogicError;
+
+                    if (!_onMultipleDeletion && callback) callback(response, isError);
 
                     _isDeleting = false;
 
@@ -2459,7 +2451,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     /*
                                     if/else (...)
                                     {
-                                     }
+                                      }
                                     */
                                 }
 
@@ -2981,6 +2973,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 (function () {
     'use strict';
 
+    angular.module('entifix-js').filter('percentage', ['$filter', function ($filter) {
+        return function (input) {
+            var decimals = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 2;
+            return $filter('number')(input * 100, decimals) + '%';
+        };
+    }]);
+})();
+'use strict';
+
+(function () {
+    'use strict';
+
     angular.module('entifix-js').service('EntifixDateGenerator', service);
 
     service.$inject = [];
@@ -3086,50 +3090,50 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 'use strict';
 
 (function () {
-    'use strict';
+        'use strict';
 
-    angular.module('entifix-js').service('EntifixStringUtils', service);
+        angular.module('entifix-js').service('EntifixStringUtils', service);
 
-    service.$inject = [];
+        service.$inject = [];
 
-    function service() {
-        var vm = this;
+        function service() {
+                var vm = this;
 
-        // Properties and fields
-        // =========================================================================================================================
+                // Properties and fields
+                // =========================================================================================================================
 
-        // Fields
-        var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
+                // Fields
+                var specialChars = "!@#$^&%*()+=-[]\/{}|:<>?,.";
 
-        // Properties
+                // Properties
 
-        // =========================================================================================================================
+                // =========================================================================================================================
 
 
-        // Methods
-        // =========================================================================================================================
+                // Methods
+                // =========================================================================================================================
 
-        function activate() {};
+                function activate() {};
 
-        vm.getCleanedString = function (stringToClean) {
-            for (var i = 0; i < specialChars.length; i++) {
-                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
-            }stringToClean = stringToClean.toLowerCase();
-            stringToClean = stringToClean.replace(/ /g, "");
-            stringToClean = stringToClean.replace(/á/gi, "a");
-            stringToClean = stringToClean.replace(/é/gi, "e");
-            stringToClean = stringToClean.replace(/í/gi, "i");
-            stringToClean = stringToClean.replace(/ó/gi, "o");
-            stringToClean = stringToClean.replace(/ú/gi, "u");
-            stringToClean = stringToClean.replace(/ñ/gi, "n");
-            return stringToClean;
+                vm.getCleanedString = function (stringToClean) {
+                        for (var i = 0; i < specialChars.length; i++) {
+                                stringToClean = stringToClean.replace(new RegExp("\\" + specialChars[i], 'gi'), '');
+                        }stringToClean = stringToClean.toLowerCase();
+                        stringToClean = stringToClean.replace(/ /g, "");
+                        stringToClean = stringToClean.replace(/á/gi, "a");
+                        stringToClean = stringToClean.replace(/é/gi, "e");
+                        stringToClean = stringToClean.replace(/í/gi, "i");
+                        stringToClean = stringToClean.replace(/ó/gi, "o");
+                        stringToClean = stringToClean.replace(/ú/gi, "u");
+                        stringToClean = stringToClean.replace(/ñ/gi, "n");
+                        return stringToClean;
+                };
+
+                // =========================================================================================================================
+
+                // Constructor call
+                activate();
         };
-
-        // =========================================================================================================================
-
-        // Constructor call
-        activate();
-    };
 })();
 'use strict';
 
@@ -8467,11 +8471,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     var ok = 0;
                     var e = 0;
 
-                    var checkCompleted = function checkCompleted(isError) {
+                    var checkCompleted = function checkCompleted(response, isError) {
                         if (isError) e++;else ok++;
 
                         if (e + ok >= requests) {
-                            if (e == 0) EntifixNotification.success({ "body": 'Todos los registros fueron eliminados exitosamente' });else EntifixNotification.error({ "body": 'Algunos registros no pudieron ser eliminados' });
+                            if (e == 0) {
+                                if (requests == 1) {
+                                    EntifixNotification.success({ "body": 'Registro eliminado exitosamente.' });
+                                } else {
+                                    EntifixNotification.success({ "body": 'Todos los registros fueron eliminados exitosamente.' });
+                                }
+                            } else {
+                                if (requests == 1) {
+                                    EntifixNotification.error({ "body": 'El registro no pudo ser eliminado. ' + response.data.message });
+                                } else {
+                                    EntifixNotification.error({ "body": 'Algunos registros no pudieron ser eliminados.' });
+                                }
+                            }
 
                             vm.connectionComponent.pager.reload();
                             vm.queryDetails.resource.onMultipleDeletion.set(false);
@@ -8480,10 +8496,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
                     if (elementsToDelete.length > 1) vm.queryDetails.resource.onMultipleDeletion.set(true);
                     vm.connectionComponent.getSelectedElements().forEach(function (element) {
-                        vm.queryDetails.resource.deleteEntity(element, function () {
-                            checkCompleted(false);
+                        vm.queryDetails.resource.deleteEntity(element, function (response, isError) {
+                            checkCompleted(response, isError);
                         }, function () {
-                            checkCompleted(true);
+                            checkCompleted(response, isError);
                         });
                     });
                 } });
