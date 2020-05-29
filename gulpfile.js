@@ -19,19 +19,15 @@ gulp.task('clean-dist', () => {
 gulp.task('dist', ()=>
 {
     // Transfer files
-    var cssFiles = gulp.src('src/css/**/*.*').pipe(gulp.dest('dist'));
+    var cssFiles = gulp.src('src/css/**/*.*').pipe(gulp.dest('dist/'));
     
-    //var htmlFiles = gulp.src('src/**/*.html')
-    //                        .pipe(replace('src/img/security.png', 'dist/img/security.png'))
-    //                        .pipe(gulp.dest('dist'));
-
     var concatEntifix = gulp.src(['src/entifix-js.js', 'src/entifix-security-management.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
                             .pipe(replace('src/','dist/'))
                             .pipe(babel({presets: ['babel-preset-es2015'].map(require.resolve)}))
                             .pipe(concat('entifix-js.js'))
                             .pipe(gulp.dest('dist'));
 
-    var imgFiles = gulp.src('src/img/*.*').pipe(gulp.dest('/dist/img'));
+    var imgFiles = gulp.src('src/img/*.*').pipe(gulp.dest('dist/img'));
 
     // Minify module
     var minifyEntifix = gulp.src(['src/entifix-js.js', 'src/entifix-security-management.js', 'src/js/**/*.js', 'src/shared/**/*.js'])
