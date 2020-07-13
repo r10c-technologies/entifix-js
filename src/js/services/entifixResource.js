@@ -564,7 +564,7 @@
                                         if (sort)
                                             querystring = querystring + "order_by" + "=" + sort + "|" + value;
                                         else {
-                                            if (property == "skip" || property == "take")
+                                            if (property === "skip" || property === "take" || type === "custom")
                                                 querystring = querystring + property + "=" + value;
                                             else
                                                 querystring = querystring + type + "=" + property + "|" + operator + "|" + value;
@@ -601,7 +601,7 @@
                     if (!isNaN(filter))
                         stringfilter = "/" + filter;
 
-                    else if (typeof filter == "string")
+                    else if (typeof filter === "string")
                         stringfilter = "/" + filter;
 
                     else if (filter instanceof Array)
@@ -616,6 +616,26 @@
 
 
             //Public ===>>>>:
+
+            vm.getEntityById = (actionSuccess, actionError, id, suffix_pagination) => {
+                _isLoading = true;
+
+                actionError = actionError || _defaultActionError;
+
+                var tempSuffix = null;
+                if (suffix_pagination)
+                    if (suffix_pagination instanceof Function)
+                        tempSuffix = suffix_pagination();
+
+                var preSuccess = (response) => {
+                    _isLoading = true;
+                    var resultData = response.data ? response.data.data : {};
+                    actionSuccess(resultData);
+                    _isLoading = false;
+                };
+
+                GET(onQueryEnd(preSuccess), onQueryEnd(actionError), manageUriFilter(id), tempSuffix);
+            };
 
             vm.getCollection = (actionSuccess, actionError, filters, suffix_pagination) => {
                 _isLoading = true;
@@ -780,9 +800,9 @@
                     var joinProperties = filterProperties(EntifixMetadata.getJoinProperties(resourceName), columnsSelected);
 
                     for (var prop of pagProperties) {
-                        if (prop.type == "text" || prop.type == "date" || prop.type == "datetime") {
+                        if (!prop.type || prop.type === "text" || prop.type === "date" || prop.type === "datetime") {
                             resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "lk" });
-                        } else if (prop.type == "boolean" || prop.type == "number") {
+                        } else if (prop.type === "boolean" || prop.type === "number") {
                             resPagFilters.push({ property: prop.pageProperty || prop.name, value: searchText, operator: "eq" });
                         }
                     }

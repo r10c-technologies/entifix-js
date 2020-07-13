@@ -386,6 +386,18 @@
                 return 'SIN REGISTROS';
             }
         }
+        
+        vm.isDisabled =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.isDisabled)
+                    return vm.componentConstruction.isDisabled;
+
+                //Default value
+                return false;
+            }
+        };
         //=======================================================================================================================================================================
 
 
@@ -456,6 +468,7 @@
             vm.rows.value = vm.rows.get();
             vm.format.value = vm.format.get();
             vm.currency.value = vm.currency.get();
+            vm.isDisabled.value = vm.isDisabled.get();
         }
 
         $scope.$watch(() => { return vm.valueModel; }, (newValue, oldValue) => { vm.display = vm.getDisplay(); } );
@@ -488,6 +501,7 @@
                                 type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
                                 ng-required="vm.isRequired.value" \
+                                ng-disabled="vm.isDisabled.value" \
                                 md-maxlength="{{vm.maxLength.value}}" \
                                 minlength="{{vm.minLength.value}}" \
                                 name="{{vm.name.value}}" \
@@ -524,6 +538,7 @@
                                 type="{{vm.type.value}}" \
                                 ng-model="vm.valueModel" \
                                 ng-required="vm.isRequired.value" \
+                                ng-disabled="vm.isDisabled.value" \
                                 md-maxlength="{{vm.maxLength.value}}" \
                                 minlength="{{vm.minLength.value}}" \
                                 name="{{vm.name.value}}" \
@@ -557,6 +572,7 @@
                             <textarea \
                                 ng-model="vm.valueModel" \
                                 ng-required="vm.isRequired.value" \
+                                ng-disabled="vm.isDisabled.value" \
                                 md-maxlength="{{vm.maxLength.value}}" \
                                 rows="{{vm.rows.value}}" \
                                 minlength="{{vm.minLength.value}}" \
@@ -591,6 +607,7 @@
                             <textarea \
                                 ng-model="vm.valueModel" \
                                 ng-required="vm.isRequired.value" \
+                                ng-disabled="vm.isDisabled.value" \
                                 md-maxlength="{{vm.maxLength.value}}" \
                                 rows="{{vm.rows.value}}" \
                                 minlength="{{vm.minLength.value}}" \

@@ -25,10 +25,10 @@
             var _inLoginProcess = false;
             var _currentUser = null;
             var _currentUserName = null;
-            var _currentUser = null;
             var _currentSystemOwner = null;
             var _currentPermissions = null;
             var _isRefreshingToken = false;
+            var _user = null;
 
             //Properties
             sv.isInLoginProcess =
@@ -75,6 +75,12 @@
                 get: () => { return localStorage.getItem(EntifixConfig.permissionsTokenName.get()); },
                 set: (value) => { localStorage.setItem(EntifixConfig.permissionsTokenName.get(), value); },
                 remove: () => { localStorage.removeItem(EntifixConfig.permissionsTokenName.get()); }
+            }
+
+            sv.user =
+            {
+                get: () => _user,
+                set: user => _user = user
             }
 
             sv.expiredSessionKey =

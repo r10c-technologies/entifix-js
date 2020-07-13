@@ -70,8 +70,8 @@
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#DD6B55',
-                confirmButtonText: 'Sí',
-                cancelButtonText: 'No'
+                confirmButtonText: options.confirmButtonText || 'Sí',
+                cancelButtonText: options.cancelButtonText || 'No'
             }).then((response) => {
                 if (response.value && options.actionConfirm) {
                     options.actionConfirm(response);

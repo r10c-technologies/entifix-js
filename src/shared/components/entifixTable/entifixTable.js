@@ -917,11 +917,11 @@
                     var transformColumn = vm.componentConstruction.transformData.columns.filter( (tc)=>{ return tc.property == name; } )[0];
 
                     //Transform dates
-                    if (transformColumn.type == 'date' || transformColumn.type == 'datetime')
+                    if (transformColumn.type === 'date' || transformColumn.type === 'datetime' || transformColumn.type === 'time')
                         return transformDate(value, transformColumn.type, true);
 
                     //Transform navigation
-                    if (transformColumn.type == 'entity')
+                    if (transformColumn.type === 'entity')
                     {
                         if (_transformValues && _transformValues.length > 0)
                         {
@@ -985,7 +985,7 @@
 
         function transformDate(value, type, isForDisplay)
         {
-            if (type == 'date' || type == 'datetime' && value)
+            if ((type == 'date' || type == 'datetime' || type == 'time') && value)
             {
                 if (!(value instanceof Date))
                     var value = transformStringToDate(value);
@@ -998,7 +998,7 @@
                 if (day.length < 2)
                     day = '0' + day;
 
-                if (type == 'datetime')
+                if (type == 'datetime' || type == 'time')
                 {
                     var hours = value.getHours().toString();
                     var minutes = value.getMinutes().toString();
@@ -1167,6 +1167,7 @@
 
                                         if (elementsToDelete.length > 1)
                                             vm.queryDetails.resource.onMultipleDeletion.set(true);
+                                            
                                         vm.connectionComponent
                                             .getSelectedElements()
                                             .forEach((element) => {
@@ -1238,7 +1239,7 @@
         function setProperties()
         {
             vm.searchArray = [], vm.resourceMembers = [], vm.columnsSelected = [];
-            vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get();
+            vm.resourceMembers = vm.queryDetails.resource.getMembersResource.get().filter(rm => !rm.hidden);
             vm.resourceMembers.forEach(property => { property.type ? property.type : property.type = 'text'; property.display ? property.display : property.display = getDisplay(property); if (property.default && property.default != "false") vm.columnsSelected.push(getDisplay(property)); });
             vm.operators = vm.propertiesOperators.defaults();
             setClassColumn();
@@ -1329,6 +1330,13 @@
             {
                 title: { text: vm.valueToSearchText.get() },
                 isForm: false
+            };
+            
+            vm.valueToSearchTCC = 
+            {
+                title: { text: vm.valueToSearchText.get() },
+                isForm: false,
+                hasDate: false
             };
             
             vm.valueToSearchQD = 
@@ -1745,6 +1753,9 @@
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'datetime\'" flex> \
                                             <entifix-date-time-picker value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchDTCC"></entifix-date-time-picker> \
+                                        </div> \
+                                        <div ng-if="bindCtrl.columnToSearch.type == \'time\'" flex> \
+                                            <entifix-date-time-picker value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchTCC"></entifix-date-time-picker> \
                                         </div> \
                                         <div ng-if="bindCtrl.columnToSearch.type == \'enum\'" flex> \
                                             <entifix-autocomplete value-model="bindCtrl.valueToSearch" component-construction="bindCtrl.valueToSearchCC" query-details="bindCtrl.valueToSearchQD" component-binding-out="bindCtrl.valueToSearchE"></entifix-autocomplete> \

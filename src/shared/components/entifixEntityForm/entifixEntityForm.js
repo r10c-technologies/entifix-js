@@ -538,6 +538,7 @@
             vm.connectionComponent.onTask = { get: ()=> { return vm.onTask.get(); }}
             vm.connectionComponent.saveTooltip = { get: ()=> { return vm.saveTooltip.get(); }}
             vm.connectionComponent.entityForm = { valid: ()=> { return vm.entityForm.$valid; }};
+            vm.connectionComponent.queryDetails = vm.queryDetails;
 
             vm.connectionComponent.evaluateErrors = 
             {
