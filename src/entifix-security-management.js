@@ -319,7 +319,12 @@
                 var $http = $injector.get('$http');
                 $http({ method: 'GET', url: EntifixConfig.permissionsUrl.get() }).then(
                     response => {
-                        sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
+                        const permissions = response.data && response.data.data ? jwtHelper.decodeToken(response.data.data[EntifixConfig.permissionsTokenName.get()]).permissions : [];
+                        if (permissions && permissions.length > 0) {
+                            sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
+                        } else {
+                            manageRedirectAction();
+                        }
                     },
                     error => {
                         var $mdToast = $injector.get('$mdToast');
