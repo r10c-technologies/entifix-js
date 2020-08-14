@@ -1703,7 +1703,7 @@
     {
         //templateUrl: 'src/shared/components/entifixTable/entifixTable.html',
         template: '<br/> \
-                    <div ng-class="{\'whirl double-up whirlback\': bindCtrl.queryDetails.isLoading.get() && bindCtrl.isChangingView}"> \
+                    <div ng-class="{\'whirl double-up whirlback\': bindCtrl.isLoading.get() || bindCtrl.isChangingView}"> \
                         <md-card md-whiteframe="4" ng-if="bindCtrl.canSearch.get()" layout-padding layout="column"> \
                             <div ng-if="bindCtrl.isMovement.get()"> \
                                 <div layout-xs="column" layout-gt-xs="column" layout-gt-sm="row" flex> \
