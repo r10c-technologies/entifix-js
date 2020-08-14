@@ -23,17 +23,25 @@
         var _transformValues;
         let _xlsSheetResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.xlsSheetResourceName.get()) : "";
         let _pdfResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.pdfResourceName.get()) : "";
-        let originatorEvXls;
-        let originatorEvPdf;
         
         // Main
         vm.isLoading =
         {
-            get: () => 
-            {
-                 if (vm.queryDetails && vm.queryDetails.resource)
-                     return vm.queryDetails.resource.isLoading.get();
-                return _isloading; 
+            get: () => {
+                if (vm.componentConstruction && vm.componentConstruction.isLoading) {
+                    if (vm.componentConstruction.isLoading.value) {
+                        return vm.componentConstruction.isLoading.value;
+                    } else if (vm.componentConstruction.isLoading.getter) {
+                        return vm.componentConstruction.isLoading.getter();
+                    } else {
+                        return vm.componentConstruction.isLoading;
+                    }
+                } else {
+                    if ((vm.queryDetails && vm.queryDetails.resource)) {
+                        return vm.queryDetails.resource.isLoading.get();
+                    }
+                    return _isloading;
+                }
             }
         };
 
@@ -1695,7 +1703,7 @@
     {
         //templateUrl: 'src/shared/components/entifixTable/entifixTable.html',
         template: '<br/> \
-                    <div ng-class="{\'whirl double-up whirlback\': bindCtrl.isChangingView}"> \
+                    <div ng-class="{\'whirl double-up whirlback\': bindCtrl.queryDetails.isLoading.get() && bindCtrl.isChangingView}"> \
                         <md-card md-whiteframe="4" ng-if="bindCtrl.canSearch.get()" layout-padding layout="column"> \
                             <div ng-if="bindCtrl.isMovement.get()"> \
                                 <div layout-xs="column" layout-gt-xs="column" layout-gt-sm="row" flex> \
