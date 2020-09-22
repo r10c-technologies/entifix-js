@@ -23,6 +23,8 @@
         var _transformValues;
         let _xlsSheetResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.xlsSheetResourceName.get()) : "";
         let _pdfResource = EntifixConfig.xlsSheetResourceName.get() ? new EntifixResource(EntifixConfig.pdfResourceName.get()) : "";
+        let originatorEvXls;
+        let originatorEvPdf;
         
         // Main
         vm.isLoading =
