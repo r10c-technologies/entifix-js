@@ -192,6 +192,18 @@
                 return true;
             }
         };
+        
+        vm.accept =
+        {
+            get: () =>
+            {
+                if (vm.componentConstruction && vm.componentConstruction.accept != null)
+                    return vm.componentConstruction.accept;
+
+                //Default value
+                return "";
+            }
+        };
         //=======================================================================================================================================================================
 
 
@@ -252,7 +264,8 @@
                                 ng-model="vm.valueModel" \
                                 ng-required="vm.isRequired.get()" \
                                 entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                accept="{{vm.accept.get()}}" /> \
                         </label> \
                         <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                             <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
@@ -270,7 +283,8 @@
                                 multiple \
                                 ng-required="vm.isRequired.get()" \
                                 entifix-file-read \
-                                ng-change="vm.runOnChangeTrigger()"/> \
+                                ng-change="vm.runOnChangeTrigger()" \
+                                accept="{{vm.accept.get()}}" /> \
                         </label> \
                         <div ng-messages="vm.canEvaluateErrors.get()" multiple> \
                             <div ng-message="required">{{vm.requiredMessage.get()}}</div> \
