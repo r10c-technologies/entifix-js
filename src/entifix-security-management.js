@@ -323,7 +323,9 @@
                         if (permissions && permissions.length > 0) {
                             sv.permissionsToken.set(response.data.data[EntifixConfig.permissionsTokenName.get()]);
                         } else {
-                            manageRedirectAction();
+                            if (!EntifixConfig.devMode.get()) {
+                                manageRedirectAction();
+                            }
                         }
                     },
                     error => {

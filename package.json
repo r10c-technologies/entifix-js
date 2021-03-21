@@ -1,6 +1,6 @@
 {
   "name": "entifix-js",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Entifix JS, the basic framework to develop SPA based in AngularJS.",
   "main": "gulpfile.js",
   "dependencies": {
@@ -25,14 +25,15 @@
     "uglify": "^0.1.5"
   },
   "scripts": {
-    "compile": "gulp dist",
+    "build": "gulp dist",
+    "compile": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "Plus Technologies",
-  "license": "ISC",
+  "author": "R10C",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://jasondiazg@bitbucket.org/jasondiazg/entifix-js.git"
+    "url": "https://github.com/jasondiazg/entitix-js.git"
   }
 }

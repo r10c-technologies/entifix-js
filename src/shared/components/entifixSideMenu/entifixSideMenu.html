@@ -1,0 +1,104 @@
+<md-sidenav class="md-sidenav-left mp-sidenav" md-component-id="left" md-is-locked-open="vm.fixedSideBar" md-whiteframe="4" flex>
+    <md-content md-scroll-y flex layout="column">
+        <md-sidemenu locked="true">
+            <md-sidemenu-group>
+                <md-toolbar layout="row" class="md-tall" md-colors="::{background: 'default-primary-50'}">
+                    <div class="md-toolbar-tools">
+                        <div layout="column" flex>
+                            <img src="{{vm.sidemenuImage}}" class="side-menu-logo">
+                        </div>
+                        <span flex></span>
+                        <md-button class="md-icon-button" aria-label="Cerrar Menú" ng-click="vm.closeSideNavPanel()">
+                            <md-tooltip>Cerrar Menú</md-tooltip>
+                            <md-icon class="material-icons" style="color:#000;">clear</md-icon>
+                        </md-button>
+                    </div>
+                </md-toolbar>
+                
+                <md-sidemenu-content ng-repeat="element in vm.navbarElements" md-icon="{{element.icon}}" md-heading="{{element.name}}" md-arrow="{{element.submenuItems}}" ng-click="vm.clickElement(element)" ng-if="vm.evalPermissions(element)" collapse-other="true" >
+                    <md-sidemenu-button ng-show="element.submenuItems" ng-repeat="subelement in element.submenuItems" ui-sref="{{subelement.state}}" ng-click="vm.clickElement(subelement)" ng-if="vm.evalPermissions(subelement)">{{subelement.name}}</md-sidemenu-button>
+                </md-sidemenu-content>
+                
+            </md-sidemenu-group>
+        </md-sidemenu>
+    </md-content>
+</md-sidenav>
+
+<div flex class="wrapper">
+    <div layout="column" flex>
+        <div class="header">
+            <md-toolbar md-colors="{background: 'default-primary-100'}">
+                <div class="md-toolbar-tools">
+                    <md-button class="md-icon-button" aria-label="Panel Lateral" ng-click="vm.setSideBar()" ng-if="!vm.fixedSideBar" hide-xs hide-gt-xs show-gt-md>
+                        <md-tooltip>Fijar el Panel Lateral</md-tooltip>
+                        <md-icon class="material-icons">keyboard_tab</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button" aria-label="Panel Lateral" ng-click="vm.openSideNavPanel()" ng-if="!vm.fixedSideBar">
+                        <md-tooltip>Abrir el Panel Lateral</md-tooltip>
+                        <md-icon class="material-icons">menu</md-icon>
+                    </md-button>
+                    <md-button class="md-icon-button" aria-label="Inicio">
+                        <md-tooltip>Inicio</md-tooltip>
+                        <md-icon class="material-icons" ng-click="vm.goToHome()">home</md-icon>
+                    </md-button>
+                    <h2>
+                        <span class="text-white" ng-repeat="displayRoute in vm.getNavigationRoute()">{{displayRoute}}
+                            <md-icon class="material-icons" ng-if="!$last">keyboard_arrow_right</md-icon>
+                        </span>
+                    </h2>
+                    <span flex></span>
+                    <md-menu md-position-mode="target-right target">
+                        <md-button class="md-icon-button" aria-label="Mensajes" ng-click="vm.openUserMenu($mdMenu, $event)">
+                            <md-tooltip>Mensajes</md-tooltip>
+                            <md-icon class="material-icons">message</md-icon>
+                        </md-button>
+                        <md-menu-content width="4">
+                            <md-menu-item>
+                                <md-button aria-label="Notificaciones">
+                                    <md-tooltip>Notificaciones</md-tooltip>
+                                    <md-icon class="material-icons">error_outline</md-icon>
+                                    Notificaciones
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                    <md-menu md-position-mode="target-right target">
+                        <md-button class="md-icon-button" aria-label="Usuario" ng-click="vm.openUserMenu($mdMenu, $event)">
+                            <md-tooltip>Usuario</md-tooltip>
+                            <md-icon class="material-icons">account_circle</md-icon>
+                        </md-button>
+                        <md-menu-content width="4">
+                            <md-menu-item >
+                                <md-button aria-label="Usuario" ng-click="vm.editInfo()">
+                                    <md-tooltip>Usuario</md-tooltip>
+                                    <md-icon class="material-icons">account_circle</md-icon>
+                                    {{vm.currentUser}}
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button aria-label="Cliente R10C" ng-click="vm.chooseSystemOwner()">
+                                    <md-tooltip>Cliente R10C</md-tooltip>
+                                    <md-icon class="material-icons">work</md-icon>
+                                    {{vm.currentSystemOwner}}
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-divider></md-menu-divider>
+                            <md-menu-item>
+                                <md-button aria-label="Ayuda" ng-click="vm.goToHelp()">
+                                    <md-tooltip>Ayuda</md-tooltip>
+                                    <md-icon class="material-icons">help_outline</md-icon>
+                                    Ayuda
+                                </md-button>
+                            </md-menu-item>
+                            <md-menu-item>
+                                <md-button aria-label="Cerrar Sesión" ng-click="vm.LogOut()">
+                                    <md-tooltip>Cerrar Sesión</md-tooltip>
+                                    <md-icon class="material-icons">exit_to_app</md-icon>
+                                    Cerrar Sesión
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </div>
+            </md-toolbar>
+        </div>
